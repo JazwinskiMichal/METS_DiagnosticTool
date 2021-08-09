@@ -61,6 +61,7 @@
     <Compile Include="UserControls\UserInputWithIndicator.xaml.cs">
       <DependentUpon>UserInputWithIndicator.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UserControls\UserInputWithIndicator_Image.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -107,6 +108,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
