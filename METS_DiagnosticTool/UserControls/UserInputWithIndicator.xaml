@@ -98,7 +98,40 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <Storyboard x:Key="indicatorNOK_Storyboard">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="indicatorNOK">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.1" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="indicatorNOK">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="5">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-5">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
     </UserControl.Resources>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="TextBoxBase.TextChanged" SourceName="input">
+            <BeginStoryboard x:Name="indicatorNOK_Storyboard" Storyboard="{StaticResource indicatorNOK_Storyboard}"/>
+        </EventTrigger>
+    </UserControl.Triggers>
 
     <Border BorderBrush="Black" BorderThickness="2" Background="#FF252526">
         <Grid x:Name="grid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -118,7 +151,7 @@
                 Text="TextBox" 
                 Background="#FF252526" 
                 Foreground="White" 
-                BorderBrush="#FF252526"/>
+                BorderBrush="#FF252526" FontSize="16"/>
 
             <Rectangle x:Name="separator" Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
 
@@ -127,7 +160,16 @@
 
                 <local:UserInputWithIndicator_Image x:Name="indicatorWARN" Visibility="Hidden" Color="Yellow" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorWARN}" Margin="2"/>
 
-                <local:UserInputWithIndicator_Image x:Name="indicatorNOK" Visibility="Visible" Color="Red" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorNOK}" Margin="2"/>
+                <local:UserInputWithIndicator_Image x:Name="indicatorNOK" Visibility="Hidden" Color="Red" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorNOK}" Margin="2" RenderTransformOrigin="0.5,0.5">
+                    <local:UserInputWithIndicator_Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </local:UserInputWithIndicator_Image.RenderTransform>
+                </local:UserInputWithIndicator_Image>
             </Grid>
         </Grid>
     </Border>

@@ -7,5 +7,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <usercontrols:UserInputWithIndicator HorizontalAlignment="Left" Height="53" Margin="359,139,0,0" VerticalAlignment="Top" Width="299"/>
     </Grid>
 </Window>
