@@ -30,7 +30,6 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         // Flag to indicate that Storyboard has completed
         private static bool bOKPopCompleted = false;
-        private static bool bWARNShakeCompleted = false;
         private static bool bNOKShakeCompleted = false;
         #endregion
 
@@ -41,8 +40,8 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             // Attach Completed Event Handlers to every Storyboard
             ((Storyboard)Resources["indicatorOK_Pop"]).Completed += new EventHandler(indicatorOK_Pop_Completed);
-            ((Storyboard)Resources["indicatorWARN_Shake"]).Completed += new EventHandler(indicatorWARN_Shake_Completed);
             ((Storyboard)Resources["indicatorNOK_Shake"]).Completed += new EventHandler(indicatorNOK_Shake_Completed);
+            ((Storyboard)Resources["recordingDot_ON_Pulse"]).Completed += new EventHandler(recordingDot_ON_Pulse_Completed);
         }
         #endregion
 
@@ -98,14 +97,6 @@ namespace METS_DiagnosticTool_UI.UserControls
                     }
                         
                 }
-                //else if (exampleOKVariableAddress.Contains(input.Text))
-                //{
-                //    if (!bWARNShakeCompleted)
-                //    {
-                //        ((Storyboard)Resources["indicatorWARN_Shake"]).Begin();
-                //        bWARNShakeCompleted = true;
-                //    }
-                //}
                 else
                 {
                     if (input.Text != inputPlaceHolderText)
@@ -127,14 +118,14 @@ namespace METS_DiagnosticTool_UI.UserControls
             bNOKShakeCompleted = false;
         }
 
-        private void indicatorWARN_Shake_Completed(object sender, EventArgs e)
-        {
-            bWARNShakeCompleted = false;
-        }
-
         private void indicatorOK_Pop_Completed(object sender, EventArgs e)
         {
             bOKPopCompleted = false;
+        }
+
+        private void recordingDot_ON_Pulse_Completed(object sender, EventArgs e)
+        {
+            ((Storyboard)Resources["recordingDot_ON_Pulse"]).Begin();
         }
         #endregion
     }
