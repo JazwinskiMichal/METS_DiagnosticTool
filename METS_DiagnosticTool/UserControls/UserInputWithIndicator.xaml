@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:METS_DiagnosticTool_UI.UserControls"
              xmlns:METS_DiagnosticTool_UI="clr-namespace:METS_DiagnosticTool_UI" x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
              mc:Ignorable="d" 
-             d:DesignHeight="37.894" d:DesignWidth="875.209">
+             d:DesignHeight="200" d:DesignWidth="875.209">
 
     <UserControl.Resources>
         <!-- Indicator OK Style -->
@@ -144,17 +144,17 @@
                         <BounceEase EasingMode="EaseOut"/>
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="5">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="5">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BackEase EasingMode="EaseIn"/>
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-5">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="-5">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BackEase EasingMode="EaseIn"/>
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="0">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BackEase EasingMode="EaseIn"/>
                     </EasingDoubleKeyFrame.EasingFunction>
@@ -246,27 +246,43 @@
                 </EasingPointKeyFrame>
             </PointAnimationUsingKeyFrames>
         </Storyboard>
+
+        <!-- Recording Clicked Storyboard -->
+        <Storyboard x:Key="recordingClicked">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="border">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="39.625"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="border">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="77.25"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
     </UserControl.Resources>
     <UserControl.Foreground>
         <SolidColorBrush Color="#FF2C76C5"/>
     </UserControl.Foreground>
 
-    <Border BorderBrush="Black" BorderThickness="2" Background="#FF252526">
-        <Grid x:Name="grid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="column1" Width="3*"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="0.7*"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="0.7*"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="0.7*"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="1.5*"/>
-            </Grid.ColumnDefinitions>
+    <Grid x:Name="mainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" MinHeight="40" MaxHeight="40"/>
+            <RowDefinition x:Name="extensionRow" Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <!-- PLC Variable User Input -->
-            <TextBox x:Name="input"
+        <Border Grid.Row="0" BorderBrush="Black" BorderThickness="2" Background="#FF252526">
+            <Grid x:Name="grid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="column1" Width="3*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="0.7*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="0.7*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="0.7*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="1.5*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- PLC Variable User Input -->
+                <TextBox x:Name="input"
                 Grid.Column="0"
                 VerticalAlignment="Stretch"
                 HorizontalAlignment="Stretch" 
@@ -276,114 +292,126 @@
                 Text="Enter Variable address here..." 
                 Background="#FF252526" 
                 BorderBrush="#FF252526" FontSize="16" GotFocus="input_GotFocus" LostFocus="input_LostFocus" TextChanged="input_TextChanged">
-                <TextBox.Foreground>
-                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                </TextBox.Foreground>
-            </TextBox>
+                    <TextBox.Foreground>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                    </TextBox.Foreground>
+                </TextBox>
 
-            <!-- Separator 1 -->
-            <Rectangle x:Name="separator1" Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
+                <!-- Separator 1 -->
+                <Rectangle x:Name="separator1" Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
 
-            <!-- Indicator Grid -->
-            <Grid x:Name="indicatorsGrid" Grid.Column="2">
-                <local:UserInputWithIndicator_Image x:Name="indicatorOK" Color="Chartreuse" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorOK}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Hidden">
-                    <local:UserInputWithIndicator_Image.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform/>
-                            <SkewTransform/>
-                            <RotateTransform/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </local:UserInputWithIndicator_Image.RenderTransform>
-                </local:UserInputWithIndicator_Image>
-
-                <local:UserInputWithIndicator_Image x:Name="indicatorNOK" Visibility="Hidden" Color="Red" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorNOK}" Margin="2" RenderTransformOrigin="0.5,0.5">
-                    <local:UserInputWithIndicator_Image.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform/>
-                            <SkewTransform/>
-                            <RotateTransform/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </local:UserInputWithIndicator_Image.RenderTransform>
-                </local:UserInputWithIndicator_Image>
-            </Grid>
-
-            <!-- Separator 2 -->
-            <Rectangle x:Name="separator2" Grid.Column="3" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
-
-            <!-- Configuration Button -->
-            <local:UserInputWithIndicator_Image x:Name="configuration" Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource configuration}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Visible">
-                <local:UserInputWithIndicator_Image.Color>
-                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                </local:UserInputWithIndicator_Image.Color>
-            </local:UserInputWithIndicator_Image>
-
-            <!-- Separator 3 -->
-            <Rectangle x:Name="separator3" Grid.Column="5" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
-
-            <!-- Live View Button -->
-            <local:UserInputWithIndicator_Image x:Name="liveView" Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Visible">
-                <local:UserInputWithIndicator_Image.Color>
-                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                </local:UserInputWithIndicator_Image.Color>
-            </local:UserInputWithIndicator_Image>
-
-            <!-- Separator 4 -->
-            <Rectangle x:Name="separator4" Grid.Column="7" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
-
-            <!-- Recording Indicator -->
-            <Grid Grid.Column="8" Margin="2">
-                <!-- Grid Recording ON -->
-                <Grid x:Name="gridRecordingON" Visibility="Hidden">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="3*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Ellipse x:Name="recordingDot_ON" Fill="Chartreuse" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="5" RenderTransformOrigin="0.28,0.5">
-                        <Ellipse.RenderTransform>
+                <!-- Indicator Grid -->
+                <Grid x:Name="indicatorsGrid" Grid.Column="2">
+                    <local:UserInputWithIndicator_Image x:Name="indicatorOK" Color="Chartreuse" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorOK}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Hidden">
+                        <local:UserInputWithIndicator_Image.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
                                 <SkewTransform/>
                                 <RotateTransform/>
-                                <TranslateTransform X="8"/>
+                                <TranslateTransform/>
                             </TransformGroup>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                        </local:UserInputWithIndicator_Image.RenderTransform>
+                    </local:UserInputWithIndicator_Image>
 
-                    <Label Content="Recording is ON" Grid.Column="1" FontSize="14" Background="{x:Null}">
-                        <Label.Foreground>
-                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                        </Label.Foreground>
-                    </Label>
-                </Grid>
-
-                <!-- Grid Recording OFF -->
-                <Grid x:Name="gridRecordingOFF" Visibility="Visible">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="3*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Ellipse x:Name="recordingDot_OFF" Fill="Black" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="5" RenderTransformOrigin="0.5,0.5">
-                        <Ellipse.RenderTransform>
+                    <local:UserInputWithIndicator_Image x:Name="indicatorNOK" Visibility="Hidden" Color="Red" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorNOK}" Margin="2" RenderTransformOrigin="0.5,0.5">
+                        <local:UserInputWithIndicator_Image.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
                                 <SkewTransform/>
                                 <RotateTransform/>
-                                <TranslateTransform X="8"/>
+                                <TranslateTransform/>
                             </TransformGroup>
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                        </local:UserInputWithIndicator_Image.RenderTransform>
+                    </local:UserInputWithIndicator_Image>
+                </Grid>
 
-                    <Label Content="Recording is OFF" Grid.Column="1" FontSize="14" Background="{x:Null}">
-                        <Label.Foreground>
-                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                        </Label.Foreground>
-                    </Label>
+                <!-- Separator 2 -->
+                <Rectangle x:Name="separator2" Grid.Column="3" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
+
+                <!-- Configuration Button -->
+                <local:UserInputWithIndicator_Image x:Name="configuration" Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource configuration}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Visible" MouseDown="configuration_MouseDown">
+                    <local:UserInputWithIndicator_Image.Color>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                    </local:UserInputWithIndicator_Image.Color>
+                </local:UserInputWithIndicator_Image>
+
+                <!-- Separator 3 -->
+                <Rectangle x:Name="separator3" Grid.Column="5" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
+
+                <!-- Live View Button -->
+                <local:UserInputWithIndicator_Image x:Name="liveView" Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Visible">
+                    <local:UserInputWithIndicator_Image.Color>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                    </local:UserInputWithIndicator_Image.Color>
+                </local:UserInputWithIndicator_Image>
+
+                <!-- Separator 4 -->
+                <Rectangle x:Name="separator4" Grid.Column="7" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
+
+                <!-- Recording Indicator -->
+                <Grid Grid.Column="8" Margin="2">
+                    <!-- Grid Recording ON -->
+                    <Grid x:Name="gridRecordingON" Visibility="Hidden">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Ellipse x:Name="recordingDot_ON" Fill="Chartreuse" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="5" RenderTransformOrigin="0.28,0.5">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform/>
+                                    <TranslateTransform X="8"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+
+                        <Label Content="Recording is ON" Grid.Column="1" FontSize="14" Background="{x:Null}">
+                            <Label.Foreground>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                            </Label.Foreground>
+                        </Label>
+                    </Grid>
+
+                    <!-- Grid Recording OFF -->
+                    <Grid x:Name="gridRecordingOFF" Visibility="Visible">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Ellipse x:Name="recordingDot_OFF" Fill="Black" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="5" RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform/>
+                                    <SkewTransform/>
+                                    <RotateTransform/>
+                                    <TranslateTransform X="8"/>
+                                </TransformGroup>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+
+                        <Label Content="Recording is OFF" Grid.Column="1" FontSize="14" Background="{x:Null}">
+                            <Label.Foreground>
+                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                            </Label.Foreground>
+                        </Label>
+                    </Grid>
                 </Grid>
             </Grid>
-        </Grid>
-    </Border>
+        </Border>
+
+        <Border x:Name="border" Grid.Row="1" BorderBrush="Black" BorderThickness="0" Background="#FF252526" RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Border.RenderTransform>
+        </Border>
+    </Grid>
 </UserControl>

@@ -60,6 +60,8 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #region User Input
+
+
         private void input_GotFocus(object sender, RoutedEventArgs e)
         {
             // When got Focus clear Placeholder text and change Font Color
@@ -128,5 +130,10 @@ namespace METS_DiagnosticTool_UI.UserControls
             ((Storyboard)Resources["recordingDot_ON_Pulse"]).Begin();
         }
         #endregion
+
+        private void configuration_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ((Storyboard)Resources["recordingClicked"]).Begin();
+        }
     }
 }
