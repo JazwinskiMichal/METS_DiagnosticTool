@@ -7,7 +7,19 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid Background="#FF333337" MouseDown="Grid_MouseDown">
-        <usercontrols:UserInputWithIndicator x:Name="label1" HorizontalAlignment="Left" Height="37" Margin="359,139,0,0" VerticalAlignment="Top" Width="355"/>
-        <usercontrols:UserInputWithIndicator x:Name="label2" HorizontalAlignment="Left" Height="37" Margin="359,209,0,0" VerticalAlignment="Top" Width="355"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <usercontrols:UserInputWithIndicator x:Name="label1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2"/>
+        <usercontrols:UserInputWithIndicator x:Name="label2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2"/>
     </Grid>
 </Window>
