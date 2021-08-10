@@ -24,5 +24,11 @@ namespace METS_DiagnosticTool_UI
         {
             InitializeComponent();
         }
+
+        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            label1.TakeFocusAway();
+            label2.TakeFocusAway();
+        }
     }
 }

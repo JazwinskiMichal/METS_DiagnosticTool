@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:METS_DiagnosticTool_UI.UserControls"
              xmlns:METS_DiagnosticTool_UI="clr-namespace:METS_DiagnosticTool_UI" x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
              mc:Ignorable="d" 
-             d:DesignHeight="37.227" d:DesignWidth="243.543">
+             d:DesignHeight="28.894" d:DesignWidth="315.876">
 
     <UserControl.Resources>
         <Style TargetType="{x:Type local:UserInputWithIndicator_Image}" x:Key="indicatorOK">
@@ -98,8 +98,9 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
-        <Storyboard x:Key="indicatorNOK_Storyboard">
+
+        <!-- Indicator NOK Storyboard -->
+        <Storyboard x:Key="indicatorNOK_Shake">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="indicatorNOK">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.1" Value="{x:Static Visibility.Visible}"/>
             </ObjectAnimationUsingKeyFrames>
@@ -125,13 +126,85 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="indicatorOK">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="indicatorNOK">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Indicator OK Storyboard -->
+        <Storyboard x:Key="indicatorOK_Pop">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="indicatorOK">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.1" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="indicatorOK">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="1.3">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="indicatorOK">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="1.3">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuinticEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="indicatorNOK">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="indicatorOK">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Indicator WARN Storyboard -->
+        <Storyboard x:Key="indicatorWARN_Shake">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="indicatorWARN">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.1" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="indicatorWARN">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.3" Value="5">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-5">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.7" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BackEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
         </Storyboard>
     </UserControl.Resources>
-    <UserControl.Triggers>
-        <EventTrigger RoutedEvent="TextBoxBase.TextChanged" SourceName="input">
-            <BeginStoryboard x:Name="indicatorNOK_Storyboard" Storyboard="{StaticResource indicatorNOK_Storyboard}"/>
-        </EventTrigger>
-    </UserControl.Triggers>
+    <UserControl.Foreground>
+        <SolidColorBrush Color="#FF2C76C5"/>
+    </UserControl.Foreground>
 
     <Border BorderBrush="Black" BorderThickness="2" Background="#FF252526">
         <Grid x:Name="grid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -148,17 +221,38 @@
                 HorizontalContentAlignment="Left"
                 VerticalContentAlignment="Center"
                 TextWrapping="Wrap" 
-                Text="TextBox" 
+                Text="Enter Variable address here..." 
                 Background="#FF252526" 
-                Foreground="White" 
-                BorderBrush="#FF252526" FontSize="16"/>
+                BorderBrush="#FF252526" FontSize="16" GotFocus="input_GotFocus" LostFocus="input_LostFocus" TextChanged="input_TextChanged">
+                <TextBox.Foreground>
+                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                </TextBox.Foreground>
+            </TextBox>
 
             <Rectangle x:Name="separator" Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
 
             <Grid x:Name="indicatorsGrid" Grid.Column="2">
-                <local:UserInputWithIndicator_Image x:Name="indicatorOK" Visibility="Hidden" Color="Chartreuse" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorOK}" Margin="2"/>
+                <local:UserInputWithIndicator_Image x:Name="indicatorOK" Color="Chartreuse" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorOK}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Hidden">
+                    <local:UserInputWithIndicator_Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </local:UserInputWithIndicator_Image.RenderTransform>
+                </local:UserInputWithIndicator_Image>
 
-                <local:UserInputWithIndicator_Image x:Name="indicatorWARN" Visibility="Hidden" Color="Yellow" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorWARN}" Margin="2"/>
+                <local:UserInputWithIndicator_Image x:Name="indicatorWARN" Visibility="Hidden" Color="Yellow" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorWARN}" Margin="2" RenderTransformOrigin="0.5,0.5">
+                    <local:UserInputWithIndicator_Image.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </local:UserInputWithIndicator_Image.RenderTransform>
+                </local:UserInputWithIndicator_Image>
 
                 <local:UserInputWithIndicator_Image x:Name="indicatorNOK" Visibility="Hidden" Color="Red" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorNOK}" Margin="2" RenderTransformOrigin="0.5,0.5">
                     <local:UserInputWithIndicator_Image.RenderTransform>

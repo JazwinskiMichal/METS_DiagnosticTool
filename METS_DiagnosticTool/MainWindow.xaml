@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:METS_DiagnosticTool_UI" xmlns:usercontrols="clr-namespace:METS_DiagnosticTool_UI.UserControls"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <usercontrols:UserInputWithIndicator HorizontalAlignment="Left" Height="53" Margin="359,139,0,0" VerticalAlignment="Top" Width="299"/>
+    <Grid Background="#FF333337" MouseDown="Grid_MouseDown">
+        <usercontrols:UserInputWithIndicator x:Name="label1" HorizontalAlignment="Left" Height="37" Margin="359,139,0,0" VerticalAlignment="Top" Width="355"/>
+        <usercontrols:UserInputWithIndicator x:Name="label2" HorizontalAlignment="Left" Height="37" Margin="359,209,0,0" VerticalAlignment="Top" Width="355"/>
     </Grid>
 </Window>
