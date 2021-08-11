@@ -43,7 +43,6 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         // Colors
         private const string defaultGrayColor = "#FFB4B4B4";
-        private const string defaultBlackColor = "#000000";
 
         // Buttons Lists
         private List<UserInputWithIndicator_Image> configurationButtons = new List<UserInputWithIndicator_Image>();
@@ -123,7 +122,6 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void input_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Check provided PLC Variable address if it can be found among all PLC variables show OK,
-            // if its the address of the table or structure show WARN,
             // if it cant be find show NOK
 
             if (!string.IsNullOrEmpty(input.Text))
@@ -149,15 +147,38 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                     // Show Configuration Disabled Button
                     BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
+
+                    // If Extension row is Visible Hide it
+                    if(bExtensionRowCompleted && bExtensionRowAnimationCompleted)
+                    {
+                        ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
+                        ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
+                    }
                 }
                 else if (input.Text == inputPlaceHolderText)
+                {
                     // Show Configuration Disabled Button
                     BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
+
+                    // If Extension row is Visible Hide it
+                    if (bExtensionRowCompleted && bExtensionRowAnimationCompleted)
+                    {
+                        ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
+                        ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
+                    }
+                }
             }
             else
             {
                 // Show Configuration Disabled Button
                 BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
+
+                // If Extension row is Visible Hide it
+                if (bExtensionRowCompleted && bExtensionRowAnimationCompleted)
+                {
+                    ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
+                    ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
+                }
             }
         }
 

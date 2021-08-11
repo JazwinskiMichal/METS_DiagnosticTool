@@ -4,11 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:METS_DiagnosticTool_UI.UserControls"
-             xmlns:METS_DiagnosticTool_UI="clr-namespace:METS_DiagnosticTool_UI" x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
+             xmlns:METS_DiagnosticTool_UI="clr-namespace:METS_DiagnosticTool_UI" 
+             xmlns:System="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
+             x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="747.209" MinWidth="750">
 
     <UserControl.Resources>
+        <System:GridLength x:Key="extensionRowHeight">0</System:GridLength>
+
         <!-- Indicator OK Style -->
         <Style TargetType="{x:Type local:UserInputWithIndicator_Image}" x:Key="indicatorOK">
             <Setter Property="Source">
@@ -331,12 +335,14 @@
         <SolidColorBrush Color="#FF2C76C5"/>
     </UserControl.Foreground>
 
+    <!-- Main Grid -->
     <Grid x:Name="mainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="160" MaxHeight="40" MinHeight="40"/>
-            <RowDefinition x:Name="extensionRow" Height="0"/>
+            <RowDefinition x:Name="extensionRow" Height="{StaticResource extensionRowHeight}"/>
         </Grid.RowDefinitions>
 
+        <!-- User Input Border -->
         <Border Grid.Row="0" BorderBrush="Black" BorderThickness="2" Background="#FF252526">
             <Grid x:Name="grid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
@@ -372,7 +378,7 @@
 
                 <!-- Indicator Grid -->
                 <Grid x:Name="indicatorsGrid" Grid.Column="2">
-                    <local:UserInputWithIndicator_Image x:Name="indicatorOK" Color="Chartreuse" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorOK}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Hidden">
+                    <local:UserInputWithIndicator_Image x:Name="indicatorOK" Color="Chartreuse" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorOK}" Margin="8" RenderTransformOrigin="0.5,0.5" Visibility="Hidden">
                         <local:UserInputWithIndicator_Image.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -383,7 +389,7 @@
                         </local:UserInputWithIndicator_Image.RenderTransform>
                     </local:UserInputWithIndicator_Image>
 
-                    <local:UserInputWithIndicator_Image x:Name="indicatorNOK" Visibility="Hidden" Color="Red" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorNOK}" Margin="2" RenderTransformOrigin="0.5,0.5">
+                    <local:UserInputWithIndicator_Image x:Name="indicatorNOK" Visibility="Hidden" Color="Red" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorNOK}" Margin="8" RenderTransformOrigin="0.5,0.5">
                         <local:UserInputWithIndicator_Image.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform/>
@@ -484,6 +490,8 @@
             </Grid>
         </Border>
 
+        <!-- Extension Row -->
+        <!-- Background Border -->
         <Border x:Name="border" Grid.Row="1" BorderBrush="Black" BorderThickness="0" Background="#FF252526" RenderTransformOrigin="0.5,0.5">
             <Border.RenderTransform>
                 <TransformGroup>
@@ -494,7 +502,7 @@
                 </TransformGroup>
             </Border.RenderTransform>
 
-            <Rectangle x:Name="rectangle" Fill="Red" RenderTransformOrigin="0.5,0.5">
+            <Rectangle x:Name="rectangle" Fill="#FF1E1E1E" RenderTransformOrigin="0.5,0.5">
                 <Rectangle.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>
@@ -505,5 +513,32 @@
                 </Rectangle.RenderTransform>
             </Rectangle>
         </Border>
+
+        <!-- Extension Grid -->
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="3.5*"/>
+            </Grid.RowDefinitions>
+
+            <Label Content="Variable Configuration" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Foreground="White" FontSize="14"/>
+
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="40"/>
+                </Grid.ColumnDefinitions>
+
+                
+            </Grid>
+        </Grid>
     </Grid>
 </UserControl>
