@@ -136,6 +136,68 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <!-- Recording ON button Style -->
+        <Style TargetType="{x:Type local:UserInputWithIndicator_Image}" x:Key="recordingON">
+            <Setter Property="Source">
+                <Setter.Value>
+                    <DrawingImage>
+                        <DrawingImage.Drawing>
+                            <DrawingGroup Opacity="1">
+                                <DrawingGroup.Children>
+                                    <DrawingGroup Opacity="1">
+                                        <DrawingGroup.Children>
+                                            <DrawingGroup Opacity="1">
+                                                <DrawingGroup.Children>
+                                                    <GeometryDrawing
+                                                        Brush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:UserInputWithIndicator_Image}}, Path=Color}"
+                                                        Pen="{x:Null}" >
+                                                        <GeometryDrawing.Geometry>
+                                                            <PathGeometry Figures="M400 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48zm0 32c8.823 0 16 7.178 16 16v352c0 8.822-7.177 16-16 16H48c-8.822 0-16-7.178-16-16V80c0-8.822 7.178-16 16-16h352m-34.301 98.293l-8.451-8.52c-4.667-4.705-12.265-4.736-16.97-.068l-163.441 162.13-68.976-69.533c-4.667-4.705-12.265-4.736-16.97-.068l-8.52 8.451c-4.705 4.667-4.736 12.265-.068 16.97l85.878 86.572c4.667 4.705 12.265 4.736 16.97.068l180.48-179.032c4.704-4.667 4.735-12.265.068-16.97z" FillRule="NonZero"/>
+                                                        </GeometryDrawing.Geometry>
+                                                    </GeometryDrawing>
+                                                </DrawingGroup.Children>
+                                            </DrawingGroup>
+                                        </DrawingGroup.Children>
+                                    </DrawingGroup>
+                                </DrawingGroup.Children>
+                            </DrawingGroup>
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Recording OFF button Style -->
+        <Style TargetType="{x:Type local:UserInputWithIndicator_Image}" x:Key="recordingOFF">
+            <Setter Property="Source">
+                <Setter.Value>
+                    <DrawingImage>
+                        <DrawingImage.Drawing>
+                            <DrawingGroup Opacity="1">
+                                <DrawingGroup.Children>
+                                    <DrawingGroup Opacity="1">
+                                        <DrawingGroup.Children>
+                                            <DrawingGroup Opacity="1">
+                                                <DrawingGroup.Children>
+                                                    <GeometryDrawing
+                                                        Brush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:UserInputWithIndicator_Image}}, Path=Color}"
+                                                        Pen="{x:Null}" >
+                                                        <GeometryDrawing.Geometry>
+                                                            <PathGeometry Figures="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zm16 400c0 8.8-7.2 16-16 16H48c-8.8 0-16-7.2-16-16V80c0-8.8 7.2-16 16-16h352c8.8 0 16 7.2 16 16v352zm-97.2-245.3L249.5 256l69.3 69.3c4.7 4.7 4.7 12.3 0 17l-8.5 8.5c-4.7 4.7-12.3 4.7-17 0L224 281.5l-69.3 69.3c-4.7 4.7-12.3 4.7-17 0l-8.5-8.5c-4.7-4.7-4.7-12.3 0-17l69.3-69.3-69.3-69.3c-4.7-4.7-4.7-12.3 0-17l8.5-8.5c4.7-4.7 12.3-4.7 17 0l69.3 69.3 69.3-69.3c4.7-4.7 12.3-4.7 17 0l8.5 8.5c4.6 4.7 4.6 12.3 0 17z" FillRule="NonZero"/>
+                                                        </GeometryDrawing.Geometry>
+                                                    </GeometryDrawing>
+                                                </DrawingGroup.Children>
+                                            </DrawingGroup>
+                                        </DrawingGroup.Children>
+                                    </DrawingGroup>
+                                </DrawingGroup.Children>
+                            </DrawingGroup>
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
         <!-- Indicator NOK Storyboard -->
         <Storyboard x:Key="indicatorNOK_Shake">
@@ -518,7 +580,7 @@
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="3.5*"/>
+                <RowDefinition Height="4*"/>
             </Grid.RowDefinitions>
 
             <Label Content="Variable Configuration" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Foreground="White" FontSize="14"/>
@@ -526,18 +588,35 @@
             <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="40"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="40"/>
                 </Grid.ColumnDefinitions>
 
-                
+                <Label Content="Logging type" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0"/>
+
+                <Rectangle Grid.Column="1" Grid.Row="1" Grid.RowSpan="1" Grid.ColumnSpan="5" VerticalAlignment="Stretch" Height="1" Margin="2" Stroke="Black" />
+
+                <Rectangle Grid.Column="2" Grid.Row="0" Grid.RowSpan="4" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
+
+                <Rectangle Grid.Column="4" Grid.Row="0" Grid.RowSpan="4" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
+
+                <Label Content="Recording" Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0"/>
+
+                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="2" x:Name="recordingON" Margin="30"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                    Style="{StaticResource recordingON}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" Color="Chartreuse"/>
+
+                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="2" x:Name="recordingOFF" Margin="30"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                    Style="{StaticResource recordingOFF}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Red"/>
             </Grid>
         </Grid>
     </Grid>
