@@ -22,17 +22,32 @@ namespace METS_DiagnosticTool_UI.UserControls
     public partial class UserInputWithIndicator : UserControl
     {
         #region Private Fields
+        // Example Variable Address
+        private const string exampleOKVariableAddress = ".sBridge.nWatchdog";
         // PlaceHolder Text
         private const string inputPlaceHolderText = "Enter Variable address here...";
 
-        // Example Variable Address
-        private const string exampleOKVariableAddress = ".sBridge.nWatchdog";
-
+        // Storyboards Names
+        private const string indicatorOK_Pop = "indicatorOK_Pop";
+        private const string indicatorNOK_Shake = "indicatorNOK_Shake";
+        private const string recordingDot_ON_Pulse = "recordingDot_ON_Pulse";
+        private const string extensionRow_IncreaseHeight = "extensionRow_IncreaseHeight";
+        private const string extensionRow_DecreaseHeight = "extensionRow_DecreaseHeight";
+        private const string extensionRow_ShowBounceDown = "extensionRow_ShowBounceDown";
+        private const string extensionRow_ShowRollUp = "extensionRow_ShowRollUp";
         // Flag to indicate that Storyboard has completed
         private bool bOKPopCompleted = false;
         private bool bNOKShakeCompleted = false;
         private bool bExtensionRowCompleted = false;
         private bool bExtensionRowAnimationCompleted = false;
+
+        // Colors
+        private const string defaultGrayColor = "#FFB4B4B4";
+        private const string defaultBlackColor = "#000000";
+
+        // Buttons Lists
+        private List<UserInputWithIndicator_Image> configurationButtons = new List<UserInputWithIndicator_Image>();
+        private List<UserInputWithIndicator_Image> liveViewButtons = new List<UserInputWithIndicator_Image>();
         #endregion
 
         #region Default Constructor
@@ -40,14 +55,20 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             InitializeComponent();
 
+            // Initialize List of Buttons
+            configurationButtons.Add(configurationDisabled);
+            configurationButtons.Add(configurationEnabled);
+            liveViewButtons.Add(liveViewDisabled);
+            liveViewButtons.Add(liveViewEnabled);
+
             // Attach Completed Event Handlers to every Storyboard
-            ((Storyboard)Resources["indicatorOK_Pop"]).Completed += new EventHandler(indicatorOK_Pop_Completed);
-            ((Storyboard)Resources["indicatorNOK_Shake"]).Completed += new EventHandler(indicatorNOK_Shake_Completed);
-            ((Storyboard)Resources["recordingDot_ON_Pulse"]).Completed += new EventHandler(recordingDot_ON_Pulse_Completed);
-            ((Storyboard)Resources["extensionRow_IncreaseHeight"]).Completed += new EventHandler(extensionRow_IncreaseHeight_Completed);
-            ((Storyboard)Resources["extensionRow_DecreaseHeight"]).Completed += new EventHandler(extensionRow_DecreaseHeight_Completed);
-            ((Storyboard)Resources["extensionRow_ShowBounceDown"]).Completed += new EventHandler(extensionRow_ShowBounceDown_Completed);
-            ((Storyboard)Resources["extensionRow_ShowRollUp"]).Completed += new EventHandler(extensionRow_ShowRollUp_Completed);
+            ((Storyboard)Resources[indicatorOK_Pop]).Completed += new EventHandler(indicatorOK_Pop_Completed);
+            ((Storyboard)Resources[indicatorNOK_Shake]).Completed += new EventHandler(indicatorNOK_Shake_Completed);
+            ((Storyboard)Resources[recordingDot_ON_Pulse]).Completed += new EventHandler(recordingDot_ON_Pulse_Completed);
+            ((Storyboard)Resources[extensionRow_IncreaseHeight]).Completed += new EventHandler(extensionRow_IncreaseHeight_Completed);
+            ((Storyboard)Resources[extensionRow_DecreaseHeight]).Completed += new EventHandler(extensionRow_DecreaseHeight_Completed);
+            ((Storyboard)Resources[extensionRow_ShowBounceDown]).Completed += new EventHandler(extensionRow_ShowBounceDown_Completed);
+            ((Storyboard)Resources[extensionRow_ShowRollUp]).Completed += new EventHandler(extensionRow_ShowRollUp_Completed);
         }
         #endregion
 
@@ -57,7 +78,7 @@ namespace METS_DiagnosticTool_UI.UserControls
             // When lost Focus and Input Field has been left empty, then put placeholder Text again
             if (string.IsNullOrEmpty(input.Text) || input.Text == inputPlaceHolderText)
             {
-                input.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFB4B4B4"));
+                input.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
                 input.Text = inputPlaceHolderText;
             }
 
@@ -65,11 +86,24 @@ namespace METS_DiagnosticTool_UI.UserControls
         }
         #endregion
 
+        #region Private Methods
+        private void BringToFrontAndSendOtherBack(List<UserInputWithIndicator_Image> buttons, UserInputWithIndicator_Image givenImage)
+        {
+            foreach (UserInputWithIndicator_Image button in buttons)
+            {
+                if (givenImage.Name == button.Name)
+                    button.Visibility = Visibility.Visible;
+                else
+                    button.Visibility = Visibility.Hidden;
+            }
+        }
+        #endregion
+
         #region User Input
         private void input_GotFocus(object sender, RoutedEventArgs e)
         {
             // When got Focus clear Placeholder text and change Font Color
-            if(input.Text == inputPlaceHolderText)
+            if (input.Text == inputPlaceHolderText)
             {
                 input.Text = string.Empty;
                 input.Foreground = Brushes.White;
@@ -81,7 +115,7 @@ namespace METS_DiagnosticTool_UI.UserControls
             // When lost Focus and Input Field has been left empty, then put placeholder Text again
             if (string.IsNullOrEmpty(input.Text) || input.Text == inputPlaceHolderText)
             {
-                input.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFB4B4B4"));
+                input.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
                 input.Text = inputPlaceHolderText;
             }
         }
@@ -98,36 +132,46 @@ namespace METS_DiagnosticTool_UI.UserControls
                 {
                     if (!bOKPopCompleted)
                     {
-                        ((Storyboard)Resources["indicatorOK_Pop"]).Begin();
+                        ((Storyboard)Resources[indicatorOK_Pop]).Begin();
                         bOKPopCompleted = true;
+
+                        // Show Configuration Enabled Button
+                        BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
                     }
-                        
                 }
-                else
+                else if (input.Text != inputPlaceHolderText)
                 {
-                    if (input.Text != inputPlaceHolderText)
+                    if (!bNOKShakeCompleted)
                     {
-                        if (!bNOKShakeCompleted)
-                        {
-                            ((Storyboard)Resources["indicatorNOK_Shake"]).Begin();
+                            ((Storyboard)Resources[indicatorNOK_Shake]).Begin();
                             bNOKShakeCompleted = true;
-                        }
                     }
+
+                    // Show Configuration Disabled Button
+                    BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
                 }
+                else if (input.Text == inputPlaceHolderText)
+                    // Show Configuration Disabled Button
+                    BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
+            }
+            else
+            {
+                // Show Configuration Disabled Button
+                BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
             }
         }
 
         private void configuration_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(!bExtensionRowCompleted && !bExtensionRowAnimationCompleted)
+            if (!bExtensionRowCompleted && !bExtensionRowAnimationCompleted)
             {
-                ((Storyboard)Resources["extensionRow_IncreaseHeight"]).Begin();
-                ((Storyboard)Resources["extensionRow_ShowBounceDown"]).Begin();
+                ((Storyboard)Resources[extensionRow_IncreaseHeight]).Begin();
+                ((Storyboard)Resources[extensionRow_ShowBounceDown]).Begin();
             }
             else
             {
-                ((Storyboard)Resources["extensionRow_ShowRollUp"]).Begin();
-                ((Storyboard)Resources["extensionRow_DecreaseHeight"]).Begin();
+                ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
+                ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
             }
         }
         #endregion
@@ -145,7 +189,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void recordingDot_ON_Pulse_Completed(object sender, EventArgs e)
         {
-            ((Storyboard)Resources["recordingDot_ON_Pulse"]).Begin();
+            ((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
         }
 
         private void extensionRow_ShowRollUp_Completed(object sender, EventArgs e)

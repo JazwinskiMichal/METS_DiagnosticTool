@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:METS_DiagnosticTool_UI.UserControls"
              xmlns:METS_DiagnosticTool_UI="clr-namespace:METS_DiagnosticTool_UI" x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
              mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="875.209">
+             d:DesignHeight="200" d:DesignWidth="747.209" MinWidth="750">
 
     <UserControl.Resources>
         <!-- Indicator OK Style -->
@@ -398,22 +398,33 @@
                 <!-- Separator 2 -->
                 <Rectangle x:Name="separator2" Grid.Column="3" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
 
-                <!-- Configuration Button -->
-                <local:UserInputWithIndicator_Image x:Name="configuration" Grid.Column="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource configuration}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Visible" MouseDown="configuration_MouseDown">
-                    <local:UserInputWithIndicator_Image.Color>
-                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                    </local:UserInputWithIndicator_Image.Color>
-                </local:UserInputWithIndicator_Image>
+                <!-- Configuration Grid -->
+                <Grid Grid.Column="4" Margin="2">
+                    <!-- Configuration Button Enabled -->
+                    <local:UserInputWithIndicator_Image x:Name="configurationEnabled"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource configuration}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" MouseDown="configuration_MouseDown" IsEnabled="True">
+                        <local:UserInputWithIndicator_Image.Color>
+                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                        </local:UserInputWithIndicator_Image.Color>
+                    </local:UserInputWithIndicator_Image>
+
+                    <!-- Configuration Button Disbaled -->
+                    <local:UserInputWithIndicator_Image x:Name="configurationDisabled"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource configuration}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Black" IsEnabled="False"/>
+                </Grid>
 
                 <!-- Separator 3 -->
                 <Rectangle x:Name="separator3" Grid.Column="5" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
 
-                <!-- Live View Button -->
-                <local:UserInputWithIndicator_Image x:Name="liveView" Grid.Column="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Visible">
-                    <local:UserInputWithIndicator_Image.Color>
-                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                    </local:UserInputWithIndicator_Image.Color>
-                </local:UserInputWithIndicator_Image>
+                <!-- Live View Grid -->
+                <Grid Grid.Column="6" Margin="2">
+                    <!-- Live View Button Enabled -->
+                    <local:UserInputWithIndicator_Image x:Name="liveViewEnabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" IsEnabled="True">
+                        <local:UserInputWithIndicator_Image.Color>
+                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                        </local:UserInputWithIndicator_Image.Color>
+                    </local:UserInputWithIndicator_Image>
+
+                    <local:UserInputWithIndicator_Image x:Name="liveViewDisabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" RenderTransformOrigin="0.5,0.5" Color="Black" Visibility="Visible" IsEnabled="False"/>
+                </Grid>
 
                 <!-- Separator 4 -->
                 <Rectangle x:Name="separator4" Grid.Column="7" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
@@ -465,7 +476,7 @@
 
                         <Label Content="Recording is OFF" Grid.Column="1" FontSize="14" Background="{x:Null}">
                             <Label.Foreground>
-                                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                                <SolidColorBrush Color="#FFB4B4B4"/>
                             </Label.Foreground>
                         </Label>
                     </Grid>
