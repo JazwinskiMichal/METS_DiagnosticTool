@@ -250,11 +250,23 @@
         <!-- Recording Clicked Storyboard -->
         <Storyboard x:Key="recordingClicked">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="border">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="39.625"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="39.625">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="border">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="77.25"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="77.25">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
+            <ThicknessAnimationUsingKeyFrames Storyboard.TargetProperty="(Border.BorderThickness)" Storyboard.TargetName="border">
+                <EasingThicknessKeyFrame KeyTime="0:0:0.1" Value="2"/>
+                <EasingThicknessKeyFrame KeyTime="0:0:0.5" Value="2"/>
+            </ThicknessAnimationUsingKeyFrames>
         </Storyboard>
     </UserControl.Resources>
     <UserControl.Foreground>
