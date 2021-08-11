@@ -8,18 +8,18 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid Background="#FF333337" MouseDown="Grid_MouseDown">
         <Grid.RowDefinitions>
-            <RowDefinition MinHeight="50" Height="Auto"/>
-            <RowDefinition MinHeight="50" Height="Auto"/>
-            <RowDefinition MinHeight="40" Height="Auto"/>
-            <RowDefinition MinHeight="40" Height="Auto"/>
-            <RowDefinition MinHeight="40" Height="Auto"/>
-            <RowDefinition MinHeight="40" Height="Auto"/>
-            <RowDefinition MinHeight="40" Height="Auto"/>
-            <RowDefinition MinHeight="40" Height="Auto"/>
-            <RowDefinition MinHeight="40" Height="Auto"/>
-            <RowDefinition MinHeight="40" Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <usercontrols:UserInputWithIndicator x:Name="label1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2"/>
-        <usercontrols:UserInputWithIndicator x:Name="label2" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="2"/>
+        <usercontrols:UserInputWithIndicator x:Name="label1" Grid.Row="0" Margin="0"/>
+        <usercontrols:UserInputWithIndicator x:Name="label2" Grid.Row="1" Margin="0"/>
     </Grid>
 </Window>

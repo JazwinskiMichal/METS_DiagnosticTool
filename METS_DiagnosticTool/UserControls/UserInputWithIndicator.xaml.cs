@@ -29,8 +29,10 @@ namespace METS_DiagnosticTool_UI.UserControls
         private const string exampleOKVariableAddress = ".sBridge.nWatchdog";
 
         // Flag to indicate that Storyboard has completed
-        private static bool bOKPopCompleted = false;
-        private static bool bNOKShakeCompleted = false;
+        private bool bOKPopCompleted = false;
+        private bool bNOKShakeCompleted = false;
+        private bool bExtensionRowCompleted = false;
+        private bool bExtensionRowAnimationCompleted = false;
         #endregion
 
         #region Default Constructor
@@ -42,6 +44,10 @@ namespace METS_DiagnosticTool_UI.UserControls
             ((Storyboard)Resources["indicatorOK_Pop"]).Completed += new EventHandler(indicatorOK_Pop_Completed);
             ((Storyboard)Resources["indicatorNOK_Shake"]).Completed += new EventHandler(indicatorNOK_Shake_Completed);
             ((Storyboard)Resources["recordingDot_ON_Pulse"]).Completed += new EventHandler(recordingDot_ON_Pulse_Completed);
+            ((Storyboard)Resources["extensionRow_IncreaseHeight"]).Completed += new EventHandler(extensionRow_IncreaseHeight_Completed);
+            ((Storyboard)Resources["extensionRow_DecreaseHeight"]).Completed += new EventHandler(extensionRow_DecreaseHeight_Completed);
+            ((Storyboard)Resources["extensionRow_ShowBounceDown"]).Completed += new EventHandler(extensionRow_ShowBounceDown_Completed);
+            ((Storyboard)Resources["extensionRow_ShowRollUp"]).Completed += new EventHandler(extensionRow_ShowRollUp_Completed);
         }
         #endregion
 
@@ -113,7 +119,16 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void configuration_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            ((Storyboard)Resources["recordingClicked"]).Begin();
+            if(!bExtensionRowCompleted && !bExtensionRowAnimationCompleted)
+            {
+                ((Storyboard)Resources["extensionRow_IncreaseHeight"]).Begin();
+                ((Storyboard)Resources["extensionRow_ShowBounceDown"]).Begin();
+            }
+            else
+            {
+                ((Storyboard)Resources["extensionRow_ShowRollUp"]).Begin();
+                ((Storyboard)Resources["extensionRow_DecreaseHeight"]).Begin();
+            }
         }
         #endregion
 
@@ -131,6 +146,26 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void recordingDot_ON_Pulse_Completed(object sender, EventArgs e)
         {
             ((Storyboard)Resources["recordingDot_ON_Pulse"]).Begin();
+        }
+
+        private void extensionRow_ShowRollUp_Completed(object sender, EventArgs e)
+        {
+            bExtensionRowAnimationCompleted = false;
+        }
+
+        private void extensionRow_ShowBounceDown_Completed(object sender, EventArgs e)
+        {
+            bExtensionRowAnimationCompleted = true;
+        }
+
+        private void extensionRow_DecreaseHeight_Completed(object sender, EventArgs e)
+        {
+            bExtensionRowCompleted = false;
+        }
+
+        private void extensionRow_IncreaseHeight_Completed(object sender, EventArgs e)
+        {
+            bExtensionRowCompleted = true;
         }
         #endregion
     }
