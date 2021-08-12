@@ -104,6 +104,12 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
             lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+            // initialize ScottPlot
+            double[] dataX = new double[] { 1, 2, 3, 4, 5 };
+            double[] dataY = new double[] { 1, 4, 9, 16, 25 };
+            liveViewPlot.Plot.AddScatter(dataX, dataY);
+            liveViewPlot.Plot.Style(ScottPlot.Style.Gray2);
         }
         #endregion
 
@@ -355,6 +361,11 @@ namespace METS_DiagnosticTool_UI.UserControls
             ((Storyboard)Resources[extensionRow_LiveView_IncreaseHeight]).Begin();
             ((Storyboard)Resources[extensionRow_LiveView_ShowBounceDown]).Begin();
         }
+
+        private void userControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            liveViewPlot.Width = this.ActualWidth - 100;
+        }
         #endregion
         #endregion
 
@@ -402,8 +413,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
         }
 
-        #endregion
 
-        
+        #endregion
     }
 }
