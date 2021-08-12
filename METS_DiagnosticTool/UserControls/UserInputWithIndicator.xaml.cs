@@ -47,6 +47,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         // Variable Configuration
         private bool bPollingActive = false;
         private bool bOnChangeActive = false;
+        private bool bRecordingActive = false;
 
         // Colors
         private const string defaultGrayColor = "#FFB4B4B4";
@@ -187,19 +188,15 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                         ((Storyboard)Resources[extensionRow_HideData]).Begin();
                     }
-                }
-                else if (input.Text == inputPlaceHolderText)
-                {
-                    // Show Configuration Disabled Button
-                    BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
 
-                    // If Extension row is Visible Hide it
-                    if (bExtensionRowCompleted && bExtensionRowAnimationCompleted)
+                    // Also Disable Recording
+                    if(bRecordingActive)
                     {
-                        ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
-                        ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
-
-                        ((Storyboard)Resources[extensionRow_HideData]).Begin();
+                        gridRecordingOFF.Visibility = Visibility.Visible;
+                        gridRecordingON.Visibility = Visibility.Hidden;
+                        BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+                        ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
+                        bRecordingActive = false;
                     }
                 }
             }
@@ -215,6 +212,16 @@ namespace METS_DiagnosticTool_UI.UserControls
                     ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
 
                     ((Storyboard)Resources[extensionRow_HideData]).Begin();
+                }
+               
+                // Also Disable Recording
+                if (bRecordingActive)
+                {
+                    gridRecordingOFF.Visibility = Visibility.Visible;
+                    gridRecordingON.Visibility = Visibility.Hidden;
+                    BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+                    ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
+                    bRecordingActive = false;
                 }
             }
         }
@@ -236,6 +243,20 @@ namespace METS_DiagnosticTool_UI.UserControls
                 ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
 
                 ((Storyboard)Resources[extensionRow_HideData]).Begin();
+
+                if (bRecordingActive)
+                {
+                    gridRecordingOFF.Visibility = Visibility.Hidden;
+                    gridRecordingON.Visibility = Visibility.Visible;
+                    ((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
+                }
+                else
+                {
+                    gridRecordingOFF.Visibility = Visibility.Visible;
+                    gridRecordingON.Visibility = Visibility.Hidden;
+                    ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
+                }
+                    
             }
 
             Keyboard.ClearFocus();
@@ -302,13 +323,19 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
 
+            bRecordingActive = false;
+
             Keyboard.ClearFocus();
         }
 
         private void recordingOFF_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (!string.IsNullOrEmpty(refreshTimeInput.Text) && bPollingActive || bOnChangeActive)
+            {
                 BringToFrontAndSendOtherBack(recordingButtons, recordingON);
+
+                bRecordingActive = true;
+            }
 
             Keyboard.ClearFocus();
         }

@@ -8,7 +8,7 @@
              xmlns:System="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
              x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
              mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="747.209" MinWidth="750">
+             d:DesignHeight="200" d:DesignWidth="747.209" MinWidth="740">
 
     <UserControl.Resources>
         <System:GridLength x:Key="extensionRowHeight">0</System:GridLength>
@@ -153,7 +153,7 @@
                                                         Brush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:UserInputWithIndicator_Image}}, Path=Color}"
                                                         Pen="{x:Null}" >
                                                         <GeometryDrawing.Geometry>
-                                                            <PathGeometry Figures="M400 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48zm0 32c8.823 0 16 7.178 16 16v352c0 8.822-7.177 16-16 16H48c-8.822 0-16-7.178-16-16V80c0-8.822 7.178-16 16-16h352m-34.301 98.293l-8.451-8.52c-4.667-4.705-12.265-4.736-16.97-.068l-163.441 162.13-68.976-69.533c-4.667-4.705-12.265-4.736-16.97-.068l-8.52 8.451c-4.705 4.667-4.736 12.265-.068 16.97l85.878 86.572c4.667 4.705 12.265 4.736 16.97.068l180.48-179.032c4.704-4.667 4.735-12.265.068-16.97z" FillRule="NonZero"/>
+                                                            <PathGeometry Figures="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm0 464c-118.664 0-216-96.055-216-216 0-118.663 96.055-216 216-216 118.664 0 216 96.055 216 216 0 118.663-96.055 216-216 216zm141.63-274.961L217.15 376.071c-4.705 4.667-12.303 4.637-16.97-.068l-85.878-86.572c-4.667-4.705-4.637-12.303.068-16.97l8.52-8.451c4.705-4.667 12.303-4.637 16.97.068l68.976 69.533 163.441-162.13c4.705-4.667 12.303-4.637 16.97.068l8.451 8.52c4.668 4.705 4.637 12.303-.068 16.97z" FillRule="NonZero"/>
                                                         </GeometryDrawing.Geometry>
                                                     </GeometryDrawing>
                                                 </DrawingGroup.Children>
@@ -184,7 +184,7 @@
                                                         Brush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:UserInputWithIndicator_Image}}, Path=Color}"
                                                         Pen="{x:Null}" >
                                                         <GeometryDrawing.Geometry>
-                                                            <PathGeometry Figures="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zm16 400c0 8.8-7.2 16-16 16H48c-8.8 0-16-7.2-16-16V80c0-8.8 7.2-16 16-16h352c8.8 0 16 7.2 16 16v352zm-97.2-245.3L249.5 256l69.3 69.3c4.7 4.7 4.7 12.3 0 17l-8.5 8.5c-4.7 4.7-12.3 4.7-17 0L224 281.5l-69.3 69.3c-4.7 4.7-12.3 4.7-17 0l-8.5-8.5c-4.7-4.7-4.7-12.3 0-17l69.3-69.3-69.3-69.3c-4.7-4.7-4.7-12.3 0-17l8.5-8.5c4.7-4.7 12.3-4.7 17 0l69.3 69.3 69.3-69.3c4.7-4.7 12.3-4.7 17 0l8.5 8.5c4.6 4.7 4.6 12.3 0 17z" FillRule="NonZero"/>
+                                                            <PathGeometry Figures="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 464c-118.7 0-216-96.1-216-216 0-118.7 96.1-216 216-216 118.7 0 216 96.1 216 216 0 118.7-96.1 216-216 216zm94.8-285.3L281.5 256l69.3 69.3c4.7 4.7 4.7 12.3 0 17l-8.5 8.5c-4.7 4.7-12.3 4.7-17 0L256 281.5l-69.3 69.3c-4.7 4.7-12.3 4.7-17 0l-8.5-8.5c-4.7-4.7-4.7-12.3 0-17l69.3-69.3-69.3-69.3c-4.7-4.7-4.7-12.3 0-17l8.5-8.5c4.7-4.7 12.3-4.7 17 0l69.3 69.3 69.3-69.3c4.7-4.7 12.3-4.7 17 0l8.5 8.5c4.6 4.7 4.6 12.3 0 17z" FillRule="NonZero"/>
                                                         </GeometryDrawing.Geometry>
                                                     </GeometryDrawing>
                                                 </DrawingGroup.Children>
@@ -337,42 +337,18 @@
 
         <!-- Recording Dot Storyboard -->
         <Storyboard x:Key="recordingDot_ON_Pulse">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" Storyboard.TargetName="recordingDot_ON">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="recordingDot_ON">
+                <EasingDoubleKeyFrame KeyTime="0:0:1.5" Value="0">
                     <EasingDoubleKeyFrame.EasingFunction>
-                        <SineEase EasingMode="EaseIn"/>
+                        <CircleEase EasingMode="EaseInOut"/>
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:1.1" Value="1">
+                <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1">
                     <EasingDoubleKeyFrame.EasingFunction>
-                        <SineEase EasingMode="EaseOut"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-            </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="recordingDot_ON">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.4" Value="0">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <SineEase EasingMode="EaseIn"/>
-                    </EasingDoubleKeyFrame.EasingFunction>
-                </EasingDoubleKeyFrame>
-                <EasingDoubleKeyFrame KeyTime="0:0:1.1" Value="1">
-                    <EasingDoubleKeyFrame.EasingFunction>
-                        <SineEase EasingMode="EaseOut"/>
+                        <CircleEase EasingMode="EaseInOut"/>
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
-            <PointAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransformOrigin)" Storyboard.TargetName="recordingDot_ON">
-                <EasingPointKeyFrame KeyTime="0:0:0.4" Value="0.28,0.5">
-                    <EasingPointKeyFrame.EasingFunction>
-                        <SineEase EasingMode="EaseIn"/>
-                    </EasingPointKeyFrame.EasingFunction>
-                </EasingPointKeyFrame>
-                <EasingPointKeyFrame KeyTime="0:0:1.1" Value="0.28,0.5">
-                    <EasingPointKeyFrame.EasingFunction>
-                        <SineEase EasingMode="EaseOut"/>
-                    </EasingPointKeyFrame.EasingFunction>
-                </EasingPointKeyFrame>
-            </PointAnimationUsingKeyFrames>
         </Storyboard>
 
         <!-- Extension Row Storyboard Increase Row Height-->
@@ -495,7 +471,7 @@
         </Grid.RowDefinitions>
 
         <!-- User Input Border -->
-        <Border Grid.Row="0" BorderBrush="Black" BorderThickness="2" Background="#FF252526">
+        <Border Grid.Row="0" BorderBrush="Black" BorderThickness="2" Background="#FF333337">
             <Grid x:Name="grid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition x:Name="column1" Width="3*"/>
@@ -518,8 +494,8 @@
                 VerticalContentAlignment="Center"
                 TextWrapping="Wrap" 
                 Text="Enter Variable address here..." 
-                Background="#FF252526" 
-                BorderBrush="#FF252526" FontSize="16" GotFocus="input_GotFocus" LostFocus="input_LostFocus" TextChanged="input_TextChanged">
+                Background="#FF333337" 
+                BorderBrush="Transparent" FontSize="16" GotFocus="input_GotFocus" LostFocus="input_LostFocus" TextChanged="input_TextChanged">
                     <TextBox.Foreground>
                         <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
                     </TextBox.Foreground>
@@ -596,7 +572,7 @@
                             <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Ellipse x:Name="recordingDot_ON" Fill="Chartreuse" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="5" RenderTransformOrigin="0.28,0.5">
+                        <Ellipse x:Name="recordingDot_ON" Stroke="Black" StrokeThickness="2" Fill="Chartreuse" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="7" RenderTransformOrigin="0.28,0.5">
                             <Ellipse.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -621,7 +597,7 @@
                             <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Ellipse x:Name="recordingDot_OFF" Fill="Black" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="5" RenderTransformOrigin="0.5,0.5">
+                        <Ellipse x:Name="recordingDot_OFF" Fill="Black" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="7" RenderTransformOrigin="0.5,0.5">
                             <Ellipse.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -654,7 +630,7 @@
                 </TransformGroup>
             </Border.RenderTransform>
 
-            <Rectangle x:Name="rectangle" Fill="#FF1E1E1E" RenderTransformOrigin="0.5,0.5">
+            <Rectangle x:Name="rectangle" Fill=" #FF333337" RenderTransformOrigin="0.5,0.5">
                 <Rectangle.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>
@@ -704,7 +680,7 @@
 
                     <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="pollingON" Margin="8,8,35,8"  HorizontalAlignment="Center" VerticalAlignment="Stretch" 
                                                     Style="{StaticResource polling}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Chartreuse"/>
-                    
+
                     <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="pollingOFF" Margin="8,8,35,8"  HorizontalAlignment="Center" VerticalAlignment="Stretch" 
                                                     Style="{StaticResource polling}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" Color="Black"/>
                 </Grid>

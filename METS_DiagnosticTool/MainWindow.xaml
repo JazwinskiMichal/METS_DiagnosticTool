@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:METS_DiagnosticTool_UI" xmlns:usercontrols="clr-namespace:METS_DiagnosticTool_UI.UserControls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid Background="#FF333337" MouseDown="Grid_MouseDown">
+        Title="MainWindow" Height="450" Width="800" MinWidth="760" MinHeight="200">
+    <Grid Background="#FF1E1E1E" MouseDown="Grid_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
