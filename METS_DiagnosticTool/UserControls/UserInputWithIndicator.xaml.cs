@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,18 +36,29 @@ namespace METS_DiagnosticTool_UI.UserControls
         private const string extensionRow_DecreaseHeight = "extensionRow_DecreaseHeight";
         private const string extensionRow_ShowBounceDown = "extensionRow_ShowBounceDown";
         private const string extensionRow_ShowRollUp = "extensionRow_ShowRollUp";
+        private const string extensionRow_ShowData = "extensionRowDataShow";
+        private const string extensionRow_HideData = "extensionRowDataHide";
         // Flag to indicate that Storyboard has completed
         private bool bOKPopCompleted = false;
         private bool bNOKShakeCompleted = false;
         private bool bExtensionRowCompleted = false;
         private bool bExtensionRowAnimationCompleted = false;
 
+        // Variable Configuration
+        private bool bPollingActive = false;
+        private bool bOnChangeActive = false;
+
         // Colors
         private const string defaultGrayColor = "#FFB4B4B4";
+        private const string defaultWhiteColor = "#FFFFFF";
+        private const string defaultBlackColor = "#000000";
 
         // Buttons Lists
         private List<UserInputWithIndicator_Image> configurationButtons = new List<UserInputWithIndicator_Image>();
         private List<UserInputWithIndicator_Image> liveViewButtons = new List<UserInputWithIndicator_Image>();
+        private List<UserInputWithIndicator_Image> pollingButtons = new List<UserInputWithIndicator_Image>();
+        private List<UserInputWithIndicator_Image> onChangeButtons = new List<UserInputWithIndicator_Image>();
+        private List<UserInputWithIndicator_Image> recordingButtons = new List<UserInputWithIndicator_Image>();
         #endregion
 
         #region Default Constructor
@@ -59,6 +71,12 @@ namespace METS_DiagnosticTool_UI.UserControls
             configurationButtons.Add(configurationEnabled);
             liveViewButtons.Add(liveViewDisabled);
             liveViewButtons.Add(liveViewEnabled);
+            pollingButtons.Add(pollingON);
+            pollingButtons.Add(pollingOFF);
+            onChangeButtons.Add(onChangeON);
+            onChangeButtons.Add(onChangeOFF);
+            recordingButtons.Add(recordingOFF);
+            recordingButtons.Add(recordingON);
 
             // Attach Completed Event Handlers to every Storyboard
             ((Storyboard)Resources[indicatorOK_Pop]).Completed += new EventHandler(indicatorOK_Pop_Completed);
@@ -68,6 +86,19 @@ namespace METS_DiagnosticTool_UI.UserControls
             ((Storyboard)Resources[extensionRow_DecreaseHeight]).Completed += new EventHandler(extensionRow_DecreaseHeight_Completed);
             ((Storyboard)Resources[extensionRow_ShowBounceDown]).Completed += new EventHandler(extensionRow_ShowBounceDown_Completed);
             ((Storyboard)Resources[extensionRow_ShowRollUp]).Completed += new EventHandler(extensionRow_ShowRollUp_Completed);
+            ((Storyboard)Resources[extensionRow_ShowData]).Completed += new EventHandler(extensionRow_ShowData_Completed);
+            ((Storyboard)Resources[extensionRow_HideData]).Completed += new EventHandler(extensionRow_HideData_Completed);
+
+            // By default Set Configuration Buttons to Diable
+            BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
+            lblPolling.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+            pollingConfiguration.IsEnabled = false;
+            lblRefreshTime.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+            lblRefreshTimeMs.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+            BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
+            lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
         }
         #endregion
 
@@ -153,6 +184,8 @@ namespace METS_DiagnosticTool_UI.UserControls
                     {
                         ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
                         ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
+
+                        ((Storyboard)Resources[extensionRow_HideData]).Begin();
                     }
                 }
                 else if (input.Text == inputPlaceHolderText)
@@ -165,6 +198,8 @@ namespace METS_DiagnosticTool_UI.UserControls
                     {
                         ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
                         ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
+
+                        ((Storyboard)Resources[extensionRow_HideData]).Begin();
                     }
                 }
             }
@@ -178,6 +213,8 @@ namespace METS_DiagnosticTool_UI.UserControls
                 {
                     ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
                     ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
+
+                    ((Storyboard)Resources[extensionRow_HideData]).Begin();
                 }
             }
         }
@@ -186,14 +223,94 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             if (!bExtensionRowCompleted && !bExtensionRowAnimationCompleted)
             {
+                // Show extension Row Animation
                 ((Storyboard)Resources[extensionRow_IncreaseHeight]).Begin();
                 ((Storyboard)Resources[extensionRow_ShowBounceDown]).Begin();
+
+                // Show Data
+                ((Storyboard)Resources[extensionRow_ShowData]).Begin();
             }
             else
             {
                 ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
                 ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
+
+                ((Storyboard)Resources[extensionRow_HideData]).Begin();
             }
+
+            Keyboard.ClearFocus();
+        }
+
+        private void logginPolling_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if(string.IsNullOrEmpty(refreshTimeInput.Text))
+                BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+
+            if ((!bPollingActive && bOnChangeActive) || (!bPollingActive && !bOnChangeActive))
+            {
+                BringToFrontAndSendOtherBack(pollingButtons, pollingON);
+                lblPolling.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultWhiteColor));
+
+                pollingConfiguration.IsEnabled = true;
+                lblRefreshTime.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultWhiteColor));
+                lblRefreshTimeMs.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultWhiteColor));
+
+                BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
+                lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+                bPollingActive = true;
+                bOnChangeActive = false;
+            }
+
+            Keyboard.ClearFocus();
+        }
+
+        private void loggingOnChange_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if ((!bOnChangeActive && bPollingActive) || (!bPollingActive && !bOnChangeActive))
+            {
+                BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
+                lblPolling.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+                pollingConfiguration.IsEnabled = false;
+                lblRefreshTime.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+                lblRefreshTimeMs.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+                BringToFrontAndSendOtherBack(onChangeButtons, onChangeON);
+                lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultWhiteColor));
+
+                bPollingActive = false;
+                bOnChangeActive = true;
+            }
+
+            Keyboard.ClearFocus();
+        }
+
+        private void refreshTimeInput_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if(string.IsNullOrEmpty(refreshTimeInput.Text))
+                BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+        }
+
+        private void refreshTimeInput_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void recordingON_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+
+            Keyboard.ClearFocus();
+        }
+
+        private void recordingOFF_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(refreshTimeInput.Text) && bPollingActive || bOnChangeActive)
+                BringToFrontAndSendOtherBack(recordingButtons, recordingON);
+
+            Keyboard.ClearFocus();
         }
         #endregion
 
@@ -232,6 +349,15 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             bExtensionRowCompleted = true;
         }
+
+        private void extensionRow_HideData_Completed(object sender, EventArgs e)
+        {
+        }
+
+        private void extensionRow_ShowData_Completed(object sender, EventArgs e)
+        {
+        }
+
         #endregion
     }
 }
