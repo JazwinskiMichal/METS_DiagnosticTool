@@ -38,6 +38,10 @@ namespace METS_DiagnosticTool_UI.UserControls
         private const string extensionRow_ShowRollUp = "extensionRow_ShowRollUp";
         private const string extensionRow_ShowData = "extensionRowDataShow";
         private const string extensionRow_HideData = "extensionRowDataHide";
+        private const string extensionRow_LiveView_IncreaseHeight = "extensionRowLiveView_IncreaseHeight";
+        private const string extensionRow_LiveView_DecreaseHeight = "extensionRowLiveView_DecreaseHeight";
+        private const string extensionRow_LiveView_ShowBounceDown = "extensionRowLiveView_ShowBounceDown";
+        private const string extensionRow_LiveView_ShowRollUp = "extensionRowLiveView_ShowRollUp";
         // Flag to indicate that Storyboard has completed
         private bool bOKPopCompleted = false;
         private bool bNOKShakeCompleted = false;
@@ -131,6 +135,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #region User Input
+        #region Variable Address Input
         private void input_GotFocus(object sender, RoutedEventArgs e)
         {
             // When got Focus clear Placeholder text and change Font Color
@@ -173,15 +178,15 @@ namespace METS_DiagnosticTool_UI.UserControls
                 {
                     if (!bNOKShakeCompleted)
                     {
-                            ((Storyboard)Resources[indicatorNOK_Shake]).Begin();
-                            bNOKShakeCompleted = true;
+                        ((Storyboard)Resources[indicatorNOK_Shake]).Begin();
+                        bNOKShakeCompleted = true;
                     }
 
                     // Show Configuration Disabled Button
                     BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
 
                     // If Extension row is Visible Hide it
-                    if(bExtensionRowCompleted && bExtensionRowAnimationCompleted)
+                    if (bExtensionRowCompleted && bExtensionRowAnimationCompleted)
                     {
                         ((Storyboard)Resources[extensionRow_ShowRollUp]).Begin();
                         ((Storyboard)Resources[extensionRow_DecreaseHeight]).Begin();
@@ -190,7 +195,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                     }
 
                     // Also Disable Recording
-                    if(bRecordingActive)
+                    if (bRecordingActive)
                     {
                         gridRecordingOFF.Visibility = Visibility.Visible;
                         gridRecordingON.Visibility = Visibility.Hidden;
@@ -213,7 +218,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                     ((Storyboard)Resources[extensionRow_HideData]).Begin();
                 }
-               
+
                 // Also Disable Recording
                 if (bRecordingActive)
                 {
@@ -225,7 +230,9 @@ namespace METS_DiagnosticTool_UI.UserControls
                 }
             }
         }
+        #endregion
 
+        #region Variable Configuration
         private void configuration_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (!bExtensionRowCompleted && !bExtensionRowAnimationCompleted)
@@ -256,7 +263,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                     gridRecordingON.Visibility = Visibility.Hidden;
                     ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
                 }
-                    
+
             }
 
             Keyboard.ClearFocus();
@@ -264,7 +271,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void logginPolling_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(string.IsNullOrEmpty(refreshTimeInput.Text))
+            if (string.IsNullOrEmpty(refreshTimeInput.Text))
                 BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
 
             if ((!bPollingActive && bOnChangeActive) || (!bPollingActive && !bOnChangeActive))
@@ -309,7 +316,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void refreshTimeInput_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if(string.IsNullOrEmpty(refreshTimeInput.Text))
+            if (string.IsNullOrEmpty(refreshTimeInput.Text))
                 BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
         }
 
@@ -339,6 +346,16 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             Keyboard.ClearFocus();
         }
+        #endregion
+
+        #region Live View
+        private void liveViewDisabled_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // Show extension Row Animation
+            ((Storyboard)Resources[extensionRow_LiveView_IncreaseHeight]).Begin();
+            ((Storyboard)Resources[extensionRow_LiveView_ShowBounceDown]).Begin();
+        }
+        #endregion
         #endregion
 
         #region Storyboard Events
@@ -386,5 +403,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         }
 
         #endregion
+
+        
     }
 }
