@@ -8,7 +8,7 @@
              xmlns:System="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
              x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
              mc:Ignorable="d" 
-             d:DesignHeight="360" d:DesignWidth="747.209" MinWidth="740">
+             d:DesignHeight="480" d:DesignWidth="747.209" MinWidth="740">
 
     <UserControl.Resources>
         <System:GridLength x:Key="extensionRowHeight">0</System:GridLength>
@@ -383,7 +383,7 @@
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
 
-        <!-- Extension Row Variable Configuration Storyboard Increase Row Height-->
+        <!-- Extension Row Live View Storyboard Increase Row Height-->
         <Storyboard x:Key="extensionRowLiveView_IncreaseHeight">
             <ObjectAnimationUsingKeyFrames Duration="0:0:0.1" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.000">
@@ -393,7 +393,7 @@
                 </DiscreteObjectKeyFrame>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.1">
                     <DiscreteObjectKeyFrame.Value>
-                        <GridLength>320</GridLength>
+                        <GridLength>480</GridLength>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
             </ObjectAnimationUsingKeyFrames>
@@ -404,7 +404,7 @@
             <ObjectAnimationUsingKeyFrames Duration="0:0:0.5" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.000">
                     <DiscreteObjectKeyFrame.Value>
-                        <GridLength>320</GridLength>
+                        <GridLength>480</GridLength>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
@@ -478,7 +478,7 @@
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangle">
-                <EasingDoubleKeyFrame KeyTime="0" Value="-160">
+                <EasingDoubleKeyFrame KeyTime="0" Value="-240">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
                     </EasingDoubleKeyFrame.EasingFunction>
@@ -503,7 +503,7 @@
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangle">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-160">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-240">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <CircleEase EasingMode="EaseIn"/>
                     </EasingDoubleKeyFrame.EasingFunction>
