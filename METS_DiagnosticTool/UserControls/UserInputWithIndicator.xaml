@@ -11,7 +11,8 @@
              d:DesignHeight="400" d:DesignWidth="747.209" MinWidth="740" SizeChanged="userControl_SizeChanged">
 
     <UserControl.Resources>
-        <System:GridLength x:Key="extensionRowHeight">0</System:GridLength> <!-- 160 or 360 -->
+        <System:GridLength x:Key="extensionRowHeight">0</System:GridLength>
+        <!-- 160 or 360 -->
 
         <!-- Indicator NOK Storyboard -->
         <Storyboard x:Key="indicatorNOK_Shake">
@@ -119,7 +120,23 @@
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
 
-        <!-- Extension Row Variable Configuration Storyboard Increase Row Height-->
+        <!-- Extension Row Variable Configuration Storyboard Increase Row Height Delayed-->
+        <Storyboard x:Key="extensionRow_IncreaseHeightDelayed">
+            <ObjectAnimationUsingKeyFrames Duration="0:0:0.5" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.000">
+                    <DiscreteObjectKeyFrame.Value>
+                        <GridLength>0</GridLength>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <GridLength>160</GridLength>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Extension Row Variable Configuration Storyboard Decrease Row Height-->
         <Storyboard x:Key="extensionRow_DecreaseHeight">
             <ObjectAnimationUsingKeyFrames Duration="0:0:0.5" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.000">
@@ -128,6 +145,22 @@
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <GridLength>0</GridLength>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Extension Row Variable Configuration Storyboard Decrease Row Height Delayed-->
+        <Storyboard x:Key="extensionRow_DecreaseHeightDelayed">
+            <ObjectAnimationUsingKeyFrames Duration="0:0:1" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <GridLength>160</GridLength>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:1">
                     <DiscreteObjectKeyFrame.Value>
                         <GridLength>0</GridLength>
                     </DiscreteObjectKeyFrame.Value>
@@ -145,18 +178,34 @@
                 </DiscreteObjectKeyFrame>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.1">
                     <DiscreteObjectKeyFrame.Value>
-                        <GridLength>400</GridLength>
+                        <GridLength>360</GridLength>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
 
-        <!-- Extension Row Variable Configuration Storyboard Increase Row Height-->
+        <!-- Extension Row Live View Storyboard Increase Row Height Delayed-->
+        <Storyboard x:Key="extensionRowLiveView_IncreaseHeightDelayed">
+            <ObjectAnimationUsingKeyFrames Duration="0:0:0.6" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <GridLength>0</GridLength>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.6">
+                    <DiscreteObjectKeyFrame.Value>
+                        <GridLength>360</GridLength>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Extension Row Variable Configuration Storyboard Decrease Row Height-->
         <Storyboard x:Key="extensionRowLiveView_DecreaseHeight">
             <ObjectAnimationUsingKeyFrames Duration="0:0:0.5" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.000">
                     <DiscreteObjectKeyFrame.Value>
-                        <GridLength>400</GridLength>
+                        <GridLength>360</GridLength>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
@@ -167,9 +216,25 @@
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
 
+        <!-- Extension Row Variable Configuration Storyboard Decrease Row Height Delayed -->
+        <Storyboard x:Key="extensionRowLiveView_DecreaseHeightDelayed">
+            <ObjectAnimationUsingKeyFrames Duration="0:0:1" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                    <DiscreteObjectKeyFrame.Value>
+                        <GridLength>360</GridLength>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+                <DiscreteObjectKeyFrame KeyTime="0:0:1">
+                    <DiscreteObjectKeyFrame.Value>
+                        <GridLength>0</GridLength>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
         <!-- Extension Row Variable Configuration Storyboard Bounce Down-->
         <Storyboard x:Key="extensionRow_ShowBounceDown">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangle">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangleVariableConfiguration">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
@@ -181,7 +246,7 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangle">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleVariableConfiguration">
                 <EasingDoubleKeyFrame KeyTime="0" Value="-80">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
@@ -193,11 +258,45 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="borderLiveView">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="borderVariableConfiguration">
+                <DiscreteDoubleKeyFrame KeyTime="0" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Extension Row Variable Configuration Storyboard Bounce Down Delayed-->
+        <Storyboard x:Key="extensionRow_ShowBounceDownDelayed">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangleVariableConfiguration">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleVariableConfiguration">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-80">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
         </Storyboard>
 
         <!-- Extension Row Variable Configuration Storyboard Roll Up-->
         <Storyboard x:Key="extensionRow_ShowRollUp">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangle">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangleVariableConfiguration">
                 <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
                     <EasingDoubleKeyFrame.EasingFunction>
@@ -205,7 +304,7 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangle">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleVariableConfiguration">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-80">
                     <EasingDoubleKeyFrame.EasingFunction>
@@ -215,9 +314,29 @@
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
 
+        <!-- Extension Row Variable Configuration Storyboard Roll Up Dealyed -->
+        <Storyboard x:Key="extensionRow_ShowRollUpDelayed">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangleVariableConfiguration">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleVariableConfiguration">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="-80">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
         <!-- Extension Row Live View Storyboard Bounce Down-->
         <Storyboard x:Key="extensionRowLiveView_ShowBounceDown">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangle">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangleLiveView">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
@@ -229,8 +348,8 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangle">
-                <EasingDoubleKeyFrame KeyTime="0" Value="-200">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleLiveView">
+                <EasingDoubleKeyFrame KeyTime="0" Value="-180">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
                     </EasingDoubleKeyFrame.EasingFunction>
@@ -241,11 +360,51 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="borderLiveView">
+                <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="borderVariableConfiguration">
+                <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Extension Row Live View Storyboard Bounce Down Delayed -->
+        <Storyboard x:Key="extensionRowLiveView_ShowBounceDownDelayed">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleLiveView">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-180">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangleLiveView">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="borderVariableConfiguration">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0.5" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="borderLiveView">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
         </Storyboard>
 
         <!-- Extension Row Live View Storyboard Roll Up-->
         <Storyboard x:Key="extensionRowLiveView_ShowRollUp">
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangle">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangleLiveView">
                 <EasingDoubleKeyFrame KeyTime="0" Value="1"/>
                 <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
                     <EasingDoubleKeyFrame.EasingFunction>
@@ -253,9 +412,9 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangle">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleLiveView">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-200">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-180">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <CircleEase EasingMode="EaseIn"/>
                     </EasingDoubleKeyFrame.EasingFunction>
@@ -263,7 +422,27 @@
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
 
-        <!-- Extension Row Storyboard Show Data -->
+        <!-- Extension Row Live View Storyboard Roll Up Delayed -->
+        <Storyboard x:Key="extensionRowLiveView_ShowRollUpDelayed">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" Storyboard.TargetName="rectangleLiveView">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleLiveView">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0"/>
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="-180">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Extension Row Variable Configuration Storyboard Show Data -->
         <Storyboard x:Key="extensionRowDataShow">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="variableConfigurationRow">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0">
@@ -279,12 +458,45 @@
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
 
-        <!-- Extension Row Storyboard Hide Data -->
+        <!-- Extension Row Variable Configuration Storyboard Data Hide -->
         <Storyboard x:Key="extensionRowDataHide">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="variableConfigurationRow">
                 <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <CubicEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Extension Row Live View Storyboard Data Hide -->
+        <Storyboard x:Key="extensionRowLiveViewDataHide">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="liveViewRow">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CubicEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Extension Row Live View Storyboard Show Data -->
+        <Storyboard x:Key="extensionRowLiveViewDataShow">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="liveViewRow">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuarticEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Extension Row Live View Storyboard Show Data Delayed-->
+        <Storyboard x:Key="extensionRowLiveViewDataShowDelayed">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="liveViewRow">
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuarticEase EasingMode="EaseIn"/>
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
@@ -295,8 +507,8 @@
         <SolidColorBrush Color="#FF2C76C5"/>
     </UserControl.Foreground>
 
-    
-        <!-- Main Grid -->
+
+    <!-- Main Grid -->
     <Grid x:Name="mainGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="160" MaxHeight="40" MinHeight="40"/>
@@ -384,13 +596,13 @@
                 <!-- Live View Grid -->
                 <Grid Grid.Column="6" Margin="2">
                     <!-- Live View Button Enabled -->
-                    <local:UserInputWithIndicator_Image x:Name="liveViewEnabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" IsEnabled="True">
+                    <local:UserInputWithIndicator_Image x:Name="liveViewEnabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" IsEnabled="True" MouseDown="liveViewEnabled_MouseDown">
                         <local:UserInputWithIndicator_Image.Color>
                             <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
                         </local:UserInputWithIndicator_Image.Color>
                     </local:UserInputWithIndicator_Image>
 
-                    <local:UserInputWithIndicator_Image x:Name="liveViewDisabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" RenderTransformOrigin="0.5,0.5" Color="Black" Visibility="Visible" IsEnabled="True" MouseDown="liveViewDisabled_MouseDown"/>
+                    <local:UserInputWithIndicator_Image x:Name="liveViewDisabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" RenderTransformOrigin="0.5,0.5" Color="Black" Visibility="Visible" IsEnabled="False"/>
                 </Grid>
 
                 <!-- Separator 4 -->
@@ -453,27 +665,51 @@
 
         <!-- Extension Row -->
         <!-- Background Border -->
-        <Border x:Name="border" Grid.Row="1" BorderBrush="Black" BorderThickness="0" Background="#FF252526" RenderTransformOrigin="0.5,0.5">
-            <Border.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Border.RenderTransform>
-
-            <Rectangle x:Name="rectangle" Fill=" #FF333337" RenderTransformOrigin="0.5,0.5">
-                <Rectangle.RenderTransform>
+        <Grid Grid.Row="1">
+            <Border x:Name="borderVariableConfiguration" BorderBrush="Black" BorderThickness="0" Background="#FF252526" RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform>
                     <TransformGroup>
                         <ScaleTransform/>
                         <SkewTransform/>
                         <RotateTransform/>
                         <TranslateTransform/>
                     </TransformGroup>
-                </Rectangle.RenderTransform>
-            </Rectangle>
-        </Border>
+                </Border.RenderTransform>
+
+                <Rectangle x:Name="rectangleVariableConfiguration" Fill=" #FF333337" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleY="0"/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform Y="-180"/>
+                        </TransformGroup>
+                    </Rectangle.RenderTransform>
+                </Rectangle>
+            </Border>
+
+            <Border x:Name="borderLiveView" BorderBrush="Black" BorderThickness="0" Background="#FF252526" RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </Border.RenderTransform>
+
+                <Rectangle x:Name="rectangleLiveView" Fill=" #FF333337" RenderTransformOrigin="0.5,0.5">
+                    <Rectangle.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleY="0"/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform Y="-180"/>
+                        </TransformGroup>
+                    </Rectangle.RenderTransform>
+                </Rectangle>
+            </Border>
+        </Grid>
 
         <!-- Extension Grid Variable Configuration -->
         <Grid x:Name="variableConfigurationRow" Grid.Row="1" Visibility="Hidden">
@@ -580,7 +816,7 @@
         </Grid>
 
         <!-- Extension Grid Live View -->
-        <Grid x:Name="liveViewRow" Grid.Row="1" Visibility="Visible">
+        <Grid x:Name="liveViewRow" Grid.Row="1" Visibility="Visible" Opacity="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition x:Name="liveViewPlotRow" Height="*"/>
