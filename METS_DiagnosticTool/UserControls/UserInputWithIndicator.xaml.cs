@@ -172,6 +172,68 @@ namespace METS_DiagnosticTool_UI.UserControls
                     button.Visibility = Visibility.Hidden;
             }
         }
+
+        private void InputVariableNotFound()
+        {
+            if (!bNOKShakeCompleted)
+            {
+                ((Storyboard)Resources[indicatorNOK_Shake]).Begin();
+                bNOKShakeCompleted = true;
+            }
+
+            // Show Configuration Disabled Button and Live View Disabled Button
+            BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
+            BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
+
+            // If Extension Variable Configuration Row is Visible Hide it
+            if ((bExtensionRow_VarConfig_Completed && bExtensionRow_VarConfig_AnimationCompleted) ||
+                (bExtensionRow_VarConfigDelayed_Completed && bExtensionRow_VarConfigDelayed_AnimationCompleted))
+            {
+                ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
+                ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+
+                ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+            }
+
+            // If Extension Live View Row is Visible Hide it
+            if ((bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted) ||
+                (bExtensionRow_LiveViewDelayed_Completed && bExtensionRow_LiveViewDelayed_AnimationCompleted))
+            {
+                ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Begin();
+                ((Storyboard)Resources[extensionRow_LiveView_DecreaseHeight]).Begin();
+
+                ((Storyboard)Resources[extensionRow_LiveView_HideData]).Begin();
+            }
+
+            // Also Disable Recording
+            DisableRecording();
+
+            // Also Reset Variable Configuration
+            BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
+            lblPolling.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+            pollingConfiguration.IsEnabled = false;
+            lblRefreshTime.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+            lblRefreshTimeMs.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+            BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
+            lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+            bPollingActive = false;
+            bOnChangeActive = false;
+        }
+
+        private void DisableRecording()
+        {
+            if (bRecordingActive)
+            {
+                gridRecordingOFF.Visibility = Visibility.Visible;
+                gridRecordingON.Visibility = Visibility.Hidden;
+                BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+                ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
+                bRecordingActive = false;
+            }
+        }
         #endregion
 
         #region User Input
@@ -216,114 +278,12 @@ namespace METS_DiagnosticTool_UI.UserControls
                 }
                 else if (input.Text != inputPlaceHolderText)
                 {
-                    if (!bNOKShakeCompleted)
-                    {
-                        ((Storyboard)Resources[indicatorNOK_Shake]).Begin();
-                        bNOKShakeCompleted = true;
-                    }
-
-                    // Show Configuration Disabled Button and Live View Disabled Button
-                    BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
-                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
-
-                    // If Extension Variable Configuration Row is Visible Hide it
-                    if (bExtensionRow_VarConfig_Completed && bExtensionRow_VarConfig_AnimationCompleted)
-                    {
-                        ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
-                        ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
-
-                        ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
-                    }
-
-                    // If Extension Live View Row is Visible Hide it
-                    if ((bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted) ||
-                        (bExtensionRow_LiveViewDelayed_Completed && bExtensionRow_LiveViewDelayed_AnimationCompleted))
-                    {
-                        ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Begin();
-                        ((Storyboard)Resources[extensionRow_LiveView_DecreaseHeight]).Begin();
-
-                        ((Storyboard)Resources[extensionRow_LiveView_HideData]).Begin();
-                    }
-
-                    // Also Disable Recording
-                    if (bRecordingActive)
-                    {
-                        gridRecordingOFF.Visibility = Visibility.Visible;
-                        gridRecordingON.Visibility = Visibility.Hidden;
-                        BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
-                        ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
-                        bRecordingActive = false;
-                    }
-
-                    // Also Reset Variable Configuration
-                    BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
-                    lblPolling.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-
-                    pollingConfiguration.IsEnabled = false;
-                    lblRefreshTime.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-                    lblRefreshTimeMs.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-
-                    BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
-                    lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-
-                    bPollingActive = false;
-                    bOnChangeActive = false;
+                    InputVariableNotFound();
                 }
             }
             else
             {
-                if (!bNOKShakeCompleted)
-                {
-                    ((Storyboard)Resources[indicatorNOK_Shake]).Begin();
-                    bNOKShakeCompleted = true;
-                }
-
-                // Show Configuration Disabled Button and Live View Disabled Button
-                BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
-                BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
-
-                // If Extension Variable Configuration Row is Visible Hide it
-                if (bExtensionRow_VarConfig_Completed && bExtensionRow_VarConfig_AnimationCompleted)
-                {
-                    ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
-                    ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
-
-                    ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
-                }
-
-                // If Extension Live View Row is Visible Hide it
-                if ((bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted) ||
-                    (bExtensionRow_LiveViewDelayed_Completed && bExtensionRow_LiveViewDelayed_AnimationCompleted))
-                {
-                    ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Begin();
-                    ((Storyboard)Resources[extensionRow_LiveView_DecreaseHeight]).Begin();
-
-                    ((Storyboard)Resources[extensionRow_LiveView_HideData]).Begin();
-                }
-
-                // Also Disable Recording
-                if (bRecordingActive)
-                {
-                    gridRecordingOFF.Visibility = Visibility.Visible;
-                    gridRecordingON.Visibility = Visibility.Hidden;
-                    BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
-                    ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
-                    bRecordingActive = false;
-                }
-
-                // Also Reset Variable Configuration
-                BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
-                lblPolling.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-
-                pollingConfiguration.IsEnabled = false;
-                lblRefreshTime.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-                lblRefreshTimeMs.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-
-                BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
-                lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-
-                bPollingActive = false;
-                bOnChangeActive = false;
+                InputVariableNotFound();
             }
         }
         #endregion
@@ -406,7 +366,12 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void logginPolling_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (string.IsNullOrEmpty(refreshTimeInput.Text))
+            {
                 BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+
+                DisableRecording();
+            }
+                
 
             if ((!bPollingActive && bOnChangeActive) || (!bPollingActive && !bOnChangeActive))
             {
@@ -425,6 +390,11 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 if (!string.IsNullOrEmpty(refreshTimeInput.Text))
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
+                else
+                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
+
+                if (!input.IsEnabled)
+                    input.IsEnabled = true;
             }
 
             Keyboard.ClearFocus();
@@ -461,14 +431,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
 
-                if (bRecordingActive)
-                {
-                    gridRecordingOFF.Visibility = Visibility.Visible;
-                    gridRecordingON.Visibility = Visibility.Hidden;
-                    BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
-                    ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
-                    bRecordingActive = false;
-                }
+                DisableRecording();
 
                 if (!input.IsEnabled)
                     input.IsEnabled = true;
