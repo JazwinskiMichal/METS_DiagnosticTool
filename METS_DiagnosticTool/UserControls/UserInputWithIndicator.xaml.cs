@@ -41,6 +41,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         private const string extensionRow_VarConfig_ShowRollUp = "extensionRow_ShowRollUp";
         private const string extensionRow_VarConfig_ShowRollUpDelayed = "extensionRow_ShowRollUpDelayed";
         private const string extensionRow_VarConfig_ShowData = "extensionRowDataShow";
+        private const string extensionRow_VarConfig_ShowDataDelayed = "extensionRowVarConfigDataShowDelayed";
         private const string extensionRow_VarConfig_HideData = "extensionRowDataHide";
         private const string extensionRow_LiveView_IncreaseHeight = "extensionRowLiveView_IncreaseHeight";
         private const string extensionRow_LiveView_IncreaseHeightDelayed = "extensionRowLiveView_IncreaseHeightDelayed";
@@ -53,11 +54,16 @@ namespace METS_DiagnosticTool_UI.UserControls
         private const string extensionRow_LiveView_ShowData = "extensionRowLiveViewDataShow";
         private const string extensionRow_LiveView_ShowDataDelayed = "extensionRowLiveViewDataShowDelayed";
         private const string extensionRow_LiveView_HideData = "extensionRowLiveViewDataHide";
+        
         // Flag to indicate that Storyboard has completed
         private bool bOKPopCompleted = false;
         private bool bNOKShakeCompleted = false;
+        
         private bool bExtensionRow_VarConfig_Completed = false;
+        private bool bExtensionRow_VarConfigDelayed_Completed = false;
         private bool bExtensionRow_VarConfig_AnimationCompleted = false;
+        private bool bExtensionRow_VarConfigDelayed_AnimationCompleted = false;
+
         private bool bExtensionRow_LiveView_Completed = false;
         private bool bExtensionRow_LiveViewDelayed_Completed = false;
         private bool bExtensionRow_LiveView_AnimationCompleted = false;
@@ -89,8 +95,10 @@ namespace METS_DiagnosticTool_UI.UserControls
             // Initialize List of Buttons
             configurationButtons.Add(configurationDisabled);
             configurationButtons.Add(configurationEnabled);
+            configurationButtons.Add(configurationActive);
             liveViewButtons.Add(liveViewDisabled);
             liveViewButtons.Add(liveViewEnabled);
+            liveViewButtons.Add(liveViewActive);
             pollingButtons.Add(pollingON);
             pollingButtons.Add(pollingOFF);
             onChangeButtons.Add(onChangeON);
@@ -106,10 +114,12 @@ namespace METS_DiagnosticTool_UI.UserControls
             
             // Extension Row Variable Configuration
             ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeight]).Completed += new EventHandler(extensionRow_VarConfig_IncreaseHeight_Completed);
+            ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeightDelayed]).Completed += new EventHandler(extensionRow_VarConfig_IncreaseHeightDelayed_Completed);
             ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Completed += new EventHandler(extensionRow_VarConfig_DecreaseHeight_Completed);
             ((Storyboard)Resources[extensionRow_VarConfig_ShowBounceDown]).Completed += new EventHandler(extensionRow_VarConfig_ShowBounceDown_Completed);
+            ((Storyboard)Resources[extensionRow_VarConfig_ShowBounceDownDelayed]).Completed += new EventHandler(extensionRow_VarConfig_ShowBounceDownDelayed_Completed);
             ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Completed += new EventHandler(extensionRow_VarConfig_ShowRollUp_Completed);
-            
+
             // Extension Row Live View
             ((Storyboard)Resources[extensionRow_LiveView_IncreaseHeight]).Completed += new EventHandler(extensionRow_LiveView_IncreaseHeight_Completed);
             ((Storyboard)Resources[extensionRow_LiveView_IncreaseHeightDelayed]).Completed += new EventHandler(extensionRow_LiveView_IncreaseHeightDelayed_Completed);
@@ -321,39 +331,74 @@ namespace METS_DiagnosticTool_UI.UserControls
         #region Variable Configuration
         private void configuration_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // If Live View Row is visible first hide it
-            if (bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted)
+            // If Live View Row is is visible show Delayed Animations
+            if ((bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted) ||
+                (bExtensionRow_LiveViewDelayed_Completed && bExtensionRow_LiveViewDelayed_AnimationCompleted))
             {
-                // Show extension Row Animation
+                // Hide Extension Variable Configuration Row Animation
                 ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Begin();
                 ((Storyboard)Resources[extensionRow_LiveView_DecreaseHeight]).Begin();
 
                 // Hide Variable Configuration Data
                 ((Storyboard)Resources[extensionRow_LiveView_HideData]).Begin();
-            }
 
-            if (!bExtensionRow_VarConfig_Completed && !bExtensionRow_VarConfig_AnimationCompleted)
-            {
-                // Show Extension Variable Configuration Row Animation
-                ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeight]).Begin();
-                ((Storyboard)Resources[extensionRow_VarConfig_ShowBounceDown]).Begin();
-
-                // Show Variable Configuration Data
-                ((Storyboard)Resources[extensionRow_VarConfig_ShowData]).Begin();
+                // Show extension Row Animation
+                ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeightDelayed]).Begin();
+                ((Storyboard)Resources[extensionRow_VarConfig_ShowBounceDownDelayed]).Begin();
 
                 // Change Visibility of the content
                 variableConfigurationRow.Visibility = Visibility.Visible;
                 liveViewRow.Visibility = Visibility.Hidden;
+
+                ((Storyboard)Resources[extensionRow_VarConfig_ShowDataDelayed]).Begin();
+
+                BringToFrontAndSendOtherBack(configurationButtons, configurationActive);
+                BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
             }
             else
             {
-                // Hide Extension Variable Configuration Row Animation
-                ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
-                ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+                if (!bExtensionRow_VarConfig_Completed && !bExtensionRow_VarConfig_AnimationCompleted &&
+                    !bExtensionRow_VarConfigDelayed_Completed && !bExtensionRow_VarConfigDelayed_AnimationCompleted)
+                {
+                    // Show Extension Variable Configuration Row Animation
+                    ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeight]).Begin();
+                    ((Storyboard)Resources[extensionRow_VarConfig_ShowBounceDown]).Begin();
 
-                // Hide Variable Configuration Data
-                ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+                    // Show Variable Configuration Data
+                    ((Storyboard)Resources[extensionRow_VarConfig_ShowData]).Begin();
+
+                    // Change Visibility of the content
+                    variableConfigurationRow.Visibility = Visibility.Visible;
+                    liveViewRow.Visibility = Visibility.Hidden;
+
+                    BringToFrontAndSendOtherBack(configurationButtons, configurationActive);
+                }
+                else
+                {
+                    // Hide Extension Variable Configuration Row Animation
+                    ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
+                    ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+
+                    // Hide Variable Configuration Data
+                    ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+
+                    BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+                }
             }
+
+            Keyboard.ClearFocus();
+        }
+
+        private void configurationActive_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // Hide Extension Variable Configuration Row Animation
+            ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
+            ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+
+            // Hide Variable Configuration Data
+            ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+
+            BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
 
             Keyboard.ClearFocus();
         }
@@ -470,7 +515,8 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void liveViewEnabled_MouseDown(object sender, MouseButtonEventArgs e)
         {
             // If Variable Configuration is visible show Delayed Animations
-            if (bExtensionRow_VarConfig_Completed && bExtensionRow_VarConfig_AnimationCompleted)
+            if ((bExtensionRow_VarConfig_Completed && bExtensionRow_VarConfig_AnimationCompleted) ||
+                (bExtensionRow_VarConfigDelayed_Completed && bExtensionRow_VarConfigDelayed_AnimationCompleted))
             {
                 // Hide Extension Variable Configuration Row Animation
                 ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
@@ -488,6 +534,9 @@ namespace METS_DiagnosticTool_UI.UserControls
                 liveViewRow.Visibility = Visibility.Visible;
 
                 ((Storyboard)Resources[extensionRow_LiveView_ShowDataDelayed]).Begin();
+
+                BringToFrontAndSendOtherBack(liveViewButtons, liveViewActive);
+                BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
             }
             else
             {
@@ -503,6 +552,8 @@ namespace METS_DiagnosticTool_UI.UserControls
                     liveViewRow.Visibility = Visibility.Visible;
 
                     ((Storyboard)Resources[extensionRow_LiveView_ShowData]).Begin();
+
+                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewActive);
                 }
                 else
                 {
@@ -515,8 +566,25 @@ namespace METS_DiagnosticTool_UI.UserControls
                     liveViewRow.Visibility = Visibility.Visible;
 
                     ((Storyboard)Resources[extensionRow_LiveView_HideData]).Begin();
+
+                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
                 }
             }
+        }
+
+        private void liveViewActive_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // Show extension Row Animation
+            ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Begin();
+            ((Storyboard)Resources[extensionRow_LiveView_DecreaseHeight]).Begin();
+
+            // Change Visibility of the content
+            variableConfigurationRow.Visibility = Visibility.Hidden;
+            liveViewRow.Visibility = Visibility.Visible;
+
+            ((Storyboard)Resources[extensionRow_LiveView_HideData]).Begin();
+
+            BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
         }
 
         private void userControl_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -548,6 +616,9 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void extensionRow_VarConfig_ShowRollUp_Completed(object sender, EventArgs e)
         {
             bExtensionRow_VarConfig_AnimationCompleted = false;
+
+            if (bExtensionRow_VarConfigDelayed_AnimationCompleted)
+                bExtensionRow_VarConfigDelayed_AnimationCompleted = false;
         }
 
         private void extensionRow_VarConfig_ShowBounceDown_Completed(object sender, EventArgs e)
@@ -555,14 +626,27 @@ namespace METS_DiagnosticTool_UI.UserControls
             bExtensionRow_VarConfig_AnimationCompleted = true;
         }
 
+        private void extensionRow_VarConfig_ShowBounceDownDelayed_Completed(object sender, EventArgs e)
+        {
+            bExtensionRow_VarConfigDelayed_AnimationCompleted = true;
+        }
+
         private void extensionRow_VarConfig_DecreaseHeight_Completed(object sender, EventArgs e)
         {
             bExtensionRow_VarConfig_Completed = false;
+
+            if (bExtensionRow_VarConfigDelayed_Completed)
+                bExtensionRow_VarConfigDelayed_Completed = false;
         }
 
         private void extensionRow_VarConfig_IncreaseHeight_Completed(object sender, EventArgs e)
         {
             bExtensionRow_VarConfig_Completed = true;
+        }
+
+        private void extensionRow_VarConfig_IncreaseHeightDelayed_Completed(object sender, EventArgs e)
+        {
+            bExtensionRow_VarConfigDelayed_Completed = true;
         }
         #endregion
 
@@ -603,6 +687,11 @@ namespace METS_DiagnosticTool_UI.UserControls
             bExtensionRow_LiveViewDelayed_Completed = true;
         }
         #endregion
+
         #endregion
+
+        
+
+        
     }
 }

@@ -122,13 +122,13 @@
 
         <!-- Extension Row Variable Configuration Storyboard Increase Row Height Delayed-->
         <Storyboard x:Key="extensionRow_IncreaseHeightDelayed">
-            <ObjectAnimationUsingKeyFrames Duration="0:0:0.5" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
-                <DiscreteObjectKeyFrame KeyTime="0:0:0.000">
+            <ObjectAnimationUsingKeyFrames Duration="0:0:0.6" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
                     <DiscreteObjectKeyFrame.Value>
                         <GridLength>0</GridLength>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
-                <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.6">
                     <DiscreteObjectKeyFrame.Value>
                         <GridLength>160</GridLength>
                     </DiscreteObjectKeyFrame.Value>
@@ -291,6 +291,12 @@
                         <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="borderVariableConfiguration">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="borderLiveView">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0.5" Value="0"/>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
 
@@ -501,6 +507,17 @@
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
+
+        <!-- Extension Row Variable Configuration Storyboard Show Data Delayed-->
+        <Storyboard x:Key="extensionRowVarConfigDataShowDelayed">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="variableConfigurationRow">
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuarticEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
     </UserControl.Resources>
 
     <UserControl.Foreground>
@@ -588,6 +605,9 @@
 
                     <!-- Configuration Button Disbaled -->
                     <local:UserInputWithIndicator_Image x:Name="configurationDisabled"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource configuration}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Black" IsEnabled="False"/>
+
+                    <!-- Configuration Button Active -->
+                    <local:UserInputWithIndicator_Image x:Name="configurationActive"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource configuration}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" Color="Chartreuse" IsEnabled="True" MouseDown="configurationActive_MouseDown"/>
                 </Grid>
 
                 <!-- Separator 3 -->
@@ -602,7 +622,11 @@
                         </local:UserInputWithIndicator_Image.Color>
                     </local:UserInputWithIndicator_Image>
 
+                    <!-- LiveView Button Disbaled -->
                     <local:UserInputWithIndicator_Image x:Name="liveViewDisabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" RenderTransformOrigin="0.5,0.5" Color="Black" Visibility="Visible" IsEnabled="False"/>
+
+                    <!-- LiveView Button Active -->
+                    <local:UserInputWithIndicator_Image x:Name="liveViewActive" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource liveView}" RenderTransformOrigin="0.5,0.5" Color="Chartreuse" Visibility="Hidden" IsEnabled="True" MouseDown="liveViewActive_MouseDown"/>
                 </Grid>
 
                 <!-- Separator 4 -->
