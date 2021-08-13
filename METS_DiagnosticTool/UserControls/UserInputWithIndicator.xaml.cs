@@ -226,7 +226,8 @@ namespace METS_DiagnosticTool_UI.UserControls
                     }
 
                     // If Extension Live View Row is Visible Hide it
-                    if (bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted)
+                    if ((bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted) ||
+                        (bExtensionRow_LiveViewDelayed_Completed && bExtensionRow_LiveViewDelayed_AnimationCompleted))
                     {
                         ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Begin();
                         ((Storyboard)Resources[extensionRow_LiveView_DecreaseHeight]).Begin();
@@ -243,10 +244,30 @@ namespace METS_DiagnosticTool_UI.UserControls
                         ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
                         bRecordingActive = false;
                     }
+
+                    // Also Reset Variable Configuration
+                    BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
+                    lblPolling.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+                    pollingConfiguration.IsEnabled = false;
+                    lblRefreshTime.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+                    lblRefreshTimeMs.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+                    BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
+                    lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+                    bPollingActive = false;
+                    bOnChangeActive = false;
                 }
             }
             else
             {
+                if (!bNOKShakeCompleted)
+                {
+                    ((Storyboard)Resources[indicatorNOK_Shake]).Begin();
+                    bNOKShakeCompleted = true;
+                }
+
                 // Show Configuration Disabled Button and Live View Disabled Button
                 BringToFrontAndSendOtherBack(configurationButtons, configurationDisabled);
                 BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
@@ -261,7 +282,8 @@ namespace METS_DiagnosticTool_UI.UserControls
                 }
 
                 // If Extension Live View Row is Visible Hide it
-                if (bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted)
+                if ((bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted) ||
+                    (bExtensionRow_LiveViewDelayed_Completed && bExtensionRow_LiveViewDelayed_AnimationCompleted))
                 {
                     ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Begin();
                     ((Storyboard)Resources[extensionRow_LiveView_DecreaseHeight]).Begin();
@@ -278,6 +300,20 @@ namespace METS_DiagnosticTool_UI.UserControls
                     ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
                     bRecordingActive = false;
                 }
+
+                // Also Reset Variable Configuration
+                BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
+                lblPolling.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+                pollingConfiguration.IsEnabled = false;
+                lblRefreshTime.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+                lblRefreshTimeMs.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+                BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
+                lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+                bPollingActive = false;
+                bOnChangeActive = false;
             }
         }
         #endregion
@@ -317,24 +353,6 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 // Hide Variable Configuration Data
                 ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
-
-                // Start Recording Animation
-                if (bRecordingActive)
-                {
-                    gridRecordingOFF.Visibility = Visibility.Hidden;
-                    gridRecordingON.Visibility = Visibility.Visible;
-                    ((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
-                }
-                else
-                {
-                    gridRecordingOFF.Visibility = Visibility.Visible;
-                    gridRecordingON.Visibility = Visibility.Hidden;
-                    ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
-                }
-
-                // If Configuration is OK Enable Live View Button
-                if (!string.IsNullOrEmpty(refreshTimeInput.Text) && bPollingActive || bOnChangeActive)
-                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
             }
 
             Keyboard.ClearFocus();
@@ -359,6 +377,9 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 bPollingActive = true;
                 bOnChangeActive = false;
+
+                if (!string.IsNullOrEmpty(refreshTimeInput.Text))
+                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
             }
 
             Keyboard.ClearFocus();
@@ -380,6 +401,8 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 bPollingActive = false;
                 bOnChangeActive = true;
+
+                BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
             }
 
             Keyboard.ClearFocus();
@@ -388,7 +411,16 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void refreshTimeInput_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (string.IsNullOrEmpty(refreshTimeInput.Text))
+            {
                 BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+
+                BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
+            }
+            else
+            {
+                if(!bOnChangeActive && bPollingActive)
+                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
+            }
         }
 
         private void refreshTimeInput_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -401,7 +433,14 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
 
+            gridRecordingOFF.Visibility = Visibility.Visible;
+            gridRecordingON.Visibility = Visibility.Hidden;
+            ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
+
             bRecordingActive = false;
+
+            // Make Vairable Input Field Disabled
+            input.IsEnabled = true;
 
             Keyboard.ClearFocus();
         }
@@ -413,7 +452,14 @@ namespace METS_DiagnosticTool_UI.UserControls
             {
                 BringToFrontAndSendOtherBack(recordingButtons, recordingON);
 
+                gridRecordingOFF.Visibility = Visibility.Hidden;
+                gridRecordingON.Visibility = Visibility.Visible;
+                ((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
+
                 bRecordingActive = true;
+
+                // Make Vairable Input Field Disabled
+                input.IsEnabled = false;
             }
 
             Keyboard.ClearFocus();
