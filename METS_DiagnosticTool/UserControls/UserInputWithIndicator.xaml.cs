@@ -249,6 +249,8 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 // Show Data
                 ((Storyboard)Resources[extensionRow_ShowData]).Begin();
+                variableConfigurationRow.Visibility = Visibility;
+                liveViewRow.Visibility = Visibility.Hidden;
             }
             else
             {
@@ -364,7 +366,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void userControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            liveViewPlot.Width = this.ActualWidth - 100;
+            liveViewPlot.Width = this.ActualWidth - 50;
         }
         #endregion
         #endregion
