@@ -460,6 +460,18 @@ namespace METS_DiagnosticTool_UI.UserControls
                 BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
 
                 BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
+
+                if (bRecordingActive)
+                {
+                    gridRecordingOFF.Visibility = Visibility.Visible;
+                    gridRecordingON.Visibility = Visibility.Hidden;
+                    BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+                    ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
+                    bRecordingActive = false;
+                }
+
+                if (!input.IsEnabled)
+                    input.IsEnabled = true;
             }
             else
             {
