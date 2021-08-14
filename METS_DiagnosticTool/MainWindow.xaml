@@ -281,7 +281,7 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" Template="{DynamicResource ScrollViewerControlTemplate1}">
+    <ScrollViewer x:Name="scrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" Template="{DynamicResource ScrollViewerControlTemplate1}">
         <ScrollViewer.Resources>
             <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">25</sys:Double>
         </ScrollViewer.Resources>
@@ -289,7 +289,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <usercontrols:UserInputWithIndicator x:Name="label1" Grid.Row="0" Margin="0" MouseDown="label1_MouseDown"/>
+            <usercontrols:UserInputWithIndicator x:Name="label1" Grid.Row="0" Margin="0"/>
         </Grid>
     </ScrollViewer>
 </Window>

@@ -500,6 +500,11 @@
         <!-- Extension Row Live View Storyboard Show Data Delayed-->
         <Storyboard x:Key="extensionRowLiveViewDataShowDelayed">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="liveViewRow">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuarticEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
                 <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <QuarticEase EasingMode="EaseIn"/>
@@ -511,12 +516,36 @@
         <!-- Extension Row Variable Configuration Storyboard Show Data Delayed-->
         <Storyboard x:Key="extensionRowVarConfigDataShowDelayed">
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="variableConfigurationRow">
+                <!--<EasingDoubleKeyFrame KeyTime="0" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuarticEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>-->
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <QuarticEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
                 <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <QuarticEase EasingMode="EaseIn"/>
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Add New Row Hide Storyboard -->
+        <Storyboard x:Key="addNewRow_Hide">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="addNewRowBorder">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="addNewRowBorder">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
+            </ObjectAnimationUsingKeyFrames>
         </Storyboard>
     </UserControl.Resources>
 
@@ -570,7 +599,7 @@
 
                     <!-- Indicator Grid -->
                     <Grid x:Name="indicatorsGrid" Grid.Column="2">
-                        <local:UserInputWithIndicator_Image x:Name="indicatorOK" Color="Chartreuse" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorOK}" Margin="2" RenderTransformOrigin="0.5,0.5" Visibility="Hidden">
+                        <local:UserInputWithIndicator_Image x:Name="indicatorOK" Color="Chartreuse" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorOK}" Margin="6" RenderTransformOrigin="0.5,0.5" Visibility="Hidden">
                             <local:UserInputWithIndicator_Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -581,7 +610,7 @@
                             </local:UserInputWithIndicator_Image.RenderTransform>
                         </local:UserInputWithIndicator_Image>
 
-                        <local:UserInputWithIndicator_Image x:Name="indicatorNOK" Visibility="Hidden" Color="Red" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorNOK}" Margin="2" RenderTransformOrigin="0.5,0.5">
+                        <local:UserInputWithIndicator_Image x:Name="indicatorNOK" Visibility="Hidden" Color="Red" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource indicatorNOK}" Margin="6" RenderTransformOrigin="0.5,0.5">
                             <local:UserInputWithIndicator_Image.RenderTransform>
                                 <TransformGroup>
                                     <ScaleTransform/>
@@ -643,7 +672,7 @@
                                 <ColumnDefinition Width="3*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Ellipse x:Name="recordingDot_ON" Stroke="Black" StrokeThickness="2" Fill="Chartreuse" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="7" RenderTransformOrigin="0.28,0.5">
+                            <Ellipse x:Name="recordingDot_ON" Fill="Chartreuse" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="7" RenderTransformOrigin="0.28,0.5">
                                 <Ellipse.RenderTransform>
                                     <TransformGroup>
                                         <ScaleTransform/>
@@ -679,11 +708,7 @@
                                 </Ellipse.RenderTransform>
                             </Ellipse>
 
-                            <Label Content="Recording is OFF" Grid.Column="1" FontSize="14" Background="{x:Null}">
-                                <Label.Foreground>
-                                    <SolidColorBrush Color="#FFB4B4B4"/>
-                                </Label.Foreground>
-                            </Label>
+                            <Label Content="Recording is OFF" Grid.Column="1" FontSize="14" Background="{x:Null}" Foreground="#FFB4B4B4"/>
                         </Grid>
                     </Grid>
                 </Grid>
@@ -704,11 +729,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Add New Row Button -->
-                    <local:UserInputWithIndicator_Image x:Name="addNewRow" Margin="10,2,2,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource addNewRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="True">
-                        <local:UserInputWithIndicator_Image.Color>
-                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                        </local:UserInputWithIndicator_Image.Color>
-                    </local:UserInputWithIndicator_Image>
+                    <local:UserInputWithIndicator_Image x:Name="addNewRow" Margin="10,2,2,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource addNewRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Chartreuse" IsEnabled="True"/>
 
                     <!-- Label -->
                     <Label Grid.Column="1" Content="Click to add New Variable..." HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Foreground="White" FontSize="16"/>
@@ -804,7 +825,11 @@
                                                     Style="{StaticResource polling}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Chartreuse"/>
 
                     <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="pollingOFF" Margin="8,8,35,8"  HorizontalAlignment="Center" VerticalAlignment="Stretch" 
-                                                    Style="{StaticResource polling}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" Color="Black"/>
+                                                    Style="{StaticResource polling}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden">
+                        <local:UserInputWithIndicator_Image.Color>
+                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                        </local:UserInputWithIndicator_Image.Color>
+                    </local:UserInputWithIndicator_Image>
                 </Grid>
 
                 <Grid x:Name="loggingOnChange" Grid.Column="1" Grid.Row="4" Grid.RowSpan="1" MouseDown="loggingOnChange_MouseDown">
@@ -819,7 +844,11 @@
                                                     Style="{StaticResource onChange}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Chartreuse"/>
 
                     <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="onChangeOFF" Margin="8,8,35,8"  HorizontalAlignment="Center" VerticalAlignment="Stretch" 
-                                                    Style="{StaticResource onChange}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" Color="Black"/>
+                                                    Style="{StaticResource onChange}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden">
+                        <local:UserInputWithIndicator_Image.Color>
+                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                        </local:UserInputWithIndicator_Image.Color>
+                    </local:UserInputWithIndicator_Image>
                 </Grid>
 
                 <Label Content="Logging Configuration" Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0"/>
@@ -860,11 +889,22 @@
 
                 <Label Content="Recording" Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0"/>
 
-                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="recordingON" Margin="8"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                                    Style="{StaticResource recordingON}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" Color="Chartreuse" MouseDown="recordingON_MouseDown"/>
+                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="recordingON" Margin="12"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                    Style="{StaticResource recordingON}" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" MouseDown="recordingON_MouseDown">
+                    <local:UserInputWithIndicator_Image.Color>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                    </local:UserInputWithIndicator_Image.Color>
+                </local:UserInputWithIndicator_Image>
 
-                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="recordingOFF" Margin="8"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                                    Style="{StaticResource recordingOFF}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Red" MouseDown="recordingOFF_MouseDown"/>
+                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="recordingOFF" Margin="12"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                    Style="{StaticResource recordingOFF}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" MouseDown="recordingOFF_MouseDown">
+                    <local:UserInputWithIndicator_Image.Color>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                    </local:UserInputWithIndicator_Image.Color>
+                </local:UserInputWithIndicator_Image>
+
+                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="recordingDisabled" Margin="12"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                    Style="{StaticResource recordingOFF}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="False" Color="Black"/>
             </Grid>
         </Grid>
 

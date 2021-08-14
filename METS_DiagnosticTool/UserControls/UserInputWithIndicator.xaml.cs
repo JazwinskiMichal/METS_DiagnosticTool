@@ -46,6 +46,8 @@ namespace METS_DiagnosticTool_UI.UserControls
         private const string extensionRow_LiveView_ShowData = "extensionRowLiveViewDataShow";
         private const string extensionRow_LiveView_ShowDataDelayed = "extensionRowLiveViewDataShowDelayed";
         private const string extensionRow_LiveView_HideData = "extensionRowLiveViewDataHide";
+        private const string addNewVariable_Hide = "addNewRow_Hide";
+        private const string addNewVariable_Hide_Value = "addNewRow_Hide_Value";
         
         // Flag to indicate that Storyboard has completed
         private bool bOKPopCompleted = false;
@@ -79,6 +81,10 @@ namespace METS_DiagnosticTool_UI.UserControls
         private List<UserInputWithIndicator_Image> recordingButtons = new List<UserInputWithIndicator_Image>();
         #endregion
 
+        #region Events
+        public event EventHandler AddNewVariableClicked;
+        #endregion
+
         #region Default Constructor
         public UserInputWithIndicator()
         {
@@ -97,12 +103,13 @@ namespace METS_DiagnosticTool_UI.UserControls
             onChangeButtons.Add(onChangeOFF);
             recordingButtons.Add(recordingOFF);
             recordingButtons.Add(recordingON);
+            recordingButtons.Add(recordingDisabled);
 
             // Attach Completed Event Handlers to every Storyboard
             // Variable Input
             ((Storyboard)Resources[indicatorOK_Pop]).Completed += new EventHandler(indicatorOK_Pop_Completed);
             ((Storyboard)Resources[indicatorNOK_Shake]).Completed += new EventHandler(indicatorNOK_Shake_Completed);
-            ((Storyboard)Resources[recordingDot_ON_Pulse]).Completed += new EventHandler(recordingDot_ON_Pulse_Completed);
+            //((Storyboard)Resources[recordingDot_ON_Pulse]).Completed += new EventHandler(recordingDot_ON_Pulse_Completed);
             
             // Extension Row Variable Configuration
             ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeight]).Completed += new EventHandler(extensionRow_VarConfig_IncreaseHeight_Completed);
@@ -130,6 +137,8 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
             lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
+
+            BringToFrontAndSendOtherBack(recordingButtons, recordingDisabled);
 
             // initialize ScottPlot
             double[] dataX = new double[] { 1, 2, 3, 4, 5 };
@@ -226,9 +235,11 @@ namespace METS_DiagnosticTool_UI.UserControls
                 gridRecordingOFF.Visibility = Visibility.Visible;
                 gridRecordingON.Visibility = Visibility.Hidden;
                 BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
-                ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
+                //((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
                 bRecordingActive = false;
             }
+            else
+                BringToFrontAndSendOtherBack(recordingButtons,recordingDisabled);
         }
         #endregion
 
@@ -236,7 +247,15 @@ namespace METS_DiagnosticTool_UI.UserControls
         #region Add New Row
         private void addNewRowBorder_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            AddNewVariableClicked?.Invoke(this, EventArgs.Empty);
 
+            // Change Value of the addNewVariable_Hide Translate Transform X Storyboard
+            Storyboard _addNewRowHide = (Storyboard)Resources[addNewVariable_Hide];
+            DoubleAnimationUsingKeyFrames _addNewRowHide_Anim = (DoubleAnimationUsingKeyFrames)_addNewRowHide.Children[0];
+            _addNewRowHide_Anim.KeyFrames[0].Value = ActualWidth;
+
+            // And Start AddNewRow Storyboard
+            ((Storyboard)Resources[addNewVariable_Hide]).Begin();
         }
         #endregion
 
@@ -369,13 +388,8 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void logginPolling_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (string.IsNullOrEmpty(refreshTimeInput.Text))
-            {
-                BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
-
                 DisableRecording();
-            }
                 
-
             if ((!bPollingActive && bOnChangeActive) || (!bPollingActive && !bOnChangeActive))
             {
                 BringToFrontAndSendOtherBack(pollingButtons, pollingON);
@@ -392,12 +406,16 @@ namespace METS_DiagnosticTool_UI.UserControls
                 bOnChangeActive = false;
 
                 if (!string.IsNullOrEmpty(refreshTimeInput.Text))
+                {
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
+                    if (!bRecordingActive)
+                        BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+                }
                 else
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
-
-                if (!input.IsEnabled)
-                    input.IsEnabled = true;
+                    
+                //if (!input.IsEnabled)
+                //    input.IsEnabled = true;
             }
 
             Keyboard.ClearFocus();
@@ -421,6 +439,9 @@ namespace METS_DiagnosticTool_UI.UserControls
                 bOnChangeActive = true;
 
                 BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
+
+                if (!bRecordingActive)
+                    BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
             }
 
             Keyboard.ClearFocus();
@@ -430,7 +451,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             if (string.IsNullOrEmpty(refreshTimeInput.Text))
             {
-                BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+                BringToFrontAndSendOtherBack(recordingButtons, recordingDisabled);
 
                 BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
 
@@ -442,7 +463,11 @@ namespace METS_DiagnosticTool_UI.UserControls
             else
             {
                 if(!bOnChangeActive && bPollingActive)
+                {
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
+                    BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+                }
+                    
             }
         }
 
@@ -458,7 +483,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             gridRecordingOFF.Visibility = Visibility.Visible;
             gridRecordingON.Visibility = Visibility.Hidden;
-            ((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
+            //((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
 
             bRecordingActive = false;
 
@@ -477,7 +502,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 gridRecordingOFF.Visibility = Visibility.Hidden;
                 gridRecordingON.Visibility = Visibility.Visible;
-                ((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
+                //((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
 
                 bRecordingActive = true;
 
@@ -586,7 +611,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void recordingDot_ON_Pulse_Completed(object sender, EventArgs e)
         {
-            ((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
+            //((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
         }
         #endregion
 
@@ -670,7 +695,5 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #endregion
-
-        
     }
 }
