@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace METS_DiagnosticTool_UI.UserControls
 {
@@ -241,6 +233,13 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #region User Input
+        #region Add New Row
+        private void addNewRowBorder_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+        #endregion
+
         #region Variable Address Input
         private void input_GotFocus(object sender, RoutedEventArgs e)
         {
@@ -665,11 +664,12 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             bExtensionRow_LiveViewDelayed_Completed = true;
         }
-        #endregion
+
+
 
         #endregion
 
-        
+        #endregion
 
         
     }

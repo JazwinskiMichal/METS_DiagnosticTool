@@ -285,21 +285,11 @@
         <ScrollViewer.Resources>
             <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">25</sys:Double>
         </ScrollViewer.Resources>
-        <Grid Background="#FF1E1E1E" MouseDown="Grid_MouseDown">
+        <Grid x:Name="mainGrid" Background="#FF1E1E1E" MouseDown="Grid_MouseDown">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <usercontrols:UserInputWithIndicator x:Name="label1" Grid.Row="0" Margin="0"/>
-            <usercontrols:UserInputWithIndicator x:Name="label2" Grid.Row="1" Margin="0"/>
+            <usercontrols:UserInputWithIndicator x:Name="label1" Grid.Row="0" Margin="0" MouseDown="label1_MouseDown"/>
         </Grid>
     </ScrollViewer>
 </Window>
