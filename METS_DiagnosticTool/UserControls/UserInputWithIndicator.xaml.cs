@@ -144,6 +144,10 @@ namespace METS_DiagnosticTool_UI.UserControls
             double[] dataY = new double[] { 1, 4, 9, 16, 25 };
             liveViewPlot.Plot.AddScatter(dataX, dataY);
             liveViewPlot.Plot.Style(ScottPlot.Style.Gray2);
+            liveViewPlot.Plot.XAxis.TickLabelStyle(rotation: 45, fontSize: 14, fontName: "Segoe UI", color: System.Drawing.Color.White);
+            liveViewPlot.Plot.YAxis.TickLabelStyle(fontSize: 14, fontName: "Segoe UI", color: System.Drawing.Color.White);
+            liveViewPlot.Plot.XAxis.Label("Time", color: System.Drawing.Color.White, size:14, fontName: "Segoe UI");
+            liveViewPlot.Plot.YAxis.Label("Value", color: System.Drawing.Color.White, size: 14, fontName: "Segoe UI");
         }
         #endregion
 
