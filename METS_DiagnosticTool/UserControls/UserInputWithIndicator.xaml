@@ -770,7 +770,7 @@
                     <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
 
                     <!-- Label -->
-                    <Grid Grid.Column="2" Margin="2" Background="#FF333337">
+                    <Grid Grid.Column="2" Margin="2" Background="#FF333337" HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="10"/>
@@ -787,9 +787,6 @@
                         <Rectangle Grid.Column="3" Margin="10,2,10,2" RadiusX="12" RadiusY="12" Stroke="Black" StrokeThickness="2.5" Fill="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         <Label Grid.Column="3" Margin="0" Content="NO" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" />
                     </Grid>
-
-                    <!-- Row Active Filling Rectangle  -->
-                    <Rectangle x:Name="fillingRectangle" Grid.Column="3" Grid.ColumnSpan="8" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Fill="Transparent"/>
                 </Grid>
             </Border>
         </Grid>
