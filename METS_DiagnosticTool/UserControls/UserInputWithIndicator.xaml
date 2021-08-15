@@ -561,6 +561,7 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
+
             <!-- Add new Row Border -->
 
             <!-- User Input Border -->
@@ -744,6 +745,51 @@
                             <Label Content="Recording is OFF" Grid.Column="1" FontSize="14" HorizontalAlignment="Left" Background="{x:Null}" Foreground="#FFB4B4B4" VerticalContentAlignment="Center"/>
                         </Grid>
                     </Grid>
+                </Grid>
+            </Border>
+            
+            <Border x:Name="deleteRowBorder" BorderBrush="Black" BorderThickness="2" Background="Transparent" Visibility="Visible" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Stretch">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="3*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="0.7*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="0.7*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="0.7*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="1.5*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Delte Row Button -->
+                    <local:UserInputWithIndicator_Image x:Name="deleteRowButton_Clicked" Margin="10,2,10,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource deleteRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="True" Color="Chartreuse"/>
+
+                    <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
+
+                    <!-- Label -->
+                    <Grid Grid.Column="2" Margin="2" Background="#FF333337">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="Are You sure?" HorizontalAlignment="Left" VerticalAlignment="Stretch" Foreground="White" FontSize="16" />
+
+                        <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
+
+                        <Rectangle Grid.Column="2" Margin="10,2,10,2" RadiusX="12" RadiusY="12" Stroke="Black" StrokeThickness="2.5" Fill="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        <Label Grid.Column="2" Margin="0" Content="YES" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" />
+
+                        <Rectangle Grid.Column="3" Margin="10,2,10,2" RadiusX="12" RadiusY="12" Stroke="Black" StrokeThickness="2.5" Fill="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                        <Label Grid.Column="3" Margin="0" Content="NO" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" />
+                    </Grid>
+
+                    <!-- Row Active Filling Rectangle  -->
+                    <Rectangle x:Name="fillingRectangle" Grid.Column="3" Grid.ColumnSpan="8" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Fill="Transparent"/>
                 </Grid>
             </Border>
         </Grid>
