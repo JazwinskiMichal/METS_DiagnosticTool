@@ -283,5 +283,36 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Delete Row Button Style -->
+        <Style TargetType="{x:Type local1:UserInputWithIndicator_Image}" x:Key="deleteRow">
+            <Setter Property="Source">
+                <Setter.Value>
+                    <DrawingImage>
+                        <DrawingImage.Drawing>
+                            <DrawingGroup Opacity="1">
+                                <DrawingGroup.Children>
+                                    <DrawingGroup Opacity="1">
+                                        <DrawingGroup.Children>
+                                            <DrawingGroup Opacity="1">
+                                                <DrawingGroup.Children>
+                                                    <GeometryDrawing
+                                                        Brush="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local1:UserInputWithIndicator_Image}}, Path=Color}"
+                                                        Pen="{x:Null}" >
+                                                        <GeometryDrawing.Geometry>
+                                                            <PathGeometry Figures="M140 274c-6.6 0-12-5.4-12-12v-12c0-6.6 5.4-12 12-12h232c6.6 0 12 5.4 12 12v12c0 6.6-5.4 12-12 12H140zm364-18c0 137-111 248-248 248S8 393 8 256 119 8 256 8s248 111 248 248zm-32 0c0-119.9-97.3-216-216-216-119.9 0-216 97.3-216 216 0 119.9 97.3 216 216 216 119.9 0 216-97.3 216-216z" FillRule="NonZero"/>
+                                                        </GeometryDrawing.Geometry>
+                                                    </GeometryDrawing>
+                                                </DrawingGroup.Children>
+                                            </DrawingGroup>
+                                        </DrawingGroup.Children>
+                                    </DrawingGroup>
+                                </DrawingGroup.Children>
+                            </DrawingGroup>
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>
