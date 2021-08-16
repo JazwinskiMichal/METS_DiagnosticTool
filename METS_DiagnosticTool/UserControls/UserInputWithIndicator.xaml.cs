@@ -54,7 +54,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         // Flag to indicate that Storyboard has completed
         private bool bOKPopCompleted = false;
         private bool bNOKShakeCompleted = false;
-        
+
         private bool bExtensionRow_VarConfig_Completed = false;
         private bool bExtensionRow_VarConfigDelayed_Completed = false;
         private bool bExtensionRow_VarConfig_AnimationCompleted = false;
@@ -81,9 +81,6 @@ namespace METS_DiagnosticTool_UI.UserControls
         private List<UserInputWithIndicator_Image> pollingButtons = new List<UserInputWithIndicator_Image>();
         private List<UserInputWithIndicator_Image> onChangeButtons = new List<UserInputWithIndicator_Image>();
         private List<UserInputWithIndicator_Image> recordingButtons = new List<UserInputWithIndicator_Image>();
-
-        // Static Number of Added Rows
-        private static int rowsAdded;
         #endregion
 
         #region Events
@@ -116,7 +113,7 @@ namespace METS_DiagnosticTool_UI.UserControls
             ((Storyboard)Resources[indicatorOK_Pop]).Completed += new EventHandler(indicatorOK_Pop_Completed);
             ((Storyboard)Resources[indicatorNOK_Shake]).Completed += new EventHandler(indicatorNOK_Shake_Completed);
             //((Storyboard)Resources[recordingDot_ON_Pulse]).Completed += new EventHandler(recordingDot_ON_Pulse_Completed);
-            
+
             // Extension Row Variable Configuration
             ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeight]).Completed += new EventHandler(extensionRow_VarConfig_IncreaseHeight_Completed);
             ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeightDelayed]).Completed += new EventHandler(extensionRow_VarConfig_IncreaseHeightDelayed_Completed);
@@ -153,7 +150,7 @@ namespace METS_DiagnosticTool_UI.UserControls
             liveViewPlot.Plot.Style(ScottPlot.Style.Gray2);
             liveViewPlot.Plot.XAxis.TickLabelStyle(rotation: 45, fontSize: 14, fontName: "Segoe UI", color: System.Drawing.Color.White);
             liveViewPlot.Plot.YAxis.TickLabelStyle(fontSize: 14, fontName: "Segoe UI", color: System.Drawing.Color.White);
-            liveViewPlot.Plot.XAxis.Label("Time", color: System.Drawing.Color.White, size:14, fontName: "Segoe UI");
+            liveViewPlot.Plot.XAxis.Label("Time", color: System.Drawing.Color.White, size: 14, fontName: "Segoe UI");
             liveViewPlot.Plot.YAxis.Label("Value", color: System.Drawing.Color.White, size: 14, fontName: "Segoe UI");
         }
         #endregion
@@ -245,18 +242,29 @@ namespace METS_DiagnosticTool_UI.UserControls
                 bRecordingActive = false;
             }
             else
-                BringToFrontAndSendOtherBack(recordingButtons,recordingDisabled);
+                BringToFrontAndSendOtherBack(recordingButtons, recordingDisabled);
         }
         #endregion
 
         #region User Input
         #region Delete Row
-        private void DeleteRowInactive_MouseDown_1(object sender, MouseButtonEventArgs e)
+        private void DeleteRowInactive_MouseDown(object sender, MouseButtonEventArgs e)
         {
             ((Storyboard)Resources[deleteRow_Show]).Begin();
         }
 
-        private void userInputWithIndicator_Image_MouseDown(object sender, MouseButtonEventArgs e)
+        private void DeleteRowActive_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ((Storyboard)Resources[deleteRow_Hide]).Begin();
+        }
+
+        private void labelYES_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ((Storyboard)Resources[deleteRow_Hide]).Begin();
+            DeleteVariableClicked?.Invoke(this, (UserInputWithIndicator)userControl);
+        }
+
+        private void labelNO_MouseDown(object sender, MouseButtonEventArgs e)
         {
             ((Storyboard)Resources[deleteRow_Hide]).Begin();
         }
@@ -274,9 +282,6 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             // And Start AddNewRow Storyboard
             ((Storyboard)Resources[addNewVariable_Hide]).Begin();
-
-            // Count Up Rows Added
-            //rowsAdded++;
         }
         #endregion
 
@@ -410,7 +415,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             if (string.IsNullOrEmpty(refreshTimeInput.Text))
                 DisableRecording();
-                
+
             if ((!bPollingActive && bOnChangeActive) || (!bPollingActive && !bOnChangeActive))
             {
                 BringToFrontAndSendOtherBack(pollingButtons, pollingON);
@@ -434,7 +439,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                 }
                 else
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
-                    
+
                 //if (!input.IsEnabled)
                 //    input.IsEnabled = true;
             }
@@ -483,12 +488,12 @@ namespace METS_DiagnosticTool_UI.UserControls
             }
             else
             {
-                if(!bOnChangeActive && bPollingActive)
+                if (!bOnChangeActive && bPollingActive)
                 {
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
                     BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
                 }
-                    
+
             }
         }
 
@@ -564,7 +569,7 @@ namespace METS_DiagnosticTool_UI.UserControls
             }
             else
             {
-                if ((!bExtensionRow_LiveView_Completed && !bExtensionRow_LiveView_AnimationCompleted && 
+                if ((!bExtensionRow_LiveView_Completed && !bExtensionRow_LiveView_AnimationCompleted &&
                     !bExtensionRow_LiveViewDelayed_Completed && !bExtensionRow_LiveViewDelayed_AnimationCompleted))
                 {
                     // Show extension Row Animation
@@ -719,30 +724,5 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #endregion
-
-        private void labelYES_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            //if (rowsAdded > 0)
-            //{
-                ((Storyboard)Resources[deleteRow_Hide]).Begin();
-                DeleteVariableClicked?.Invoke(this, userControl);
-            //    rowsAdded--;
-            //}
-            //else
-            //{
-            //    // Change Value of the addNewVariable_Hide Translate Transform X Storyboard
-            //    Storyboard _addNewRowShow = (Storyboard)Resources[addNewVariable_Hide];
-            //    DoubleAnimationUsingKeyFrames _addNewRowShow_Anim = (DoubleAnimationUsingKeyFrames)_addNewRowShow.Children[0];
-            //    _addNewRowShow_Anim.KeyFrames[0].Value = 0;
-
-            //    // And Start AddNewRow Storyboard
-            //    ((Storyboard)Resources[addNewVariable_Show]).Begin();
-            //}
-        }
-
-        private void labelNO_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            ((Storyboard)Resources[deleteRow_Hide]).Begin();
-        }
     }
 }

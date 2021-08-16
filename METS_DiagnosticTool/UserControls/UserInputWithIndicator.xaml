@@ -574,7 +574,7 @@
             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rectangle">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
             </ObjectAnimationUsingKeyFrames>
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="userInputWithIndicator_Image">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="deleteRowActive">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
             </ObjectAnimationUsingKeyFrames>
             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rectangle1">
@@ -587,7 +587,7 @@
             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rectangle">
                 <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
             </ObjectAnimationUsingKeyFrames>
-            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="userInputWithIndicator_Image">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="deleteRowActive">
                 <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
             </ObjectAnimationUsingKeyFrames>
             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rectangle1">
@@ -636,7 +636,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Delte Row Button -->
-                    <local:UserInputWithIndicator_Image x:Name="DeleteRowInactive" Margin="10,2,10,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource deleteRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="True" MouseDown="DeleteRowInactive_MouseDown_1">
+                    <local:UserInputWithIndicator_Image x:Name="deleteRowInactive" Margin="10,2,10,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource deleteRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="True" MouseDown="DeleteRowInactive_MouseDown">
                         <local:UserInputWithIndicator_Image.Color>
                             <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
                         </local:UserInputWithIndicator_Image.Color>
@@ -845,7 +845,7 @@
                 </Border>
 
                 <Rectangle x:Name="rectangle" Fill="#FF333337" Margin="2" Grid.ColumnSpan="2" Visibility="Hidden"/>
-                <local:UserInputWithIndicator_Image x:Name="userInputWithIndicator_Image" Margin="12,4,10,4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource deleteRow}" Color="Chartreuse" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" IsEnabled="True" MouseDown="userInputWithIndicator_Image_MouseDown" />
+                <local:UserInputWithIndicator_Image x:Name="deleteRowActive" Margin="12,4,10,4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource deleteRow}" Color="Red" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" IsEnabled="True" MouseDown="DeleteRowActive_MouseDown" />
                 <Rectangle x:Name="rectangle1" Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2,4,2,4" Stroke="Black" Visibility="Hidden" />
             </Grid>
             <Border x:Name="addNewRowBorder" BorderBrush="Black" BorderThickness="2" Background="#FF333337" Visibility="Visible" MouseDown="addNewRowBorder_MouseDown" RenderTransformOrigin="0.5,0.5">
