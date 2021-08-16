@@ -251,22 +251,35 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void DeleteRowInactive_MouseDown(object sender, MouseButtonEventArgs e)
         {
             ((Storyboard)Resources[deleteRow_Show]).Begin();
+
+            variableConfigurationRow.IsEnabled = false;
+            liveViewRow.IsEnabled = false;
         }
 
         private void DeleteRowActive_MouseDown(object sender, MouseButtonEventArgs e)
         {
             ((Storyboard)Resources[deleteRow_Hide]).Begin();
+
+            variableConfigurationRow.IsEnabled = true;
+            liveViewRow.IsEnabled = true;
         }
 
         private void labelYES_MouseDown(object sender, MouseButtonEventArgs e)
         {
             ((Storyboard)Resources[deleteRow_Hide]).Begin();
+
+            variableConfigurationRow.IsEnabled = true;
+            liveViewRow.IsEnabled = true;
+
             DeleteVariableClicked?.Invoke(this, (UserInputWithIndicator)userControl);
         }
 
         private void labelNO_MouseDown(object sender, MouseButtonEventArgs e)
         {
             ((Storyboard)Resources[deleteRow_Hide]).Begin();
+
+            variableConfigurationRow.IsEnabled = true;
+            liveViewRow.IsEnabled = true;
         }
         #endregion
 
