@@ -47,8 +47,10 @@ namespace METS_DiagnosticTool_UI.UserControls
         private const string extensionRow_LiveView_ShowDataDelayed = "extensionRowLiveViewDataShowDelayed";
         private const string extensionRow_LiveView_HideData = "extensionRowLiveViewDataHide";
         private const string addNewVariable_Hide = "addNewRow_Hide";
-        private const string addNewVariable_Hide_Value = "addNewRow_Hide_Value";
-        
+        private const string addNewVariable_Show = "addNewRow_Show";
+        private const string deleteRow_Hide = "deleteRow_Hide";
+        private const string deleteRow_Show = "deleteRow_Show";
+
         // Flag to indicate that Storyboard has completed
         private bool bOKPopCompleted = false;
         private bool bNOKShakeCompleted = false;
@@ -79,10 +81,14 @@ namespace METS_DiagnosticTool_UI.UserControls
         private List<UserInputWithIndicator_Image> pollingButtons = new List<UserInputWithIndicator_Image>();
         private List<UserInputWithIndicator_Image> onChangeButtons = new List<UserInputWithIndicator_Image>();
         private List<UserInputWithIndicator_Image> recordingButtons = new List<UserInputWithIndicator_Image>();
+
+        // Static Number of Added Rows
+        private static int rowsAdded;
         #endregion
 
         #region Events
         public event EventHandler AddNewVariableClicked;
+        public event EventHandler<UserInputWithIndicator> DeleteVariableClicked;
         #endregion
 
         #region Default Constructor
@@ -244,6 +250,18 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #region User Input
+        #region Delete Row
+        private void DeleteRowInactive_MouseDown_1(object sender, MouseButtonEventArgs e)
+        {
+            ((Storyboard)Resources[deleteRow_Show]).Begin();
+        }
+
+        private void userInputWithIndicator_Image_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ((Storyboard)Resources[deleteRow_Hide]).Begin();
+        }
+        #endregion
+
         #region Add New Row
         private void addNewRowBorder_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -256,6 +274,9 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             // And Start AddNewRow Storyboard
             ((Storyboard)Resources[addNewVariable_Hide]).Begin();
+
+            // Count Up Rows Added
+            //rowsAdded++;
         }
         #endregion
 
@@ -692,8 +713,36 @@ namespace METS_DiagnosticTool_UI.UserControls
 
 
 
+
+
+
         #endregion
 
         #endregion
+
+        private void labelYES_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //if (rowsAdded > 0)
+            //{
+                ((Storyboard)Resources[deleteRow_Hide]).Begin();
+                DeleteVariableClicked?.Invoke(this, userControl);
+            //    rowsAdded--;
+            //}
+            //else
+            //{
+            //    // Change Value of the addNewVariable_Hide Translate Transform X Storyboard
+            //    Storyboard _addNewRowShow = (Storyboard)Resources[addNewVariable_Hide];
+            //    DoubleAnimationUsingKeyFrames _addNewRowShow_Anim = (DoubleAnimationUsingKeyFrames)_addNewRowShow.Children[0];
+            //    _addNewRowShow_Anim.KeyFrames[0].Value = 0;
+
+            //    // And Start AddNewRow Storyboard
+            //    ((Storyboard)Resources[addNewVariable_Show]).Begin();
+            //}
+        }
+
+        private void labelNO_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ((Storyboard)Resources[deleteRow_Hide]).Begin();
+        }
     }
 }

@@ -547,6 +547,60 @@
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
+
+        <!-- Add New Row Show Storyboard -->
+        <Storyboard x:Key="addNewRow_Show">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="addNewRowBorder">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="addNewRowBorder">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Delete Row Hide Storyboard -->
+        <Storyboard x:Key="deleteRow_Hide">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="deleteRowBorder">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-800">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CubicEase EasingMode="EaseIn"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rectangle">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="userInputWithIndicator_Image">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rectangle1">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Delete Row Show Storyboard -->
+        <Storyboard x:Key="deleteRow_Show">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rectangle">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="userInputWithIndicator_Image">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="rectangle1">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="deleteRowBorder">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
     </UserControl.Resources>
 
     <UserControl.Foreground>
@@ -565,28 +619,6 @@
             <!-- Add new Row Border -->
 
             <!-- User Input Border -->
-            <Border x:Name="addNewRowBorder" BorderBrush="Black" BorderThickness="2" Background="#FF333337" Visibility="Visible" MouseDown="addNewRowBorder_MouseDown" RenderTransformOrigin="0.5,0.5">
-                <Border.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform/>
-                        <SkewTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform x:Name="translateTransform"/>
-                    </TransformGroup>
-                </Border.RenderTransform>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Add New Row Button -->
-                    <local:UserInputWithIndicator_Image x:Name="addNewRow" Margin="10,2,2,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource addNewRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Chartreuse" IsEnabled="True"/>
-
-                    <!-- Label -->
-                    <Label Grid.Column="1" Content="Click to add New Variable..." HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Foreground="White" FontSize="16"/>
-                </Grid>
-            </Border>
             <Border x:Name="variableAddressInput" BorderBrush="Black" BorderThickness="2" Background="#FF333337">
                 <Grid x:Name="grid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
@@ -604,7 +636,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Delte Row Button -->
-                    <local:UserInputWithIndicator_Image x:Name="DeleteRow" Margin="10,2,10,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource deleteRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="True">
+                    <local:UserInputWithIndicator_Image x:Name="DeleteRowInactive" Margin="10,2,10,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource deleteRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="True" MouseDown="DeleteRowInactive_MouseDown_1">
                         <local:UserInputWithIndicator_Image.Color>
                             <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
                         </local:UserInputWithIndicator_Image.Color>
@@ -747,48 +779,99 @@
                     </Grid>
                 </Grid>
             </Border>
-            
-            <Border x:Name="deleteRowBorder" BorderBrush="Black" BorderThickness="2" Background="Transparent" Visibility="Visible" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Stretch">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border x:Name="deleteRowBorder" Grid.Column="2" BorderBrush="Transparent" BorderThickness="2" Background="Transparent" Visibility="Visible" RenderTransformOrigin="0.5,0.5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <Border.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform X="-800"/>
+                        </TransformGroup>
+                    </Border.RenderTransform>
+
+                    <Grid Background="#FF333337" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="1.5*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Grid.Column="0" Grid.ColumnSpan="3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="10"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label Content="Are You sure?" VerticalContentAlignment="Center" HorizontalAlignment="Left" VerticalAlignment="Stretch" Foreground="White" FontSize="16" />
+
+                            <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2,2,2,2" Stroke="Black" />
+
+                            <Rectangle x:Name="rectangleYES" Grid.Column="2" Margin="15,4,15,4" RadiusX="12" RadiusY="12" StrokeThickness="2.5" Fill="Transparent" Width="80" HorizontalAlignment="Center" VerticalAlignment="Stretch">
+                                <Rectangle.Stroke>
+                                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                                </Rectangle.Stroke>
+                            </Rectangle>
+                            <Label x:Name="labelYES" Grid.Column="2" Margin="0" Content="YES" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" Padding="0,0,0,2" MouseDown="labelYES_MouseDown" />
+
+                            <Rectangle x:Name="rectangleNO" Grid.Column="3" Margin="15,4,15,4" RadiusX="12" RadiusY="12" StrokeThickness="2.5" Fill="Transparent" Width="80" HorizontalAlignment="Center" VerticalAlignment="Stretch">
+                                <Rectangle.Stroke>
+                                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                                </Rectangle.Stroke>
+                            </Rectangle>
+                            <Label x:Name="labelNO" Grid.Column="3" Margin="0" Content="NO" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" Padding="0,0,0,2" MouseDown="labelNO_MouseDown" />
+
+                            <Rectangle Grid.Column="4" VerticalAlignment="Stretch" Width="1" Margin="2,2,2,2" Stroke="Black" />
+                        </Grid>
+
+
+                    </Grid>
+                </Border>
+
+                <Rectangle x:Name="rectangle" Fill="#FF333337" Margin="2" Grid.ColumnSpan="2" Visibility="Hidden"/>
+                <local:UserInputWithIndicator_Image x:Name="userInputWithIndicator_Image" Margin="12,4,10,4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource deleteRow}" Color="Chartreuse" RenderTransformOrigin="0.5,0.5" Visibility="Hidden" IsEnabled="True" MouseDown="userInputWithIndicator_Image_MouseDown" />
+                <Rectangle x:Name="rectangle1" Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2,4,2,4" Stroke="Black" Visibility="Hidden" />
+            </Grid>
+            <Border x:Name="addNewRowBorder" BorderBrush="Black" BorderThickness="2" Background="#FF333337" Visibility="Visible" MouseDown="addNewRowBorder_MouseDown" RenderTransformOrigin="0.5,0.5">
+                <Border.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform/>
+                        <SkewTransform/>
+                        <RotateTransform/>
+                        <TranslateTransform x:Name="translateTransform"/>
+                    </TransformGroup>
+                </Border.RenderTransform>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="3*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="0.7*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="0.7*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="0.7*"/>
-                        <ColumnDefinition Width="10"/>
-                        <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Delte Row Button -->
-                    <local:UserInputWithIndicator_Image x:Name="deleteRowButton_Clicked" Margin="10,2,10,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource deleteRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="True" Color="Chartreuse"/>
-
-                    <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
+                    <!-- Add New Row Button -->
+                    <local:UserInputWithIndicator_Image x:Name="addNewRow" Margin="10,2,2,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{StaticResource addNewRow}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Chartreuse" IsEnabled="True"/>
 
                     <!-- Label -->
-                    <Grid Grid.Column="2" Margin="2" Background="#FF333337" HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Label Content="Are You sure?" HorizontalAlignment="Left" VerticalAlignment="Stretch" Foreground="White" FontSize="16" />
-
-                        <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="Black" />
-
-                        <Rectangle Grid.Column="2" Margin="10,2,10,2" RadiusX="12" RadiusY="12" Stroke="Black" StrokeThickness="2.5" Fill="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                        <Label Grid.Column="2" Margin="0" Content="YES" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" />
-
-                        <Rectangle Grid.Column="3" Margin="10,2,10,2" RadiusX="12" RadiusY="12" Stroke="Black" StrokeThickness="2.5" Fill="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-                        <Label Grid.Column="3" Margin="0" Content="NO" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" />
-                    </Grid>
+                    <Label Grid.Column="1" Content="Click to add New Variable..." HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Foreground="White" FontSize="16"/>
                 </Grid>
             </Border>
+
+
         </Grid>
 
         <!-- Extension Row -->
