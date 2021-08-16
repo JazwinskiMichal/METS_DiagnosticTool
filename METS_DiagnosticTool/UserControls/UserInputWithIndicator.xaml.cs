@@ -65,6 +65,8 @@ namespace METS_DiagnosticTool_UI.UserControls
         private bool bExtensionRow_LiveView_AnimationCompleted = false;
         private bool bExtensionRow_LiveViewDelayed_AnimationCompleted = false;
 
+        private bool bDeleteRow_Show_Completed = false;
+
         // Variable Configuration
         private bool bPollingActive = false;
         private bool bOnChangeActive = false;
@@ -129,6 +131,10 @@ namespace METS_DiagnosticTool_UI.UserControls
             ((Storyboard)Resources[extensionRow_LiveView_ShowBounceDown]).Completed += new EventHandler(extensionRow_LiveView_ShowBounceDown_Completed);
             ((Storyboard)Resources[extensionRow_LiveView_ShowBounceDownDelayed]).Completed += new EventHandler(extensionRow_LiveView_ShowBounceDownDelayed_Completed);
             ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Completed += new EventHandler(extensionRow_LiveView_ShowRollUp_Completed);
+
+            // Delete Row
+            ((Storyboard)Resources[deleteRow_Show]).Completed += new EventHandler(deleteRow_Show_Completed);
+            ((Storyboard)Resources[deleteRow_Hide]).Completed += new EventHandler(deleteRow_Hide_Completed);
 
             // By default Set Configuration Buttons to Diable
             BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
@@ -250,6 +256,10 @@ namespace METS_DiagnosticTool_UI.UserControls
         #region Delete Row
         private void DeleteRowInactive_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            Storyboard _deleteRow_Show = (Storyboard)Resources[deleteRow_Show];
+            DoubleAnimationUsingKeyFrames _deleteRow_Show_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Show.Children[3];
+            _deleteRow_Show_Anim.KeyFrames[0].Value = 0;
+
             ((Storyboard)Resources[deleteRow_Show]).Begin();
 
             variableConfigurationRow.IsEnabled = false;
@@ -258,6 +268,10 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void DeleteRowActive_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            Storyboard _deleteRow_Hide = (Storyboard)Resources[deleteRow_Hide];
+            DoubleAnimationUsingKeyFrames _deleteRow_Hide_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Hide.Children[0];
+            _deleteRow_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
+
             ((Storyboard)Resources[deleteRow_Hide]).Begin();
 
             variableConfigurationRow.IsEnabled = true;
@@ -266,6 +280,10 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void labelYES_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            Storyboard _deleteRow_Hide = (Storyboard)Resources[deleteRow_Hide];
+            DoubleAnimationUsingKeyFrames _deleteRow_Hide_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Hide.Children[0];
+            _deleteRow_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
+
             ((Storyboard)Resources[deleteRow_Hide]).Begin();
 
             variableConfigurationRow.IsEnabled = true;
@@ -276,6 +294,10 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void labelNO_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            Storyboard _deleteRow_Hide = (Storyboard)Resources[deleteRow_Hide];
+            DoubleAnimationUsingKeyFrames _deleteRow_Hide_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Hide.Children[0];
+            _deleteRow_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
+
             ((Storyboard)Resources[deleteRow_Hide]).Begin();
 
             variableConfigurationRow.IsEnabled = true;
@@ -632,6 +654,9 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void userControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             liveViewPlot.Width = ActualWidth - 50;
+
+            if (!bDeleteRow_Show_Completed)
+                deleteRowTransform.X = -ActualWidth;   
         }
         #endregion
         #endregion
@@ -736,6 +761,17 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         #endregion
 
+        #region Delete Row
+        private void deleteRow_Hide_Completed(object sender, EventArgs e)
+        {
+            bDeleteRow_Show_Completed = false;
+        }
+
+        private void deleteRow_Show_Completed(object sender, EventArgs e)
+        {
+            bDeleteRow_Show_Completed = true;
+        }
+        #endregion
         #endregion
     }
 }
