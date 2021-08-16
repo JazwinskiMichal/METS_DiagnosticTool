@@ -257,7 +257,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void DeleteRowInactive_MouseDown(object sender, MouseButtonEventArgs e)
         {
             Storyboard _deleteRow_Show = (Storyboard)Resources[deleteRow_Show];
-            DoubleAnimationUsingKeyFrames _deleteRow_Show_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Show.Children[3];
+            DoubleAnimationUsingKeyFrames _deleteRow_Show_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Show.Children[0];
             _deleteRow_Show_Anim.KeyFrames[0].Value = 0;
 
             ((Storyboard)Resources[deleteRow_Show]).Begin();
