@@ -758,7 +758,7 @@
                                 <ColumnDefinition Width="3*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Ellipse x:Name="recordingDot_ON" Fill="Chartreuse" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="7" RenderTransformOrigin="0.28,0.5">
+                            <Ellipse x:Name="recordingDot_ON" Fill="Chartreuse" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="0,7,0,7" RenderTransformOrigin="0.28,0.5">
                                 <Ellipse.RenderTransform>
                                     <TransformGroup>
                                         <ScaleTransform/>
@@ -769,7 +769,7 @@
                                 </Ellipse.RenderTransform>
                             </Ellipse>
 
-                            <Label Content="Recording is ON" Grid.Column="1" FontSize="14" Background="{x:Null}">
+                            <Label Content="Recording is ON" Grid.Column="1" FontSize="14" HorizontalAlignment="Left" Background="{x:Null}" VerticalContentAlignment="Center">
                                 <Label.Foreground>
                                     <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
                                 </Label.Foreground>
