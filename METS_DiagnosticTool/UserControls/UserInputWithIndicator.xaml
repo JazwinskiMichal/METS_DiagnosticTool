@@ -672,7 +672,7 @@
                 HorizontalContentAlignment="Left"
                 VerticalContentAlignment="Center"
                 TextWrapping="Wrap" 
-                Text="empty" 
+                Text="Enter PLC Variable Address here..." 
                 Background="#FF333337" 
                 BorderBrush="Transparent" FontSize="16" GotFocus="input_GotFocus" LostFocus="input_LostFocus" TextChanged="input_TextChanged">
                         <TextBox.Foreground>
@@ -779,11 +779,11 @@
                         <!-- Grid Recording OFF -->
                         <Grid x:Name="gridRecordingOFF" Visibility="Visible">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="3*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Ellipse x:Name="recordingDot_OFF" Width="25" Fill="Black" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="0,7,0,7" RenderTransformOrigin="0.5,0.5">
+                            <Ellipse x:Name="recordingDot_OFF" Fill="Black" VerticalAlignment="Stretch" Stretch="Uniform" HorizontalAlignment="Stretch" Margin="0,7,0,7" RenderTransformOrigin="0.28,0.5">
                                 <Ellipse.RenderTransform>
                                     <TransformGroup>
                                         <ScaleTransform/>

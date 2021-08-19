@@ -18,7 +18,7 @@ namespace METS_DiagnosticTool_UI.UserControls
     {
         #region Private Fields
         // PlaceHolder Text
-        private const string inputPlaceHolderText = "empty";
+        private const string inputPlaceHolderText = "Enter PLC Variable Address here...";
 
         // Storyboards Names
         private const string indicatorOK_Pop = "indicatorOK_Pop";
@@ -83,11 +83,16 @@ namespace METS_DiagnosticTool_UI.UserControls
         private List<UserInputWithIndicator_Image> pollingButtons = new List<UserInputWithIndicator_Image>();
         private List<UserInputWithIndicator_Image> onChangeButtons = new List<UserInputWithIndicator_Image>();
         private List<UserInputWithIndicator_Image> recordingButtons = new List<UserInputWithIndicator_Image>();
+
+        // Last Correct PLC Variable
+        private string lastCorrectPLCvariable = string.Empty;
         #endregion
 
         #region Events
         public event EventHandler AddNewVariableClicked;
         public event EventHandler<UserInputWithIndicator> DeleteVariableClicked;
+        public event EventHandler<string> CorrectVariableAdded;
+        public event EventHandler<string> CorrectVariableDeleted;
         #endregion
 
         #region Default Constructor
@@ -293,6 +298,13 @@ namespace METS_DiagnosticTool_UI.UserControls
             liveViewRow.IsEnabled = true;
 
             DeleteVariableClicked?.Invoke(this, (UserInputWithIndicator)userControl);
+
+            // Fire up event that last correct variable has been deleted
+            if (!string.IsNullOrEmpty(lastCorrectPLCvariable))
+            {
+                CorrectVariableDeleted?.Invoke(this, lastCorrectPLCvariable);
+                lastCorrectPLCvariable = string.Empty;
+            }
         }
 
         private void labelNO_MouseDown(object sender, MouseButtonEventArgs e)
@@ -349,13 +361,25 @@ namespace METS_DiagnosticTool_UI.UserControls
             // Check provided PLC Variable address if it can be found among all PLC variables show OK,
             // if it cant be find show NOK
 
+            bool _duplicate = false;
+
             if (!string.IsNullOrEmpty(input.Text))
             {
+                // First check has the variable been already declared or not
+                foreach (string variable in Utility.ListOfDeclaredPLCVariables)
+                {
+                    if (string.Equals(input.Text, variable, StringComparison.OrdinalIgnoreCase))
+                    {
+                        _duplicate = true;
+                        break;
+                    }
+                }
+
                 // Check Existance of the PLC Variable
-                Task<string> _checkGivenPLCAddress =  RabbitMQHelper.CallPLCVariableExistanceCheck(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkPLCVarExistance], input.Text);
+                Task<string> _checkGivenPLCAddress = RabbitMQHelper.CallPLCVariableExistanceCheck(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkPLCVarExistance], input.Text);
                 await _checkGivenPLCAddress;
 
-                if (_checkGivenPLCAddress.Result == true.ToString())
+                if (_checkGivenPLCAddress.Result == true.ToString() && !_duplicate)
                 {
                     if (!bOKPopCompleted)
                     {
@@ -364,16 +388,35 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                         // Show Configuration Enabled Button
                         BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+
+                        // Fire up event handler that correct variable has just been added 
+                        CorrectVariableAdded?.Invoke(this, input.Text);
+
+                        lastCorrectPLCvariable = input.Text;
                     }
                 }
                 else if (input.Text != inputPlaceHolderText)
                 {
                     InputVariableNotFound();
+
+                    // Fire up event that last correct variable has been deleted
+                    if(!string.IsNullOrEmpty(lastCorrectPLCvariable))
+                    {
+                        CorrectVariableDeleted?.Invoke(this, lastCorrectPLCvariable);
+                        lastCorrectPLCvariable = string.Empty;
+                    }
                 }
             }
             else
             {
                 InputVariableNotFound();
+
+                // Fire up event that last correct variable has been deleted
+                if (!string.IsNullOrEmpty(lastCorrectPLCvariable))
+                {
+                    CorrectVariableDeleted?.Invoke(this, lastCorrectPLCvariable);
+                    lastCorrectPLCvariable = string.Empty;
+                }
             }
         }
         #endregion

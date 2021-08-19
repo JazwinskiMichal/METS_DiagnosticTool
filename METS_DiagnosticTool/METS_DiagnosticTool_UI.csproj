@@ -278,7 +278,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\METS_DiagnosticTool_Utilities\METS_DiagnosticTool_Utilities.csproj">
-      <Project>{552AB573-DE48-4954-A9A4-3B9548A02500}</Project>
+      <Project>{552ab573-de48-4954-a9a4-3b9548a02500}</Project>
       <Name>METS_DiagnosticTool_Utilities</Name>
     </ProjectReference>
   </ItemGroup>

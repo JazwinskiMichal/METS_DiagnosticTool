@@ -7,6 +7,8 @@ namespace METS_DiagnosticTool_Utilities
 {
     public class Utility
     {
+        public static List<string> ListOfDeclaredPLCVariables = new List<string>();
+
         public const string DateTimeFormat_Hour = "HH:mm:ss";
         public const string DateTimeFormat = "dd.MM.yyyy HH:mm:ss";
         public const string DateTimeFormat_WithMilisec = "dd.MM.yyyy HH:mm:ss.fff";

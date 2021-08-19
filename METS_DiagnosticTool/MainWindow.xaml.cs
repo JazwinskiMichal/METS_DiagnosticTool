@@ -37,14 +37,14 @@ namespace METS_DiagnosticTool_UI
                 Environment.Exit(0);
             }
 
-            
-
             // Initialize First Row
             _row = new UserControls.UserInputWithIndicator();
 
             // Attach Events
             _row.AddNewVariableClicked += Label1_AddNewVariableClicked;
             _row.DeleteVariableClicked += Label1_DeleteVariableClicked;
+            _row.CorrectVariableAdded += _row_CorrectVariableAdded;
+            _row.CorrectVariableDeleted += _row_CorrectVariableDeleted;
 
             // Add row to the Grid for the Control
             RowDefinition rowDefinition = new RowDefinition();
@@ -62,6 +62,24 @@ namespace METS_DiagnosticTool_UI
             _rowCount++;
         }
 
+        private void _row_CorrectVariableDeleted(object sender, string e)
+        {
+            if (Utility.ListOfDeclaredPLCVariables.Contains(e))
+            {
+                Utility.ListOfDeclaredPLCVariables.Remove(e);
+
+                Logger.Log(Logger.logLevel.Warning, "Correct variable removed " + e, Logger.logEvents.Blank);
+            }
+                
+        }
+
+        private void _row_CorrectVariableAdded(object sender, string e)
+        {
+            Utility.ListOfDeclaredPLCVariables.Add(e);
+
+            Logger.Log(Logger.logLevel.Warning, "Correct variable added " + e, Logger.logEvents.Blank);
+        }
+
         private void Label1_AddNewVariableClicked(object sender, EventArgs e)
         {
             // Create new Control
@@ -70,6 +88,8 @@ namespace METS_DiagnosticTool_UI
             // Attach Events
             _row.AddNewVariableClicked += Label1_AddNewVariableClicked;
             _row.DeleteVariableClicked += Label1_DeleteVariableClicked;
+            _row.CorrectVariableAdded += _row_CorrectVariableAdded;
+            _row.CorrectVariableDeleted += _row_CorrectVariableDeleted;
 
             // Add row to the Grid for the Control
             RowDefinition rowDefinition = new RowDefinition();
