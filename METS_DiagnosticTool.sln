@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "METS_DiagnosticTool_UI", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "METS_DiagnosticTool_Core", "METS_DiagnosticTool_Core\METS_DiagnosticTool_Core.csproj", "{FBCAB14F-85E5-4D29-9506-10383E4B5A16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "METS_DiagnosticTool_Utilities", "METS_DiagnosticTool_Utilities\METS_DiagnosticTool_Utilities.csproj", "{552AB573-DE48-4954-A9A4-3B9548A02500}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FBCAB14F-85E5-4D29-9506-10383E4B5A16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBCAB14F-85E5-4D29-9506-10383E4B5A16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBCAB14F-85E5-4D29-9506-10383E4B5A16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{552AB573-DE48-4954-A9A4-3B9548A02500}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{552AB573-DE48-4954-A9A4-3B9548A02500}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{552AB573-DE48-4954-A9A4-3B9548A02500}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{552AB573-DE48-4954-A9A4-3B9548A02500}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

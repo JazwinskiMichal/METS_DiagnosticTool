@@ -7,12 +7,12 @@ using System.Windows;
 // Ogólne informacje o zestawie są kontrolowane poprzez następujący 
 // zestaw atrybutów. Zmień wartości tych atrybutów, aby zmodyfikować informacje
 // powiązane z zestawem.
-[assembly: AssemblyTitle("METS_DiagnosticTool_UI")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("METS Diagnostic Tool UI")]
+[assembly: AssemblyDescription("METS Diagnostic Tool UI")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("METS_DiagnosticTool_UI")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCompany("MIHOW Michal Jazwinski")]
+[assembly: AssemblyProduct("METS Diagnostic Tool")]
+[assembly: AssemblyCopyright("Copyright ©  2021 MIHOW Michal Jazwinski")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
