@@ -65,19 +65,13 @@ namespace METS_DiagnosticTool_UI
         private void _row_CorrectVariableDeleted(object sender, string e)
         {
             if (Utility.ListOfDeclaredPLCVariables.Contains(e))
-            {
                 Utility.ListOfDeclaredPLCVariables.Remove(e);
-
-                Logger.Log(Logger.logLevel.Warning, "Correct variable removed " + e, Logger.logEvents.Blank);
-            }
                 
         }
 
         private void _row_CorrectVariableAdded(object sender, string e)
         {
             Utility.ListOfDeclaredPLCVariables.Add(e);
-
-            Logger.Log(Logger.logLevel.Warning, "Correct variable added " + e, Logger.logEvents.Blank);
         }
 
         private void Label1_AddNewVariableClicked(object sender, EventArgs e)

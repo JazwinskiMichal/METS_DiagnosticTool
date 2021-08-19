@@ -15,11 +15,16 @@ namespace METS_DiagnosticTool_Utilities
     {
         public enum RoutingKeysDictionary
         {
-            checkPLCVarExistance = 0
+            checkPLCVarExistance = 0,
+            plcVarConfigRead = 1,
+            plcVarConfigSave = 2
         }
-        internal const string checkPLCVarExistance = "checkPLCVarExistance";
 
-        public static string[] RoutingKeys = new string[] { checkPLCVarExistance };
+        internal const string checkPLCVarExistance = "checkPLCVarExistance";
+        internal const string plcVarConfigRead = "plcVarConfigRead";
+        internal const string plcVarConfigSave = "plcVarConfigSave";
+
+        public static string[] RoutingKeys = new string[] { checkPLCVarExistance, plcVarConfigRead, plcVarConfigSave };
 
         private static RpcServer _rpcServer;
         private static RpcClient _rpcClient;
@@ -97,10 +102,10 @@ namespace METS_DiagnosticTool_Utilities
             return _return;
         }
 
-        public static async Task<string> CallPLCVariableExistanceCheck(string routingKey, string plcVariableAddress)
+        public static async Task<string> SendToServer(string routingKey, string message)
         {
             if (_rpcClient != null)
-                return await _rpcClient.CallAsync(routingKey, plcVariableAddress);
+                return await _rpcClient.CallAsync(routingKey, message);
             else
                 return "";
         }
@@ -172,9 +177,21 @@ namespace METS_DiagnosticTool_Utilities
                     // Send appropiate response base on RoutingKey
                     switch (routingKey)
                     {
+                        // Check Existance of the PLC
                         case RabbitMQHelper.checkPLCVarExistance:
                             response = CheckPLCVariableExistance(message).ToString();
                             break;
+
+                        // Read PLC Var Configuration
+                        case RabbitMQHelper.plcVarConfigRead:
+                            // TO DO read PLC Variable Configuration (just single variable configuration)
+                            break;
+
+                        // Save PLC Var Configuration
+                        case RabbitMQHelper.plcVarConfigSave:
+                            // TO DO save given configuration to the XML File, so it could be restored afterwards (just single variable configuration)
+                            break;
+
                         default:
                             response = false.ToString();
                             break;

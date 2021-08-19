@@ -376,7 +376,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                 }
 
                 // Check Existance of the PLC Variable
-                Task<string> _checkGivenPLCAddress = RabbitMQHelper.CallPLCVariableExistanceCheck(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkPLCVarExistance], input.Text);
+                Task<string> _checkGivenPLCAddress = RabbitMQHelper.SendToServer(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkPLCVarExistance], input.Text);
                 await _checkGivenPLCAddress;
 
                 if (_checkGivenPLCAddress.Result == true.ToString() && !_duplicate)
