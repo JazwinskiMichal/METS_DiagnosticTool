@@ -276,6 +276,12 @@
   <ItemGroup>
     <Folder Include="Resources\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\METS_DiagnosticTool_Utilities\METS_DiagnosticTool_Utilities.csproj">
+      <Project>{552AB573-DE48-4954-A9A4-3B9548A02500}</Project>
+      <Name>METS_DiagnosticTool_Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.5.2\build\Fody.targets" Condition="Exists('..\packages\Fody.6.5.2\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

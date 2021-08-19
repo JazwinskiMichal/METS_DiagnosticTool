@@ -1,4 +1,5 @@
-﻿using System;
+﻿using METS_DiagnosticTool_Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,16 @@ namespace METS_DiagnosticTool_UI
         public MainWindow()
         {
             InitializeComponent();
+
+            // Check if other instance of UI is already running
+            if(UIHelper.CheckUIRunning())
+            {
+                // Show old Instance of the UI and kill myself
+                UIHelper.ShowUI();
+                Environment.Exit(0);
+            }
+
+            
 
             // Initialize First Row
             _row = new UserControls.UserInputWithIndicator();

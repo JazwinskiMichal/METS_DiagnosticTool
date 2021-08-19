@@ -157,6 +157,16 @@ namespace METS_DiagnosticTool_Utilities
             }
         }
 
+        public static bool CheckPLCVariableExistance(string i_sTagName)
+        {
+            bool _return = false;
+
+            if (tcClient.ReadSymbolInfo(i_sTagName) != null)
+                _return = true;
+
+            return _return;
+        }
+
         public static string ReadPLCValues(string i_sTagName, G_ET_TagType i_eTagType)
         {
             string _return = string.Empty;

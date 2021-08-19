@@ -48,6 +48,8 @@ namespace METS_DiagnosticTool_Utilities
             {
 
                 // Get input Parameters for UI
+                 { "-CorePath:", corePath },
+                { "-UIPath:", Utility.ParseArg(givenArgs, "-BridgeUIPath:") },
                 { "-ADSIp:", Utility.ParseArg(givenArgs, "-ADSIp:") },
                 { "-ADSPort:", Utility.ParseArg(givenArgs, "-ADSPort:") }
             };

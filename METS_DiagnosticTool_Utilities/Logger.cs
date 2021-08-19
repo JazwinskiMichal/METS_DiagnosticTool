@@ -52,7 +52,7 @@ namespace METS_DiagnosticTool_Utilities
             #endregion
 
             #region Info
-            Starting = 300
+            Starting = 300,
             StartedSuccesfully = 301,
             StoppedSuccesfully = 302,
             TwincatADSConnectionOk = 303

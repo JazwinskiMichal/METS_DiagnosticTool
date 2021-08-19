@@ -13,6 +13,10 @@ namespace METS_DiagnosticTool_Utilities
 {
     public class RabbitMQHelper
     {
+        public enum RoutingKeysDictionary
+        {
+            checkPLCVarExistance = 0
+        }
         internal const string checkPLCVarExistance = "checkPLCVarExistance";
 
         public static string[] RoutingKeys = new string[] { checkPLCVarExistance };
@@ -93,6 +97,14 @@ namespace METS_DiagnosticTool_Utilities
             return _return;
         }
 
+        public static async Task<string> CallPLCVariableExistanceCheck(string routingKey, string plcVariableAddress)
+        {
+            if (_rpcClient != null)
+                return await _rpcClient.CallAsync(routingKey, plcVariableAddress);
+            else
+                return "";
+        }
+
         /// <summary>
         /// Client Close Connection
         /// </summary>
@@ -161,19 +173,16 @@ namespace METS_DiagnosticTool_Utilities
                     switch (routingKey)
                     {
                         case RabbitMQHelper.checkPLCVarExistance:
-                            // TO DO Here Actual code to make check for PLC Variable Existance
+                            response = CheckPLCVariableExistance(message).ToString();
                             break;
                         default:
+                            response = false.ToString();
                             break;
                     }
-
-                    int n = int.Parse(message);
-                    //Console.WriteLine(" [.] received({0})", message);
-                    response = n.ToString();
                 }
                 catch (Exception e)
                 {
-                    Logger.Log(Logger.logLevel.Error, string.Concat("Rabbit MQ Server Exception when trying to receive a Message from Client ", e.Message),
+                    Logger.Log(Logger.logLevel.Error, string.Concat("Rabbit MQ Server Exception when trying to receive a Message from Client ", e.ToString()),
                        Logger.logEvents.RabbitMQServerInitailiztionError);
                 }
                 finally

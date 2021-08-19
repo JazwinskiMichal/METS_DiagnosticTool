@@ -1,6 +1,8 @@
-﻿using System;
+﻿using METS_DiagnosticTool_Utilities;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,10 +17,8 @@ namespace METS_DiagnosticTool_UI.UserControls
     public partial class UserInputWithIndicator : UserControl
     {
         #region Private Fields
-        // Example Variable Address
-        private const string exampleOKVariableAddress = ".sBridge.nWatchdog";
         // PlaceHolder Text
-        private const string inputPlaceHolderText = "Enter Variable address here...";
+        private const string inputPlaceHolderText = "empty";
 
         // Storyboards Names
         private const string indicatorOK_Pop = "indicatorOK_Pop";
@@ -94,6 +94,9 @@ namespace METS_DiagnosticTool_UI.UserControls
         public UserInputWithIndicator()
         {
             InitializeComponent();
+
+            // Initialize Rabbit MQ Client
+            RabbitMQHelper.InitializeClient();
 
             // Initialize List of Buttons
             configurationButtons.Add(configurationDisabled);
@@ -341,14 +344,18 @@ namespace METS_DiagnosticTool_UI.UserControls
             }
         }
 
-        private void input_TextChanged(object sender, TextChangedEventArgs e)
+        private async void input_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Check provided PLC Variable address if it can be found among all PLC variables show OK,
             // if it cant be find show NOK
 
             if (!string.IsNullOrEmpty(input.Text))
             {
-                if (input.Text == exampleOKVariableAddress)
+                // Check Existance of the PLC Variable
+                Task<string> _checkGivenPLCAddress =  RabbitMQHelper.CallPLCVariableExistanceCheck(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkPLCVarExistance], input.Text);
+                await _checkGivenPLCAddress;
+
+                if (_checkGivenPLCAddress.Result == true.ToString())
                 {
                     if (!bOKPopCompleted)
                     {

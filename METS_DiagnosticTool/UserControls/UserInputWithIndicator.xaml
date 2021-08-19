@@ -672,7 +672,7 @@
                 HorizontalContentAlignment="Left"
                 VerticalContentAlignment="Center"
                 TextWrapping="Wrap" 
-                Text="Enter Variable address here..." 
+                Text="empty" 
                 Background="#FF333337" 
                 BorderBrush="Transparent" FontSize="16" GotFocus="input_GotFocus" LostFocus="input_LostFocus" TextChanged="input_TextChanged">
                         <TextBox.Foreground>
