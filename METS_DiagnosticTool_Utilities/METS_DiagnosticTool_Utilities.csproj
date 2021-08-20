@@ -72,6 +72,7 @@
     <Compile Include="TwincatHelper.cs" />
     <Compile Include="UIHelper.cs" />
     <Compile Include="Utility.cs" />
+    <Compile Include="VariableConfigurationHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

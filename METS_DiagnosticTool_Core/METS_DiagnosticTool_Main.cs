@@ -11,6 +11,8 @@ namespace METS_DiagnosticTool_Core
     class METS_DiagnosticTool_Main : ServiceControl
     {
         // Local Input Parameters
+        private static string _uiFullPath;
+        private static string _corePath;
         private static string _amsAddress;
         private static string _amsPort;
 
@@ -18,8 +20,10 @@ namespace METS_DiagnosticTool_Core
         private static bool twincat_InitializedOK = false;
 
         #region Constructor
-        public METS_DiagnosticTool_Main(string amsAddress, string amsPort)
+        public METS_DiagnosticTool_Main(string corePath, string uiFullPath, string amsAddress, string amsPort)
         {
+            _corePath = corePath;
+            _uiFullPath = uiFullPath;
             _amsAddress = amsAddress;
             _amsPort = amsPort;
         }
@@ -29,6 +33,8 @@ namespace METS_DiagnosticTool_Core
         public bool Start(HostControl hostControl)
         {
             Logger.Log(Logger.logLevel.Information, string.Concat("METS Diagnostic Tool started with parameters:",
+                                                            Environment.NewLine, "Core Path ", Utility.CheckStringEmpty(_corePath),
+                                                            Environment.NewLine, "UI Path ", Utility.CheckStringEmpty(_uiFullPath),
                                                             Environment.NewLine, "ADS Ip ", Utility.CheckStringEmpty(_amsAddress),
                                                             Environment.NewLine, "ADS Port ", Utility.CheckStringEmpty(_amsPort)), Logger.logEvents.Starting);
 

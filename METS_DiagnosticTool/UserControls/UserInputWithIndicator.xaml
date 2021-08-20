@@ -12,7 +12,7 @@
 
     <UserControl.Resources>
         <System:GridLength x:Key="extensionRowHeight">0</System:GridLength>
-        <!-- 160 or 360 -->
+        <!-- 200 or 360 -->
 
         <!-- Indicator NOK Storyboard -->
         <Storyboard x:Key="indicatorNOK_Shake">
@@ -114,7 +114,7 @@
                 </DiscreteObjectKeyFrame>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.1">
                     <DiscreteObjectKeyFrame.Value>
-                        <GridLength>160</GridLength>
+                        <GridLength>200</GridLength>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
             </ObjectAnimationUsingKeyFrames>
@@ -130,7 +130,7 @@
                 </DiscreteObjectKeyFrame>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.6">
                     <DiscreteObjectKeyFrame.Value>
-                        <GridLength>160</GridLength>
+                        <GridLength>200</GridLength>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
             </ObjectAnimationUsingKeyFrames>
@@ -141,7 +141,7 @@
             <ObjectAnimationUsingKeyFrames Duration="0:0:0.5" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.000">
                     <DiscreteObjectKeyFrame.Value>
-                        <GridLength>160</GridLength>
+                        <GridLength>200</GridLength>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
@@ -157,7 +157,7 @@
             <ObjectAnimationUsingKeyFrames Duration="0:0:1" Storyboard.TargetName="extensionRow" Storyboard.TargetProperty="Height">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5">
                     <DiscreteObjectKeyFrame.Value>
-                        <GridLength>160</GridLength>
+                        <GridLength>200</GridLength>
                     </DiscreteObjectKeyFrame.Value>
                 </DiscreteObjectKeyFrame>
                 <DiscreteObjectKeyFrame KeyTime="0:0:1">
@@ -247,7 +247,7 @@
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleVariableConfiguration">
-                <EasingDoubleKeyFrame KeyTime="0" Value="-80">
+                <EasingDoubleKeyFrame KeyTime="0" Value="-100">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
                     </EasingDoubleKeyFrame.EasingFunction>
@@ -281,7 +281,7 @@
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleVariableConfiguration">
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-80">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-100">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <BounceEase EasingMode="EaseOut" Bounces="10" Bounciness="5"/>
                     </EasingDoubleKeyFrame.EasingFunction>
@@ -312,7 +312,7 @@
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleVariableConfiguration">
                 <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-80">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-100">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <CircleEase EasingMode="EaseIn"/>
                     </EasingDoubleKeyFrame.EasingFunction>
@@ -332,7 +332,7 @@
             </DoubleAnimationUsingKeyFrames>
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.Y)" Storyboard.TargetName="rectangleVariableConfiguration">
                 <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0"/>
-                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="-80">
+                <EasingDoubleKeyFrame KeyTime="0:0:1" Value="-100">
                     <EasingDoubleKeyFrame.EasingFunction>
                         <CircleEase EasingMode="EaseIn"/>
                     </EasingDoubleKeyFrame.EasingFunction>
@@ -630,7 +630,7 @@
     <!-- Main Grid -->
     <Grid x:Name="mainGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="160" MaxHeight="40" MinHeight="40"/>
+            <RowDefinition Height="200" MaxHeight="40" MinHeight="40"/>
             <RowDefinition x:Name="extensionRow" Height="{StaticResource extensionRowHeight}"/>
         </Grid.RowDefinitions>
 
@@ -950,6 +950,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="4*"/>
+                <RowDefinition Height="40"/>
             </Grid.RowDefinitions>
 
             <Label Content="Variable Configuration" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Foreground="White" FontSize="14"/>
@@ -1065,6 +1066,20 @@
 
                 <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="recordingDisabled" Margin="12"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                                                     Style="{StaticResource recordingOFF}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="False" Color="Black"/>
+            </Grid>
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label x:Name="saveConfigurationLabel" Grid.Column="0" Margin="0" Content="SAVE" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" Padding="0,0,0,2" MouseDown="labelYES_MouseDown" />
+                
+                <Rectangle x:Name="saveConfigurationRectangle" Grid.Column="0" Margin="15,4,15,4" RadiusX="12" RadiusY="12" StrokeThickness="2.5" Fill="Transparent" Width="80" HorizontalAlignment="Center" VerticalAlignment="Stretch" MouseDown="saveConfigurationRectangle_MouseDown">
+                    <Rectangle.Stroke>
+                        <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                    </Rectangle.Stroke>
+                </Rectangle>
             </Grid>
         </Grid>
 

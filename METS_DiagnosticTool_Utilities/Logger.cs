@@ -45,6 +45,8 @@ namespace METS_DiagnosticTool_Utilities
             RabbitMQServerCloseConnectionError = 202,
             RabbitMQClientInitailiztionError = 203,
             RabbitMQClientCloseConnectionError = 204,
+
+            SaveVariableConfigurationError = 300,
             #endregion
 
             #region Warnings

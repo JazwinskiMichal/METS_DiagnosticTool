@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static METS_DiagnosticTool_Utilities.TwincatHelper;
+using static METS_DiagnosticTool_Utilities.VariableConfigurationHelper;
 
 namespace METS_DiagnosticTool_Utilities
 {
@@ -102,12 +103,26 @@ namespace METS_DiagnosticTool_Utilities
             return _return;
         }
 
-        public static async Task<string> SendToServer(string routingKey, string message)
+        public static async Task<string> SendToServer_CheckPLCVarExistance(string routingKey, string message)
         {
             if (_rpcClient != null)
                 return await _rpcClient.CallAsync(routingKey, message);
             else
-                return "";
+                return string.Empty;
+        }
+
+        public static async Task<string> SendToServer_SavePLCVarConfig(string routingKey, string xmlFilePath, string variableAddress, LoggingType loggingType, int pollingRefreshTime, bool recording)
+        {
+            // Create here message string to send to server
+            if(_rpcClient != null)
+            {
+                string _message = string.Concat("XMLFileFullPath$", xmlFilePath, ";VariableAddress$", variableAddress,
+                                    ";LoggingType$", (int)loggingType, ";PollingRefreshTime$", pollingRefreshTime.ToString(), ";Recording$", recording.ToString());
+                
+                return await _rpcClient.CallAsync(routingKey, _message);
+            }
+            else
+                return string.Empty;
         }
 
         /// <summary>
@@ -189,7 +204,7 @@ namespace METS_DiagnosticTool_Utilities
 
                         // Save PLC Var Configuration
                         case RabbitMQHelper.plcVarConfigSave:
-                            // TO DO save given configuration to the XML File, so it could be restored afterwards (just single variable configuration)
+                            response = SavePLCVariableConfig(message).ToString();
                             break;
 
                         default:

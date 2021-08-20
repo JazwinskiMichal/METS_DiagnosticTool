@@ -11,6 +11,7 @@ namespace METS_DiagnosticTool_Core
 {
     class Program
     {
+        private static string _corePath = string.Empty;
         private static string _uiFullPath = @"C:\Users\MIHOW\source\repos\METS_DiagnosticTool\METS_DiagnosticTool\bin\Release\METS_DiagnosticTool_UI.exe";
         private static string _amsAddress = "192.168.1.65.2.1";
         private static string _amsPort = "851";
@@ -26,7 +27,8 @@ namespace METS_DiagnosticTool_Core
             doingUninstall = UIHelper.CheckUninstall(args);
 
             // Get All Input Parameters
-            inputParameters = UIHelper.GetInputParameters(System.Reflection.Assembly.GetExecutingAssembly().Location, args);
+            _corePath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            inputParameters = UIHelper.GetInputParameters(_corePath, args);
 
             // Main Topshelf Magic code
             TopshelfExitCode exitCode = HostFactory.Run(x =>
@@ -34,11 +36,12 @@ namespace METS_DiagnosticTool_Core
                 x.EnableStartParameters();
                 x.Service<METS_DiagnosticTool_Main>(s =>
                 {
-                    s.ConstructUsing(metsDiagnosticTool => new METS_DiagnosticTool_Main(_amsAddress, _amsPort));
+                    s.ConstructUsing(metsDiagnosticTool => new METS_DiagnosticTool_Main(_corePath, _uiFullPath, _amsAddress, _amsPort));
                     s.WhenStarted((metsDiagnosticTool, hostControl) => metsDiagnosticTool.Start(hostControl));
                     s.WhenStopped((metsDiagnosticTool, hostControl) => metsDiagnosticTool.Stop(hostControl));
                 });
 
+                x.WithStartParameter("CorePath", n => _corePath = n);
                 x.WithStartParameter("UIPath", n => _uiFullPath = n);
                 x.WithStartParameter("ADSIp", n => _amsAddress = n);
                 x.WithStartParameter("ADSPort", n => _amsPort = n);

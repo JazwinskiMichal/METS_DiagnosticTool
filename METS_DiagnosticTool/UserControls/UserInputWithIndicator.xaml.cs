@@ -1,6 +1,7 @@
 ﻿using METS_DiagnosticTool_Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,6 +17,9 @@ namespace METS_DiagnosticTool_UI.UserControls
     /// </summary>
     public partial class UserInputWithIndicator : UserControl
     {
+        #region Public Fields
+        public string coreFullPath = string.Empty;
+        #endregion
         #region Private Fields
         // PlaceHolder Text
         private const string inputPlaceHolderText = "Enter PLC Variable Address here...";
@@ -376,7 +380,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                 }
 
                 // Check Existance of the PLC Variable
-                Task<string> _checkGivenPLCAddress = RabbitMQHelper.SendToServer(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkPLCVarExistance], input.Text);
+                Task<string> _checkGivenPLCAddress = RabbitMQHelper.SendToServer_CheckPLCVarExistance(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkPLCVarExistance], input.Text);
                 await _checkGivenPLCAddress;
 
                 if (_checkGivenPLCAddress.Result == true.ToString() && !_duplicate)
@@ -468,14 +472,14 @@ namespace METS_DiagnosticTool_UI.UserControls
                 }
                 else
                 {
-                    // Hide Extension Variable Configuration Row Animation
-                    ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
-                    ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+                    //// Hide Extension Variable Configuration Row Animation
+                    //((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
+                    //((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
 
-                    // Hide Variable Configuration Data
-                    ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+                    //// Hide Variable Configuration Data
+                    //((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
 
-                    BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+                    //BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
                 }
             }
 
@@ -484,16 +488,16 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void configurationActive_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Hide Extension Variable Configuration Row Animation
-            ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
-            ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+            //// Hide Extension Variable Configuration Row Animation
+            //((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
+            //((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
 
-            // Hide Variable Configuration Data
-            ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+            //// Hide Variable Configuration Data
+            //((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
 
-            BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+            //BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
 
-            Keyboard.ClearFocus();
+            //Keyboard.ClearFocus();
         }
 
         private void logginPolling_MouseDown(object sender, MouseButtonEventArgs e)
@@ -578,7 +582,6 @@ namespace METS_DiagnosticTool_UI.UserControls
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
                     BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
                 }
-
             }
         }
 
@@ -620,6 +623,29 @@ namespace METS_DiagnosticTool_UI.UserControls
                 // Make Vairable Input Field Disabled
                 input.IsEnabled = false;
             }
+
+            Keyboard.ClearFocus();
+        }
+
+        private async void saveConfigurationRectangle_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // Confirm Variable Configuration
+            Task<string> _saveGivenVariableConfiguration = RabbitMQHelper.SendToServer_SavePLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.plcVarConfigSave],
+                                                                                                        string.Concat(coreFullPath, @"\XML\VariablesConfiguration.xml"),
+                                                                                                        input.Text,
+                                                                                                        bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
+                                                                                                        string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
+                                                                                                        bRecordingActive ? true : false);
+            await _saveGivenVariableConfiguration;
+
+            // Hide Extension Variable Configuration Row Animation
+            ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
+            ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+
+            // Hide Variable Configuration Data
+            ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+
+            BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
 
             Keyboard.ClearFocus();
         }
@@ -822,6 +848,9 @@ namespace METS_DiagnosticTool_UI.UserControls
             bDeleteRow_Show_Completed = true;
         }
         #endregion
+
         #endregion
+
+        
     }
 }
