@@ -621,6 +621,40 @@
                 <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Visible}"/>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
+
+        <!-- Unsaved Changes Show Storyboard -->
+        <Storyboard x:Key="unsavedChanges_Show">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="variableConfigurationRow_SaveChangesWarning">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Unsaved Changes Hide Storyboard -->
+        <Storyboard x:Key="unsavedChanges_Hide">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="variableConfigurationRow_SaveChangesWarning">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-800">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="changeLabelSaveEdit_ShowEdit">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(ContentControl.Content)" Storyboard.TargetName="saveConfigurationLabel">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="SAVE"/>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="EDIT"/>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+        <Storyboard x:Key="changeLabelSaveEdit_ShowSave">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(ContentControl.Content)" Storyboard.TargetName="saveConfigurationLabel">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="EDIT"/>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="SAVE"/>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
     </UserControl.Resources>
 
     <UserControl.Foreground>
@@ -955,7 +989,7 @@
 
             <Label Content="Variable Configuration" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="2" Foreground="White" FontSize="14"/>
 
-            <Grid Grid.Row="1">
+            <Grid x:Name="variableConfigurationControls" Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="5"/>
@@ -1035,8 +1069,7 @@
                         Margin="8,8,8,8"
                         Foreground="White" 
                         Text="100"
-                        PreviewTextInput="refreshTimeInput_PreviewTextInput"
-                        TextChanged="refreshTimeInput_TextChanged">
+                        PreviewTextInput="refreshTimeInput_PreviewTextInput">
                     </TextBox>
 
                     <Label x:Name="lblRefreshTimeMs" Content="ms" Margin="0,0,0,0" Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0"/>
@@ -1074,7 +1107,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Label x:Name="saveConfigurationLabel" Grid.Column="0" Margin="0" Content="SAVE" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" Padding="0,0,0,2" MouseDown="labelYES_MouseDown" />
-                
+
                 <Rectangle x:Name="saveConfigurationRectangle" Grid.Column="0" Margin="15,4,15,4" RadiusX="12" RadiusY="12" StrokeThickness="2.5" Fill="Transparent" Width="80" HorizontalAlignment="Center" VerticalAlignment="Stretch" MouseDown="saveConfigurationRectangle_MouseDown">
                     <Rectangle.Stroke>
                         <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
@@ -1095,6 +1128,42 @@
 
             <Label Content="Live View" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2" Foreground="White" FontSize="14"/>
             <WpfPlot x:Name="liveViewPlot" Width="740" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Stretch" Margin="10"/>
+        </Grid>
+
+        <Grid x:Name="variableConfigurationRow_SaveChangesWarning" Grid.Row="1" Visibility="Visible" MouseDown="variableConfigurationRow_SaveChangesWarning_MouseDown" RenderTransformOrigin="0.5,0.5" >
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform X="-800"/>
+                </TransformGroup>
+            </Grid.RenderTransform>
+            <Border BorderBrush="Black" BorderThickness="0" Background="#FF252526" RenderTransformOrigin="0.5,0.5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <local:UserInputWithIndicator_Image Margin="40" HorizontalAlignment="Center" VerticalAlignment="Stretch" 
+                                                    Style="{StaticResource warningTriangle}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Yellow"/>
+
+                    <Rectangle Grid.Column="1" Grid.RowSpan="4" VerticalAlignment="Stretch" Width="1" Margin="2,20,2,20" Stroke="Black" />
+
+                    <Grid Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Label Content="Warning!" FontSize="25" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="5"/>
+
+                        <Label Grid.Row="1" Content="Save changes first" FontSize="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="5"/>
+                    </Grid>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

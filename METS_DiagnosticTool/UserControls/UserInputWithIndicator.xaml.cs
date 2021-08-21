@@ -20,6 +20,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         #region Public Fields
         public string coreFullPath = string.Empty;
         #endregion
+
         #region Private Fields
         // PlaceHolder Text
         private const string inputPlaceHolderText = "Enter PLC Variable Address here...";
@@ -54,6 +55,10 @@ namespace METS_DiagnosticTool_UI.UserControls
         private const string addNewVariable_Show = "addNewRow_Show";
         private const string deleteRow_Hide = "deleteRow_Hide";
         private const string deleteRow_Show = "deleteRow_Show";
+        private const string unsavedChanges_Show = "unsavedChanges_Show";
+        private const string unsavedChanges_Hide = "unsavedChanges_Hide";
+        private const string changeLabelSaveEdit_ShowEdit = "changeLabelSaveEdit_ShowEdit";
+        private const string changeLabelSaveEdit_ShowSave = "changeLabelSaveEdit_ShowSave";
 
         // Flag to indicate that Storyboard has completed
         private bool bOKPopCompleted = false;
@@ -75,6 +80,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         private bool bPollingActive = false;
         private bool bOnChangeActive = false;
         private bool bRecordingActive = false;
+        private bool bSaved = false;
 
         // Colors
         private const string defaultGrayColor = "#FFB4B4B4";
@@ -488,16 +494,29 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void configurationActive_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //// Hide Extension Variable Configuration Row Animation
-            //((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
-            //((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+            
+            if(bSaved)
+            {
+                // Hide Extension Variable Configuration Row Animation
+                ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
+                ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
 
-            //// Hide Variable Configuration Data
-            //((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+                // Hide Variable Configuration Data
+                ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
 
-            //BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+                BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
 
-            //Keyboard.ClearFocus();
+                Keyboard.ClearFocus();
+            }
+            else
+            {
+                // Warning about unsaved changes show
+                Storyboard _unsavedChanges_Show = (Storyboard)Resources[unsavedChanges_Show];
+                DoubleAnimationUsingKeyFrames _unsavedChanges_Anim = (DoubleAnimationUsingKeyFrames)_unsavedChanges_Show.Children[0];
+                _unsavedChanges_Anim.KeyFrames[0].Value = 0;
+
+                ((Storyboard)Resources[unsavedChanges_Show]).Begin();
+            }
         }
 
         private void logginPolling_MouseDown(object sender, MouseButtonEventArgs e)
@@ -522,12 +541,9 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 if (!string.IsNullOrEmpty(refreshTimeInput.Text))
                 {
-                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
                     if (!bRecordingActive)
                         BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
                 }
-                else
-                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
 
                 //if (!input.IsEnabled)
                 //    input.IsEnabled = true;
@@ -553,36 +569,11 @@ namespace METS_DiagnosticTool_UI.UserControls
                 bPollingActive = false;
                 bOnChangeActive = true;
 
-                BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
-
                 if (!bRecordingActive)
                     BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
             }
 
             Keyboard.ClearFocus();
-        }
-
-        private void refreshTimeInput_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (string.IsNullOrEmpty(refreshTimeInput.Text))
-            {
-                BringToFrontAndSendOtherBack(recordingButtons, recordingDisabled);
-
-                BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
-
-                DisableRecording();
-
-                if (!input.IsEnabled)
-                    input.IsEnabled = true;
-            }
-            else
-            {
-                if (!bOnChangeActive && bPollingActive)
-                {
-                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
-                    BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
-                }
-            }
         }
 
         private void refreshTimeInput_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -601,9 +592,6 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             bRecordingActive = false;
 
-            // Make Vairable Input Field Disabled
-            input.IsEnabled = true;
-
             Keyboard.ClearFocus();
         }
 
@@ -619,9 +607,6 @@ namespace METS_DiagnosticTool_UI.UserControls
                 //((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
 
                 bRecordingActive = true;
-
-                // Make Vairable Input Field Disabled
-                input.IsEnabled = false;
             }
 
             Keyboard.ClearFocus();
@@ -629,25 +614,65 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private async void saveConfigurationRectangle_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            // Confirm Variable Configuration
-            Task<string> _saveGivenVariableConfiguration = RabbitMQHelper.SendToServer_SavePLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.plcVarConfigSave],
-                                                                                                        string.Concat(coreFullPath, @"\XML\VariablesConfiguration.xml"),
-                                                                                                        input.Text,
-                                                                                                        bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
-                                                                                                        string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
-                                                                                                        bRecordingActive ? true : false);
-            await _saveGivenVariableConfiguration;
+            if (bOnChangeActive || (bPollingActive && !string.IsNullOrEmpty(refreshTimeInput.Text)))
+            {
+                if(!bSaved)
+                {
+                    // Confirm Variable Configuration
+                    Task<string> _saveGivenVariableConfiguration = RabbitMQHelper.SendToServer_SavePLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.plcVarConfigSave],
+                                                                                                                string.Concat(coreFullPath, @"\XML\VariablesConfiguration.xml"),
+                                                                                                                input.Text,
+                                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
+                                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
+                                                                                                                bRecordingActive ? true : false);
+                    await _saveGivenVariableConfiguration;
 
-            // Hide Extension Variable Configuration Row Animation
-            ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
-            ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+                    // Hide Extension Variable Configuration Row Animation
+                    ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
+                    ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
 
-            // Hide Variable Configuration Data
-            ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+                    // Hide Variable Configuration Data
+                    ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
 
-            BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+                    BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
 
-            Keyboard.ClearFocus();
+                    // Make Vairable Input Field Disabled
+                    input.IsEnabled = false;
+                    variableConfigurationControls.IsEnabled = false;
+
+                    // Change label to edit after save
+                    ((Storyboard)Resources[changeLabelSaveEdit_ShowEdit]).Begin();
+
+                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
+
+                    bSaved = true;
+
+                    Keyboard.ClearFocus();
+                }
+                else
+                {
+                    variableConfigurationControls.IsEnabled = true;
+
+                    // Change label to edit after save
+                    ((Storyboard)Resources[changeLabelSaveEdit_ShowSave]).Begin();
+
+                    BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
+
+                    bSaved = false;
+
+                    Keyboard.ClearFocus();
+                }
+            }
+        }
+
+        private void variableConfigurationRow_SaveChangesWarning_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // Warning about unsaved changes show
+            Storyboard _unsavedChanges_Hide = (Storyboard)Resources[unsavedChanges_Hide];
+            DoubleAnimationUsingKeyFrames _unsavedChanges_Anim = (DoubleAnimationUsingKeyFrames)_unsavedChanges_Hide.Children[0];
+            _unsavedChanges_Anim.KeyFrames[0].Value = -ActualWidth;
+
+            ((Storyboard)Resources[unsavedChanges_Hide]).Begin();
         }
         #endregion
 
@@ -791,6 +816,8 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             bExtensionRow_VarConfigDelayed_Completed = true;
         }
+
+        
         #endregion
 
         #region Live View
@@ -847,10 +874,9 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             bDeleteRow_Show_Completed = true;
         }
-        #endregion
 
         #endregion
 
-        
+        #endregion
     }
 }

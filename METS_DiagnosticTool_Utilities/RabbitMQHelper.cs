@@ -164,6 +164,7 @@ namespace METS_DiagnosticTool_Utilities
             channel = connection.CreateModel();
 
             channel.QueueDeclare(queue: "metsDiagTool_rpcQueue", durable: false, exclusive: false, autoDelete: false, arguments: null);
+            channel.ExchangeDeclare(exchange: "metsDiagTool_directExchange", type: ExchangeType.Direct);
             channel.BasicQos(0, 1, false);
             EventingBasicConsumer consumer = new EventingBasicConsumer(channel);
             channel.BasicConsume(queue: "metsDiagTool_rpcQueue", autoAck: false, consumer: consumer);
@@ -171,7 +172,7 @@ namespace METS_DiagnosticTool_Utilities
             // Bind Channel to defined Routing Keys
             foreach (string routingKey in RabbitMQHelper.RoutingKeys)
             {
-                channel.QueueBind(queue: "metsDiagTool_rpcQueue", exchange: "direct_logs", routingKey: routingKey);
+                channel.QueueBind(queue: "metsDiagTool_rpcQueue", exchange: "metsDiagTool_directExchange", routingKey: routingKey);
             }
 
             // Attch Received Event
@@ -277,7 +278,7 @@ namespace METS_DiagnosticTool_Utilities
             callbackMapper.TryAdd(correlationId, tcs);
 
             channel.BasicPublish(
-                exchange: "direct_logs",
+                exchange: "metsDiagTool_directExchange",
                 routingKey: routingKey,
                 basicProperties: props,
                 body: messageBytes);
