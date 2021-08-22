@@ -125,6 +125,15 @@ namespace METS_DiagnosticTool_Utilities
                 return string.Empty;
         }
 
+        public static async Task<string> SendToServer_ReadPLCVarConfig(string routingKey, string xmlFilePath)
+        {
+            // Create here message string to send to server
+            if (_rpcClient != null)
+                return await _rpcClient.CallAsync(routingKey, xmlFilePath);
+            else
+                return string.Empty;
+        }
+
         /// <summary>
         /// Client Close Connection
         /// </summary>
@@ -200,7 +209,7 @@ namespace METS_DiagnosticTool_Utilities
 
                         // Read PLC Var Configuration
                         case RabbitMQHelper.plcVarConfigRead:
-                            // TO DO read PLC Variable Configuration (just single variable configuration)
+                            response = ReadPLCVariableConfig(message);
                             break;
 
                         // Save PLC Var Configuration
@@ -267,7 +276,7 @@ namespace METS_DiagnosticTool_Utilities
               autoAck: true);
         }
 
-        internal Task<string> CallAsync(string routingKey, string message, CancellationToken cancellationToken = default)
+        internal Task<string> CallAsync(string routingKey, string message = "", CancellationToken cancellationToken = default)
         {
             IBasicProperties props = channel.CreateBasicProperties();
             string correlationId = Guid.NewGuid().ToString();

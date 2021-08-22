@@ -21,7 +21,7 @@ namespace METS_DiagnosticTool_UI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static string coreFullPath = string.Empty;
+        private static string _corePath = string.Empty;
 
         private static int _rowCount;
 
@@ -35,7 +35,7 @@ namespace METS_DiagnosticTool_UI
             string[] args = Environment.GetCommandLineArgs();
 
             if (args.Length > 1)
-                coreFullPath = System.IO.Path.GetDirectoryName(args[1]);
+                _corePath = System.IO.Path.GetDirectoryName(args[1]);
 
             // Check if other instance of UI is already running
             if (UIHelper.CheckUIRunning())
@@ -49,7 +49,7 @@ namespace METS_DiagnosticTool_UI
             _row = new UserControls.UserInputWithIndicator();
 
             // Inject information about Core full Path
-            _row.coreFullPath = coreFullPath;
+            _row.corePath = _corePath;
 
             // Attach Events
             _row.AddNewVariableClicked += Label1_AddNewVariableClicked;
@@ -91,7 +91,7 @@ namespace METS_DiagnosticTool_UI
             _row = new UserControls.UserInputWithIndicator();
 
             // Inject information about Core full Path
-            _row.coreFullPath = coreFullPath;
+            _row.corePath = _corePath;
 
             // Attach Events
             _row.AddNewVariableClicked += Label1_AddNewVariableClicked;

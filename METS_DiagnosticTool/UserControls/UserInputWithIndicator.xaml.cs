@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,7 +19,7 @@ namespace METS_DiagnosticTool_UI.UserControls
     public partial class UserInputWithIndicator : UserControl
     {
         #region Public Fields
-        public string coreFullPath = string.Empty;
+        public string corePath = string.Empty;
         #endregion
 
         #region Private Fields
@@ -176,6 +177,67 @@ namespace METS_DiagnosticTool_UI.UserControls
             liveViewPlot.Plot.YAxis.TickLabelStyle(fontSize: 14, fontName: "Segoe UI", color: System.Drawing.Color.White);
             liveViewPlot.Plot.XAxis.Label("Time", color: System.Drawing.Color.White, size: 14, fontName: "Segoe UI");
             liveViewPlot.Plot.YAxis.Label("Value", color: System.Drawing.Color.White, size: 14, fontName: "Segoe UI");
+        }
+
+        private async void userControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Check Existance of the PLC Variable
+            Task<string> _getPLCvariableConfiguration = RabbitMQHelper.SendToServer_ReadPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.plcVarConfigRead],
+                                                                                                     string.Concat(corePath, @"\XML\VariablesConfiguration.xml"));
+            await _getPLCvariableConfiguration;
+
+            string _variableConfig = _getPLCvariableConfiguration.Result;
+
+            //Logger.Log(Logger.logLevel.Warning, "got Response from Server " + _variableConfig, Logger.logEvents.Blank);
+
+            if (!string.IsNullOrEmpty(_variableConfig))
+            {
+                // Decode Given Variable Configuration
+                // Decode given message
+                List<string> _splitMessage = _variableConfig.Split(';').ToList();
+
+                // Create dictionary
+                Dictionary<string, string> _variableConfiguration = new Dictionary<string, string>();
+                foreach (string _item in _splitMessage)
+                {
+                    string[] _config = _item.Split('$').ToArray();
+                    if (!_variableConfiguration.ContainsKey(_config[0]))
+                        _variableConfiguration.Add(_config[0], _config[1]);
+                }
+
+                // Create new Variable Config
+                VariableConfigurationHelper.VariableConfig variableConfig = new VariableConfigurationHelper.VariableConfig
+                {
+                    variableAddress = _variableConfiguration["VariableAddress"],
+                    pollingRefreshTime = int.Parse(_variableConfiguration["PollingRefreshTime"]),
+                    recording = bool.Parse(_variableConfiguration["Recording"])
+                };
+                bool loggingTypeParsed = Enum.TryParse(_variableConfiguration["LoggingType"], out VariableConfigurationHelper.LoggingType _loggingType);
+                variableConfig.loggingType = loggingTypeParsed ? _loggingType : VariableConfigurationHelper.LoggingType.OnChange;
+
+                // Apply read Configuration
+                input.Text = variableConfig.variableAddress;
+                bOnChangeActive = variableConfig.loggingType == VariableConfigurationHelper.LoggingType.OnChange;
+                bPollingActive = variableConfig.loggingType == VariableConfigurationHelper.LoggingType.Polling;
+                refreshTimeInput.Text = variableConfig.pollingRefreshTime.ToString();
+                bRecordingActive = variableConfig.recording;
+
+                if (bOnChangeActive)
+                    BringToFrontAndSendOtherBack(onChangeButtons, onChangeON);
+
+                if(bPollingActive)
+                {
+                    refreshTimeInput.IsEnabled = true;
+                    BringToFrontAndSendOtherBack(pollingButtons, pollingON);
+                }
+
+                if(bRecordingActive)
+                {
+                    gridRecordingOFF.Visibility = Visibility.Visible;
+                    gridRecordingON.Visibility = Visibility.Hidden;
+                    BringToFrontAndSendOtherBack(recordingButtons, recordingON);
+                }
+            }
         }
         #endregion
 
@@ -620,7 +682,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                 {
                     // Confirm Variable Configuration
                     Task<string> _saveGivenVariableConfiguration = RabbitMQHelper.SendToServer_SavePLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.plcVarConfigSave],
-                                                                                                                string.Concat(coreFullPath, @"\XML\VariablesConfiguration.xml"),
+                                                                                                                string.Concat(corePath, @"\XML\VariablesConfiguration.xml"),
                                                                                                                 input.Text,
                                                                                                                 bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
                                                                                                                 string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
@@ -878,5 +940,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #endregion
+
+        
     }
 }

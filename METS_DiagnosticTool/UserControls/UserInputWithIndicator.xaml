@@ -8,7 +8,7 @@
              xmlns:System="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
              x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
              mc:Ignorable="d" 
-             d:DesignHeight="400" d:DesignWidth="740" MinWidth="740" SizeChanged="userControl_SizeChanged">
+             d:DesignHeight="400" d:DesignWidth="740" MinWidth="740" SizeChanged="userControl_SizeChanged" Loaded="userControl_Loaded">
 
     <UserControl.Resources>
         <System:GridLength x:Key="extensionRowHeight">0</System:GridLength>

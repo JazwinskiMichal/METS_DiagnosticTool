@@ -12,13 +12,18 @@ namespace METS_DiagnosticTool_Utilities
 {
     public class VariableConfigurationHelper
     {
-        private static string xmlFullPath = string.Empty;
+        public static Dictionary<string, VariableConfig> VariablesConfigs = new Dictionary<string, VariableConfig>();
+        private static List<VariableConfig> VariablesConfigs_Used = new List<VariableConfig>();
 
         public struct VariableConfig
         {
+            [XmlElement("VariableAddress")]
             public string variableAddress;
+            [XmlElement("LoggingType")]
             public LoggingType loggingType;
+            [XmlElement("PollingRefreshTime")]
             public int pollingRefreshTime;
+            [XmlElement("Recording")]
             public bool recording;
         }
 
@@ -26,6 +31,65 @@ namespace METS_DiagnosticTool_Utilities
         {
             Polling,
             OnChange
+        }
+
+        [XmlRoot("VariablesConfiguration")]
+        public class VariableConfigurationCollection
+        {
+            [XmlElement("VariableConfig")]
+            public List<VariableConfig> VariableConfig;
+        }
+
+        public static string ReadPLCVariableConfig(string xmlFullPath)
+        {
+            // Deserialize whole XML file to temporary Class VariableConfigurationCollection, then collect all data in nice and tidy List of Variable Configuration
+            if (File.Exists(xmlFullPath))
+            {
+                using (TextReader reader = new StreamReader(xmlFullPath))
+                {
+                    XmlSerializer serializer = new XmlSerializer(typeof(VariableConfigurationCollection));
+                    VariableConfigurationCollection _variablesConfigurationCollection = (VariableConfigurationCollection)serializer.Deserialize(reader);
+
+                    foreach (VariableConfig item in _variablesConfigurationCollection.VariableConfig)
+                    {
+                        if (!VariablesConfigs.ContainsKey(item.variableAddress))
+                            VariablesConfigs.Add(item.variableAddress, item);
+                    }
+                }
+            }
+
+            string _return = string.Empty;
+
+            if(VariablesConfigs.Count > 0)
+            {
+                bool _variableUsed = false;
+                VariableConfig _variableConfig = VariablesConfigs.ElementAt(0).Value;
+                // Check does the Variable config has been already used before
+                foreach (VariableConfig _variableConfig_Used in VariablesConfigs_Used)
+                {
+                    if (_variableConfig.variableAddress == _variableConfig_Used.variableAddress)
+                    {
+                        _variableUsed = true;
+                        break;
+                    }
+                }
+
+                if(!_variableUsed)
+                {
+                    // Collect Variable Config that has been used
+                    VariablesConfigs_Used.Add(_variableConfig);
+
+                    VariablesConfigs.Remove(VariablesConfigs.Keys.First());
+                }
+
+                _return = string.Concat("VariableAddress$", _variableConfig.variableAddress, ";LoggingType$", _variableConfig.loggingType, ";PollingRefreshTime$", _variableConfig.pollingRefreshTime, ";Recording$", _variableConfig.recording);
+
+                //Logger.Log(Logger.logLevel.Warning, "Variable Config read from XML " + _return, Logger.logEvents.Blank);
+            }
+            //else
+            //    Logger.Log(Logger.logLevel.Warning, "global variables config is empty :(" + _return, Logger.logEvents.Blank);
+
+            return _return;
         }
 
         public static bool SavePLCVariableConfig(string message)
@@ -48,7 +112,7 @@ namespace METS_DiagnosticTool_Utilities
             }
 
             // Create new Variable Config
-            xmlFullPath = _variableConfiguration["XMLFileFullPath"];
+            string xmlFullPath = _variableConfiguration["XMLFileFullPath"];
 
             VariableConfig variableConfig = new VariableConfig
             {
@@ -87,7 +151,7 @@ namespace METS_DiagnosticTool_Utilities
 
                 // First check does the element is already in the XML
                 XmlNode rootNode = xmlFile.DocumentElement;
-                string xPath = string.Concat("descendant::VariableConfig[variableAddress='", variableConfig.variableAddress, "']");
+                string xPath = string.Concat("descendant::VariableConfig[VariableAddress='", variableConfig.variableAddress, "']");
                 XmlNode variableNode = rootNode.SelectSingleNode(xPath);
 
                 if (variableNode != null)
@@ -97,13 +161,13 @@ namespace METS_DiagnosticTool_Utilities
                     {
                         switch (item.Name)
                         {
-                            case "loggingType":
+                            case "LoggingType":
                                 item.LastChild.Value = variableConfig.loggingType.ToString();
                                 break;
-                            case "polingRefreshTime":
+                            case "PolingRefreshTime":
                                 item.LastChild.Value = variableConfig.pollingRefreshTime.ToString();
                                 break;
-                            case "recording":
+                            case "Recording":
                                 item.LastChild.Value = variableConfig.recording.ToString();
                                 break;
                             default:
