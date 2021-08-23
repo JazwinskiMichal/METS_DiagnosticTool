@@ -30,6 +30,21 @@ namespace METS_DiagnosticTool_Utilities
         private static RpcServer _rpcServer;
         private static RpcClient _rpcClient;
 
+        public static void Purge()
+        {
+            ConnectionFactory factory = new ConnectionFactory();
+
+            factory.HostName = "localhost";
+
+            using (IConnection connection = factory.CreateConnection())
+            {
+                using (IModel channel = connection.CreateModel())
+                {
+                    channel.QueuePurge("metsDiagTool_rpcQueue");
+                }
+            }
+        }
+
         /// <summary>
         /// Initialize Rabbit MQ RPC Server
         /// </summary>

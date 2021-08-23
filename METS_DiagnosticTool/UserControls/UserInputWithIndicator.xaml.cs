@@ -231,11 +231,6 @@ namespace METS_DiagnosticTool_UI.UserControls
             liveViewPlot.Plot.XAxis.Label("Time", color: System.Drawing.Color.White, size: 14, fontName: "Segoe UI");
             liveViewPlot.Plot.YAxis.Label("Value", color: System.Drawing.Color.White, size: 14, fontName: "Segoe UI");
         }
-
-        private void userControl_Loaded(object sender, RoutedEventArgs e)
-        {
-           
-        }
         #endregion
 
         #region Public Methods

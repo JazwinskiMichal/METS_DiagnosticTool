@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,9 +11,11 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using static METS_DiagnosticTool_Utilities.VariableConfigurationHelper;
 
 namespace METS_DiagnosticTool_UI
@@ -27,6 +30,8 @@ namespace METS_DiagnosticTool_UI
         private static int _rowCount;
 
         private UserControls.UserInputWithIndicator _row;
+
+        public DoubleCollection StrokeArray { get; internal set; }
 
         public MainWindow()
         {
@@ -63,32 +68,33 @@ namespace METS_DiagnosticTool_UI
 
         private void Label1_AddNewVariableClicked(object sender, EventArgs e)
         {
-            //// Create new Control
-            //_row = new UserControls.UserInputWithIndicator();
+            // Create new Control
+            VariableConfig _emmptyVariableConfig = new VariableConfig();
+            _row = new UserControls.UserInputWithIndicator(_emmptyVariableConfig);
 
-            //// Inject information about Core full Path
-            //_row.corePath = _corePath;
+            // Inject information about Core full Path
+            _row.corePath = _corePath;
 
-            //// Attach Events
-            //_row.AddNewVariableClicked += Label1_AddNewVariableClicked;
-            //_row.DeleteVariableClicked += Label1_DeleteVariableClicked;
-            //_row.CorrectVariableAdded += _row_CorrectVariableAdded;
-            //_row.CorrectVariableDeleted += _row_CorrectVariableDeleted;
+            // Attach Events
+            _row.AddNewVariableClicked += Label1_AddNewVariableClicked;
+            _row.DeleteVariableClicked += Label1_DeleteVariableClicked;
+            _row.CorrectVariableAdded += _row_CorrectVariableAdded;
+            _row.CorrectVariableDeleted += _row_CorrectVariableDeleted;
 
-            //// Add row to the Grid for the Control
-            //RowDefinition rowDefinition = new RowDefinition();
-            //rowDefinition.Height = new GridLength(0, GridUnitType.Auto);
-            //mainGrid.RowDefinitions.Add(rowDefinition);
+            // Add row to the Grid for the Control
+            RowDefinition rowDefinition = new RowDefinition();
+            rowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+            mainGrid.RowDefinitions.Add(rowDefinition);
 
-            //// Set row position of the Control
-            //Grid.SetRow(_row, _rowCount);
+            // Set row position of the Control
+            Grid.SetRow(_row, _rowCount);
 
-            //// Add Control to the Grid
-            //mainGrid.Children.Add(_row);
+            // Add Control to the Grid
+            mainGrid.Children.Add(_row);
 
-            //scrollViewer.ScrollToEnd();
+            scrollViewer.ScrollToEnd();
 
-            //_rowCount++;
+            _rowCount++;
         }
 
         private void Label1_DeleteVariableClicked(object sender, UserControls.UserInputWithIndicator e)
@@ -117,6 +123,163 @@ namespace METS_DiagnosticTool_UI
             //label2.TakeFocusAway();
         }
 
+        private async Task<bool> CreateVariablesFromConfiguration(string configurationString)
+        {
+            bool _return = false;
+
+            Dictionary<string, VariableConfig> _localDictionary = null;
+
+            await Task.Run(() =>
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(configurationString))
+                    {
+                        // Decode given Variable Configuration string to VariableConfig
+                        List<string> _splitVariables = configurationString.Split('#').ToList();
+
+                        // Create dictionary
+                        _localDictionary = new Dictionary<string, VariableConfig>();
+
+                        // DECODE HERE GIVEN LONG STRING OF VARIABLES CONFIGURATION AND SAVE IT TO _localDictionary, so later it could be used to inject data to each User Control
+                        // Message is going to be given in format #VariableAddress$value;PollingRefreshTime$value... etc
+                        foreach (string _variable in _splitVariables)
+                        {
+                            if (_variable.Contains(";"))
+                            {
+                                VariableConfig _localVariableConfig = new VariableConfig();
+
+                                List<string> _splitVariablesValues = _variable.Split(';').ToList();
+
+                                string _variableConfigurationKey = string.Empty;
+
+                                foreach (string _variableValue in _splitVariablesValues)
+                                {
+                                    string[] _config = _variableValue.Split('$').ToArray();
+
+                                    // First check does the Dictionary already containt a Key
+                                    if (_config[0] == "VariableAddress")
+                                    {
+                                        _variableConfigurationKey = _config[1];
+                                        _localVariableConfig.variableAddress = _config[1];
+
+                                        Logger.Log(Logger.logLevel.Warning, string.Concat("VariableAddress ", _config[1]), Logger.logEvents.Blank);
+                                    }
+                                    else if (_config[0] == "PollingRefreshTime")
+                                    {
+                                        _localVariableConfig.pollingRefreshTime = int.Parse(_config[1]);
+
+                                        Logger.Log(Logger.logLevel.Warning, string.Concat("PollingRefreshTime ", int.Parse(_config[1]).ToString()), Logger.logEvents.Blank);
+                                    }
+                                    else if (_config[0] == "Recording")
+                                    {
+                                        _localVariableConfig.recording = bool.Parse(_config[1]);
+
+                                        Logger.Log(Logger.logLevel.Warning, string.Concat("Recording ", _config[1]), Logger.logEvents.Blank);
+                                    }
+                                    else if (_config[0] == "LoggingType")
+                                    {
+                                        bool loggingTypeParsed = Enum.TryParse(_config[1], out LoggingType _loggingType);
+                                        _localVariableConfig.loggingType = loggingTypeParsed ? _loggingType : LoggingType.OnChange;
+                                    }
+
+                                    Utility.SafeUpdateKeyInDictionary(_localDictionary, _variableConfigurationKey, _localVariableConfig);
+                                }
+                            }
+                        }
+
+                        if (_localDictionary != null)
+                        {
+                            foreach (KeyValuePair<string, VariableConfig> _variableConfig in _localDictionary)
+                            {
+                                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                                {
+                                    // Initialize First Row
+                                    UserControls.UserInputWithIndicator _localRow = new UserControls.UserInputWithIndicator(_variableConfig.Value);
+
+                                    // Inject information about Core full Path
+                                    _localRow.corePath = _corePath;
+
+                                    // Attach Events
+                                    _localRow.AddNewVariableClicked += Label1_AddNewVariableClicked;
+                                    _localRow.DeleteVariableClicked += Label1_DeleteVariableClicked;
+                                    _localRow.CorrectVariableAdded += _row_CorrectVariableAdded;
+                                    _localRow.CorrectVariableDeleted += _row_CorrectVariableDeleted;
+
+                                    // Add row to the Grid for the Control
+                                    RowDefinition rowDefinition = new RowDefinition();
+                                    rowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+                                    mainGrid.RowDefinitions.Add(rowDefinition);
+
+                                    // Set row position of the Control
+                                    Grid.SetRow(_localRow, _rowCount);
+
+                                    // Add Control to the Grid
+                                    mainGrid.Children.Add(_localRow);
+
+                                    //scrollViewer.ScrollToEnd();
+
+                                    _rowCount++;
+                                }));
+                            }
+                        }
+
+                        Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                        {
+                            // At the end add one Row to Manually Add Variable
+                            VariableConfig _emmptyVariableConfig = new VariableConfig();
+                            UserControls.UserInputWithIndicator _localRow1 = new UserControls.UserInputWithIndicator(_emmptyVariableConfig);
+
+                            // Inject information about Core full Path
+                            _localRow1.corePath = _corePath;
+
+                            // Attach Events
+                            _localRow1.AddNewVariableClicked += Label1_AddNewVariableClicked;
+                            _localRow1.DeleteVariableClicked += Label1_DeleteVariableClicked;
+                            _localRow1.CorrectVariableAdded += _row_CorrectVariableAdded;
+                            _localRow1.CorrectVariableDeleted += _row_CorrectVariableDeleted;
+
+                            // Add row to the Grid for the Control
+                            RowDefinition rowDefinitionLastRow = new RowDefinition();
+                            rowDefinitionLastRow.Height = new GridLength(0, GridUnitType.Auto);
+                            mainGrid.RowDefinitions.Add(rowDefinitionLastRow);
+
+                            // Set row position of the Control
+                            Grid.SetRow(_localRow1, _rowCount);
+
+                            // Add Control to the Grid
+                            mainGrid.Children.Add(_localRow1);
+
+                            //scrollViewer.ScrollToEnd();
+
+                            _rowCount++;
+                        }));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(Logger.logLevel.Warning, string.Concat("Exception when parsing variable configuration string ", ex.ToString()), Logger.logEvents.Blank);
+                }
+            }).ContinueWith(t =>
+            {
+                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                {
+                    Storyboard _loadingVarConfigs_Hide = (Storyboard)Resources["loadingVarConfigs_Hide"];
+                    DoubleAnimationUsingKeyFrames _loadingVarConfigs_Hide_Anim = (DoubleAnimationUsingKeyFrames)_loadingVarConfigs_Hide.Children[0];
+                    _loadingVarConfigs_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
+
+                    ((Storyboard)Resources["loadingVarConfigs_Hide"]).Begin();
+
+                    scrollViewer.Visibility = Visibility.Visible;
+                    loadingGrid.Visibility = Visibility.Hidden;
+                }));
+
+                _return = true;
+            });
+
+            return _return;
+        }
+
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // Get Variable Configurations String
@@ -128,98 +291,9 @@ namespace METS_DiagnosticTool_UI
 
             Logger.Log(Logger.logLevel.Warning, string.Concat("recieved variable configuration string", _varibalesConfigurationString), Logger.logEvents.Blank);
 
-            try
-            {
-                if (!string.IsNullOrEmpty(_varibalesConfigurationString))
-                {
-                    // Decode given Variable Configuration string to VariableConfig
-                    List<string> _splitVariables = _varibalesConfigurationString.Split('#').ToList();
+            Task<bool> _createVariablesFromConfiguration = CreateVariablesFromConfiguration(_varibalesConfigurationString);
 
-                    // Create dictionary
-                    Dictionary<string, VariableConfig> _localDictionary = new Dictionary<string, VariableConfig>();
-
-                    // DECODE HERE GIVEN LONG STRING OF VARIABLES CONFIGURATION AND SAVE IT TO _localDictionary, so later it could be used to inject data to each User Control
-                    // Message is going to be given in format #VariableAddress$value;PollingRefreshTime$value... etc
-                    foreach (string _variable in _splitVariables)
-                    {
-                        if (_variable.Contains(";"))
-                        {
-                            VariableConfig _localVariableConfig = new VariableConfig();
-
-                            List<string> _splitVariablesValues = _variable.Split(';').ToList();
-
-                            string _variableConfigurationKey = string.Empty;
-
-                            foreach (string _variableValue in _splitVariablesValues)
-                            {
-                                string[] _config = _variableValue.Split('$').ToArray();
-
-                                // First check does the Dictionary already containt a Key
-                                if (_config[0] == "VariableAddress")
-                                {
-                                    _variableConfigurationKey = _config[1];
-                                    _localVariableConfig.variableAddress = _config[1];
-
-                                    Logger.Log(Logger.logLevel.Warning, string.Concat("VariableAddress ", _config[1]), Logger.logEvents.Blank);
-                                }
-                                else if(_config[0] == "PollingRefreshTime")
-                                {
-                                    _localVariableConfig.pollingRefreshTime = int.Parse(_config[1]);
-
-                                    Logger.Log(Logger.logLevel.Warning, string.Concat("PollingRefreshTime ", int.Parse(_config[1]).ToString()), Logger.logEvents.Blank);
-                                }
-                                else if(_config[0] == "Recording")
-                                {
-                                    _localVariableConfig.recording = bool.Parse(_config[1]);
-
-                                    Logger.Log(Logger.logLevel.Warning, string.Concat("Recording ", _config[1]), Logger.logEvents.Blank);
-                                }
-                                else if(_config[0] == "LoggingType")
-                                {
-                                    bool loggingTypeParsed = Enum.TryParse(_config[1], out LoggingType _loggingType);
-                                    _localVariableConfig.loggingType = loggingTypeParsed ? _loggingType : LoggingType.OnChange;
-                                }
-
-                                Utility.SafeUpdateKeyInDictionary(_localDictionary, _variableConfigurationKey, _localVariableConfig);
-                            }
-                        }
-                    }
-
-                    foreach (KeyValuePair<string, VariableConfig> _variableConfig in _localDictionary)
-                    {
-                        // Initialize First Row
-                        _row = new UserControls.UserInputWithIndicator(_variableConfig.Value);
-
-                        // Inject information about Core full Path
-                        _row.corePath = _corePath;
-
-                        // Attach Events
-                        _row.AddNewVariableClicked += Label1_AddNewVariableClicked;
-                        _row.DeleteVariableClicked += Label1_DeleteVariableClicked;
-                        _row.CorrectVariableAdded += _row_CorrectVariableAdded;
-                        _row.CorrectVariableDeleted += _row_CorrectVariableDeleted;
-
-                        // Add row to the Grid for the Control
-                        RowDefinition rowDefinition = new RowDefinition();
-                        rowDefinition.Height = new GridLength(0, GridUnitType.Auto);
-                        mainGrid.RowDefinitions.Add(rowDefinition);
-
-                        // Set row position of the Control
-                        Grid.SetRow(_row, _rowCount);
-
-                        // Add Control to the Grid
-                        mainGrid.Children.Add(_row);
-
-                        scrollViewer.ScrollToEnd();
-
-                        _rowCount++;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(Logger.logLevel.Warning, string.Concat("Exception when parsing variable configuration string ", ex.ToString()), Logger.logEvents.Blank);
-            }
+            await _createVariablesFromConfiguration;
         }
     }
 }

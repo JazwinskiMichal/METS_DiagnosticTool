@@ -51,6 +51,9 @@ namespace METS_DiagnosticTool_Core
 
                 x.AfterUninstall(() =>
                 {
+                    // Purge all messages in Rabbit MQ
+                    RabbitMQHelper.Purge();
+
                     // Clear Windows Event Logs
                     Logger.ClearAll();
 

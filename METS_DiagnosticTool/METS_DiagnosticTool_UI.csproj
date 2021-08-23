@@ -225,6 +225,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="UserControls\LoadingControl.xaml.cs">
+      <DependentUpon>LoadingControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\LoadingVariablesConfigurations.xaml.cs">
+      <DependentUpon>LoadingVariablesConfigurations.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\UserInputWithIndicator.xaml.cs">
       <DependentUpon>UserInputWithIndicator.xaml</DependentUpon>
     </Compile>
@@ -241,6 +247,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="UserControls\LoadingControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UserControls\LoadingVariablesConfigurations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UserControls\UserInputWithIndicator.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

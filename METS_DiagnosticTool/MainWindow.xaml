@@ -280,11 +280,49 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!-- Loading Variables Config Show Storyboard -->
+        <Storyboard x:Key="loadingVarConfigs_Show">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="loadingGrid">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="0">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Loading Variables Config Hide Storyboard -->
+        <Storyboard x:Key="loadingVarConfigs_Hide">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[3].(TranslateTransform.X)" Storyboard.TargetName="loadingGrid">
+                <EasingDoubleKeyFrame KeyTime="0:0:0.5" Value="-800">
+                    <EasingDoubleKeyFrame.EasingFunction>
+                        <CircleEase EasingMode="EaseOut"/>
+                    </EasingDoubleKeyFrame.EasingFunction>
+                </EasingDoubleKeyFrame>
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
     </Window.Resources>
-    <ScrollViewer x:Name="scrollViewer" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" Template="{DynamicResource ScrollViewerControlTemplate1}">
-        <ScrollViewer.Resources>
-            <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">25</sys:Double>
-        </ScrollViewer.Resources>
-        <Grid x:Name="mainGrid" Background="#FF1E1E1E" MouseDown="Grid_MouseDown"/>
-    </ScrollViewer>
+
+    <Grid>
+        <ScrollViewer x:Name="scrollViewer" Visibility="Hidden" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" Template="{DynamicResource ScrollViewerControlTemplate1}">
+            <ScrollViewer.Resources>
+                <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">25</sys:Double>
+            </ScrollViewer.Resources>
+
+            <Grid x:Name="mainGrid" Background="#FF1E1E1E" MouseDown="Grid_MouseDown"/>
+        </ScrollViewer>
+
+        <Grid x:Name="loadingGrid">
+            <Grid.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform x:Name="loadingGrid_Transform" X="0"/>
+                </TransformGroup>
+            </Grid.RenderTransform>
+            <usercontrols:LoadingVariablesConfigurations x:Name="loadingVariablesScreen" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5,0.5"/>
+        </Grid>
+    </Grid>
 </Window>

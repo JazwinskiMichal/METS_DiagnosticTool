@@ -8,7 +8,7 @@
              xmlns:System="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
              x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
              mc:Ignorable="d" 
-             d:DesignHeight="400" d:DesignWidth="740" MinWidth="740" SizeChanged="userControl_SizeChanged" Loaded="userControl_Loaded">
+             d:DesignHeight="400" d:DesignWidth="740" MinWidth="740" SizeChanged="userControl_SizeChanged">
 
     <UserControl.Resources>
         <System:GridLength x:Key="extensionRowHeight">0</System:GridLength>
@@ -643,12 +643,16 @@
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
+        
+        <!-- Change Text of Save/Edit button to EDIT -->
         <Storyboard x:Key="changeLabelSaveEdit_ShowEdit">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(ContentControl.Content)" Storyboard.TargetName="saveConfigurationLabel">
                 <DiscreteObjectKeyFrame KeyTime="0" Value="SAVE"/>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="EDIT"/>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
+
+        <!-- Change Text of Save/Edit button to SAVE -->
         <Storyboard x:Key="changeLabelSaveEdit_ShowSave">
             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(ContentControl.Content)" Storyboard.TargetName="saveConfigurationLabel">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="EDIT"/>
