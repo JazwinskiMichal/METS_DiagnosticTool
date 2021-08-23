@@ -47,6 +47,7 @@ namespace METS_DiagnosticTool_Utilities
             RabbitMQClientCloseConnectionError = 204,
 
             SaveVariableConfigurationError = 300,
+            ReadVariableConfigurationError = 301,
             #endregion
 
             #region Warnings

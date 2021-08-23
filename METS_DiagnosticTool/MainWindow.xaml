@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:METS_DiagnosticTool_UI" xmlns:usercontrols="clr-namespace:METS_DiagnosticTool_UI.UserControls" xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="METS Diagnostic Tool UI" Height="450" Width="800" MinWidth="785" MinHeight="200">
+        Title="METS Diagnostic Tool UI" Height="450" Width="800" MinWidth="785" MinHeight="200" Loaded="Window_Loaded">
     <Window.Resources>
         <ControlTemplate x:Key="ScrollViewerControlTemplate1" TargetType="{x:Type ScrollViewer}">
             <Grid x:Name="Grid" Background="{TemplateBinding Background}">

@@ -209,7 +209,7 @@ namespace METS_DiagnosticTool_Utilities
 
                         // Read PLC Var Configuration
                         case RabbitMQHelper.plcVarConfigRead:
-                            response = ReadPLCVariableConfig(message);
+                            response = ReadPLCVariableConfig(message).ToString();
                             break;
 
                         // Save PLC Var Configuration

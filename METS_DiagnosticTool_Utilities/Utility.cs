@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static METS_DiagnosticTool_Utilities.VariableConfigurationHelper;
 
 namespace METS_DiagnosticTool_Utilities
 {
@@ -179,6 +180,46 @@ namespace METS_DiagnosticTool_Utilities
                 // Key already exists in the Dictionary so Update it, only if it's previous value is different than new one
                 if (_dictionary[_keyToBeAdded] != _valueToBeAdded)
                     _dictionary[_keyToBeAdded] = _valueToBeAdded;
+            }
+        }
+
+        public static void SafeUpdateKeyInDictionary(Dictionary<string, VariableConfig> _dictionary, string _keyToBeAdded, VariableConfig _valueToBeAdded)
+        {
+            if (!_dictionary.ContainsKey(_keyToBeAdded))
+                _dictionary.Add(_keyToBeAdded, _valueToBeAdded);
+            else
+            {
+                // Key already exists in the Dictionary so Update it, only if it's previous value is different than new one
+                if (_dictionary[_keyToBeAdded].variableAddress != _valueToBeAdded.variableAddress && !string.IsNullOrEmpty(_valueToBeAdded.variableAddress))
+                {
+                    VariableConfig _modifiedValue = _dictionary[_keyToBeAdded];
+                    _modifiedValue.variableAddress = _valueToBeAdded.variableAddress;
+                    _dictionary[_keyToBeAdded] = _modifiedValue;
+                }
+
+                if (_dictionary[_keyToBeAdded].pollingRefreshTime != _valueToBeAdded.pollingRefreshTime)
+                {
+                    VariableConfig _modifiedValue = _dictionary[_keyToBeAdded];
+                    _modifiedValue.pollingRefreshTime = _valueToBeAdded.pollingRefreshTime;
+
+                    Logger.Log(Logger.logLevel.Warning, string.Concat("polling refresh TIME ", _valueToBeAdded.pollingRefreshTime), Logger.logEvents.Blank);
+
+                    _dictionary[_keyToBeAdded] = _modifiedValue;
+                }
+
+                if (_dictionary[_keyToBeAdded].recording != _valueToBeAdded.recording)
+                {
+                    VariableConfig _modifiedValue = _dictionary[_keyToBeAdded];
+                    _modifiedValue.recording = _valueToBeAdded.recording;
+                    _dictionary[_keyToBeAdded] = _modifiedValue;
+                }
+
+                if (_dictionary[_keyToBeAdded].loggingType != _valueToBeAdded.loggingType)
+                {
+                    VariableConfig _modifiedValue = _dictionary[_keyToBeAdded];
+                    _modifiedValue.loggingType = _valueToBeAdded.loggingType;
+                    _dictionary[_keyToBeAdded] = _modifiedValue;
+                }
             }
         }
 
