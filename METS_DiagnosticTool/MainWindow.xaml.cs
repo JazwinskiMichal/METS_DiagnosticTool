@@ -1,6 +1,7 @@
 ﻿using METS_DiagnosticTool_Utilities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -113,6 +114,11 @@ namespace METS_DiagnosticTool_UI
             bool _return = false;
 
             Dictionary<string, VariableConfig> _localDictionary = null;
+
+            // Start Minimum Time Diplayed Stopwatch here
+            // Create new stopwatch.
+            Stopwatch _minimumTimeLoadingScreenDisplayed = new Stopwatch();
+            _minimumTimeLoadingScreenDisplayed.Start();
 
             await Task.Run(() =>
             {
@@ -233,17 +239,45 @@ namespace METS_DiagnosticTool_UI
                 }
             }).ContinueWith(t =>
             {
-                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                // When finished with Reading Configuration String and Creating Controls, hide Loading Screen,
+                // BUT only after minimum time diplayed 
+
+                _minimumTimeLoadingScreenDisplayed.Stop();
+
+                // Get elapsed time
+                double _elapsedSeconds = _minimumTimeLoadingScreenDisplayed.Elapsed.TotalSeconds;
+
+                if(_elapsedSeconds > 4)
                 {
-                    Storyboard _loadingVarConfigs_Hide = (Storyboard)Resources["loadingVarConfigs_Hide"];
-                    DoubleAnimationUsingKeyFrames _loadingVarConfigs_Hide_Anim = (DoubleAnimationUsingKeyFrames)_loadingVarConfigs_Hide.Children[0];
-                    _loadingVarConfigs_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                    {
+                        Storyboard _loadingVarConfigs_Hide = (Storyboard)Resources["loadingVarConfigs_Hide"];
+                        DoubleAnimationUsingKeyFrames _loadingVarConfigs_Hide_Anim = (DoubleAnimationUsingKeyFrames)_loadingVarConfigs_Hide.Children[0];
+                        _loadingVarConfigs_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
 
-                    ((Storyboard)Resources["loadingVarConfigs_Hide"]).Begin();
+                        ((Storyboard)Resources["loadingVarConfigs_Hide"]).Begin();
 
-                    scrollViewer.Visibility = Visibility.Visible;
-                    //loadingGrid.Visibility = Visibility.Hidden;
-                }));
+                        scrollViewer.Visibility = Visibility.Visible;
+                        //loadingGrid.Visibility = Visibility.Hidden;
+                    }));
+                }
+                else
+                {
+                    // wait till 4sec passes
+                    Thread.Sleep(TimeSpan.FromSeconds(4 - _elapsedSeconds));
+
+                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                    {
+                        Storyboard _loadingVarConfigs_Hide = (Storyboard)Resources["loadingVarConfigs_Hide"];
+                        DoubleAnimationUsingKeyFrames _loadingVarConfigs_Hide_Anim = (DoubleAnimationUsingKeyFrames)_loadingVarConfigs_Hide.Children[0];
+                        _loadingVarConfigs_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
+
+                        ((Storyboard)Resources["loadingVarConfigs_Hide"]).Begin();
+
+                        scrollViewer.Visibility = Visibility.Visible;
+                        //loadingGrid.Visibility = Visibility.Hidden;
+                    }));
+                }
 
                 _return = true;
             });
@@ -258,9 +292,7 @@ namespace METS_DiagnosticTool_UI
                                                                                                    string.Concat(_corePath, @"\XML\VariablesConfiguration.xml"));
             await _getVariablesConfiguration;
 
-            string _varibalesConfigurationString = _getVariablesConfiguration.Result;
-
-            Task<bool> _createVariablesFromConfiguration = CreateVariablesFromConfiguration(_varibalesConfigurationString);
+            Task<bool> _createVariablesFromConfiguration = CreateVariablesFromConfiguration(_getVariablesConfiguration.Result);
 
             await _createVariablesFromConfiguration;
         }
