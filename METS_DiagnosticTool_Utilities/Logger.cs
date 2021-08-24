@@ -48,6 +48,7 @@ namespace METS_DiagnosticTool_Utilities
 
             SaveVariableConfigurationError = 300,
             ReadVariableConfigurationError = 301,
+            ParsingVariablesConfigurationError = 302,
             #endregion
 
             #region Warnings

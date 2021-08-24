@@ -12,6 +12,11 @@ namespace METS_DiagnosticTool_Utilities
 {
     public class VariableConfigurationHelper
     {
+        #region Private Fields
+        private static List<string> UsedPLCVariables = new List<string>();
+        #endregion
+
+        #region Public Fields
         public struct VariableConfig
         {
             [XmlElement("VariableAddress")]
@@ -36,8 +41,10 @@ namespace METS_DiagnosticTool_Utilities
             [XmlElement("VariableConfig")]
             public List<VariableConfig> VariableConfig;
         }
+        #endregion
 
-        public static string ReadPLCVariableConfig(string xmlFullPath)
+        #region Public Methods
+        public static string ReadPLCVariableConfigs(string xmlFullPath)
         {
             string _return = string.Empty;
 
@@ -70,17 +77,15 @@ namespace METS_DiagnosticTool_Utilities
                 Logger.Log(Logger.logLevel.Error, string.Concat("Exception when reading Variables Configurations ", ex.ToString()), Logger.logEvents.ReadVariableConfigurationError);
             }
 
-            if(_localDictionary != null)
+            if (_localDictionary != null)
             {
                 // Encode Variable Config in Single string
                 foreach (KeyValuePair<string, VariableConfig> _variableConfig in _localDictionary)
                 {
-                    _return += string.Concat("#VariableAddress$",_variableConfig.Value.variableAddress, ";PollingRefreshTime$",_variableConfig.Value.pollingRefreshTime.ToString(),
-                                              ";Recording$", _variableConfig.Value.recording.ToString(), ";LoggingType$",_variableConfig.Value.loggingType.ToString());
+                    _return += string.Concat("#VariableAddress$", _variableConfig.Value.variableAddress, ";PollingRefreshTime$", _variableConfig.Value.pollingRefreshTime.ToString(),
+                                              ";Recording$", _variableConfig.Value.recording.ToString(), ";LoggingType$", _variableConfig.Value.loggingType.ToString());
                 }
             }
-
-            Logger.Log(Logger.logLevel.Warning, string.Concat("Variable configuration string ", _return), Logger.logEvents.Blank);
 
             return _return;
         }
@@ -161,7 +166,7 @@ namespace METS_DiagnosticTool_Utilities
                                 item.LastChild.Value = variableConfig.pollingRefreshTime.ToString();
                                 break;
                             case "Recording":
-                                item.LastChild.Value = variableConfig.recording.ToString();
+                                item.LastChild.Value = variableConfig.recording.ToString().ToLower();
                                 break;
                             default:
                                 break;
@@ -195,5 +200,72 @@ namespace METS_DiagnosticTool_Utilities
 
             return _return;
         }
+
+        public static bool DeletePLCVariableConfig(string message)
+        {
+            // Load XML file, find PLC variable to delete and save updated XML file, UI is going to be updated by itself
+            bool _return = false;
+
+            // Decode given message: XMLFileFullPath$value;VariableAddress$value
+            List<string> _splitMessage = message.Split(';').ToList();
+
+            // Create dictionary
+            Dictionary<string, string> _variableConfiguration = new Dictionary<string, string>();
+            foreach (string _item in _splitMessage)
+            {
+                string[] _config = _item.Split('$').ToArray();
+                if (!_variableConfiguration.ContainsKey(_config[0]))
+                    _variableConfiguration.Add(_config[0], _config[1]);
+            }
+
+            string xmlFullPath = _variableConfiguration["XMLFileFullPath"];
+            string variableAddress = _variableConfiguration["VariableAddress"];
+
+            // Also delete Variable Config from UsedPLCVariables list
+            if (UsedPLCVariables.Contains(variableAddress))
+                UsedPLCVariables.Remove(variableAddress);
+
+            try
+            {
+                // Load XML File
+                XmlDocument xmlFile = new XmlDocument();
+                xmlFile.Load(xmlFullPath);
+
+                // First check does the element is already in the XML
+                XmlNode rootNode = xmlFile.DocumentElement;
+                string xPath = string.Concat("descendant::VariableConfig[VariableAddress='", variableAddress, "']");
+                XmlNode variableNode = rootNode.SelectSingleNode(xPath);
+
+                if (variableNode != null)
+                {
+                    variableNode.ParentNode.RemoveChild(variableNode);
+                    xmlFile.Save(xmlFullPath);
+
+                    _return = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(Logger.logLevel.Error, string.Concat("Save Variable Configuration error when deleting a Variable ", ex.ToString()), Logger.logEvents.SaveVariableConfigurationError);
+            }
+
+
+            return _return;
+        }
+
+        public static bool CheckDoesThePLCVariableBeenUsed(string variableAddress)
+        {
+            // Method to check does the PLC Variable been already used in the UI. For ex. declaring the same variable again.
+
+            bool _return = false;
+
+            if (UsedPLCVariables.Contains(variableAddress))
+                _return = true;
+            else
+                UsedPLCVariables.Add(variableAddress);
+
+            return _return;
+        }
+        #endregion
     }
 }

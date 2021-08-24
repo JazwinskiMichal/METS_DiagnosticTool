@@ -95,15 +95,13 @@ namespace METS_DiagnosticTool_UI.UserControls
         private List<UserInputWithIndicator_Image> onChangeButtons = new List<UserInputWithIndicator_Image>();
         private List<UserInputWithIndicator_Image> recordingButtons = new List<UserInputWithIndicator_Image>();
 
-        // Last Correct PLC Variable
-        private string lastCorrectPLCvariable = string.Empty;
+        // Variable Address input
+        private static bool variableAddressInputGotFocus = false;
         #endregion
 
         #region Events
         public event EventHandler AddNewVariableClicked;
         public event EventHandler<UserInputWithIndicator> DeleteVariableClicked;
-        public event EventHandler<string> CorrectVariableAdded;
-        public event EventHandler<string> CorrectVariableDeleted;
         #endregion
 
         #region Default Constructor
@@ -168,38 +166,13 @@ namespace METS_DiagnosticTool_UI.UserControls
             // Apply read Configuration
             if (variableConfig.variableAddress != null)
             {
-                Logger.Log(Logger.logLevel.Warning, string.Concat("received address ", variableConfig.variableAddress), Logger.logEvents.Blank);
-                Logger.Log(Logger.logLevel.Warning, string.Concat("received refresh time ", variableConfig.pollingRefreshTime.ToString()), Logger.logEvents.Blank);
-                Logger.Log(Logger.logLevel.Warning, string.Concat("received logging type ", variableConfig.loggingType.ToString()), Logger.logEvents.Blank);
-                Logger.Log(Logger.logLevel.Warning, string.Concat("received recording ", variableConfig.recording.ToString()), Logger.logEvents.Blank);
-
+                bPollingActive = variableConfig.loggingType == VariableConfigurationHelper.LoggingType.Polling;
+                bOnChangeActive = variableConfig.loggingType == VariableConfigurationHelper.LoggingType.OnChange;
+                bRecordingActive = variableConfig.recording;
                 input.Text = variableConfig.variableAddress;
                 refreshTimeInput.Text = variableConfig.pollingRefreshTime.ToString();
 
-                if (variableConfig.loggingType == VariableConfigurationHelper.LoggingType.OnChange)
-                {
-                    BringToFrontAndSendOtherBack(onChangeButtons, onChangeON);
-                }
-
-
-                if (variableConfig.loggingType == VariableConfigurationHelper.LoggingType.Polling)
-                {
-                    refreshTimeInput.IsEnabled = true;
-                    BringToFrontAndSendOtherBack(pollingButtons, pollingON);
-                }
-
-                if (variableConfig.recording)
-                {
-                    gridRecordingOFF.Visibility = Visibility.Hidden;
-                    gridRecordingON.Visibility = Visibility.Visible;
-                    BringToFrontAndSendOtherBack(recordingButtons, recordingON);
-                }
-                else
-                {
-                    gridRecordingOFF.Visibility = Visibility.Visible;
-                    gridRecordingON.Visibility = Visibility.Hidden;
-                    BringToFrontAndSendOtherBack(recordingButtons,recordingOFF);
-                }
+                bSaved = true;
 
                 // Change Value of the addNewVariable_Hide Translate Transform X Storyboard
                 Storyboard _addNewRowHide = (Storyboard)Resources[addNewVariable_Hide];
@@ -218,7 +191,43 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
 
-                bSaved = true;
+                if (!bOKPopCompleted)
+                {
+                    ((Storyboard)Resources[indicatorOK_Pop]).Begin();
+                    bOKPopCompleted = true;
+
+                    // Show Configuration Enabled Button
+                    BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+                }
+
+                if (bOnChangeActive)
+                    BringToFrontAndSendOtherBack(onChangeButtons, onChangeON);
+                else
+                    BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
+
+                if (bPollingActive)
+                {
+                    refreshTimeInput.IsEnabled = true;
+                    BringToFrontAndSendOtherBack(pollingButtons, pollingON);
+                }
+                else
+                {
+                    refreshTimeInput.IsEnabled = false;
+                    BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
+                }
+
+                if (bRecordingActive)
+                {
+                    gridRecordingOFF.Visibility = Visibility.Hidden;
+                    gridRecordingON.Visibility = Visibility.Visible;
+                    BringToFrontAndSendOtherBack(recordingButtons, recordingON);
+                }
+                else
+                {
+                    gridRecordingOFF.Visibility = Visibility.Visible;
+                    gridRecordingON.Visibility = Visibility.Hidden;
+                    BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+                }
             }
 
             // initialize ScottPlot
@@ -307,8 +316,6 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             bPollingActive = false;
             bOnChangeActive = false;
-
-            Logger.Log(Logger.logLevel.Warning, "input variable not found", Logger.logEvents.Blank);
         }
 
         private void DisableRecording()
@@ -352,24 +359,58 @@ namespace METS_DiagnosticTool_UI.UserControls
             liveViewRow.IsEnabled = true;
         }
 
-        private void labelYES_MouseDown(object sender, MouseButtonEventArgs e)
+        private async void labelYES_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Storyboard _deleteRow_Hide = (Storyboard)Resources[deleteRow_Hide];
-            DoubleAnimationUsingKeyFrames _deleteRow_Hide_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Hide.Children[0];
-            _deleteRow_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
-
-            ((Storyboard)Resources[deleteRow_Hide]).Begin();
-
-            variableConfigurationRow.IsEnabled = true;
-            liveViewRow.IsEnabled = true;
-
-            DeleteVariableClicked?.Invoke(this, (UserInputWithIndicator)userControl);
-
-            // Fire up event that last correct variable has been deleted
-            if (!string.IsNullOrEmpty(lastCorrectPLCvariable))
+            // Delete Variable Config from XML FIle
+            if(input.Text != inputPlaceHolderText && !string.IsNullOrEmpty(input.Text))
             {
-                CorrectVariableDeleted?.Invoke(this, lastCorrectPLCvariable);
-                lastCorrectPLCvariable = string.Empty;
+                Task<string> _deletePLCVariableConfig = RabbitMQHelper.SendToServer_DeletePLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.deleteVarConfig],
+                                                                                                   string.Concat("XMLFileFullPath$", string.Concat(corePath, @"\XML\VariablesConfiguration.xml"),
+                                                                                                                 ";VariableAddress$", input.Text));
+                await _deletePLCVariableConfig;
+
+                if (_deletePLCVariableConfig.Result == true.ToString())
+                {
+                    Storyboard _deleteRow_Hide = (Storyboard)Resources[deleteRow_Hide];
+                    DoubleAnimationUsingKeyFrames _deleteRow_Hide_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Hide.Children[0];
+                    _deleteRow_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
+
+                    ((Storyboard)Resources[deleteRow_Hide]).Begin();
+
+                    variableConfigurationRow.IsEnabled = true;
+                    liveViewRow.IsEnabled = true;
+
+                    DeleteVariableClicked?.Invoke(this, (UserInputWithIndicator)userControl);
+                }
+                else
+                {
+                    if(!bSaved)
+                    {
+                        Storyboard _deleteRow_Hide = (Storyboard)Resources[deleteRow_Hide];
+                        DoubleAnimationUsingKeyFrames _deleteRow_Hide_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Hide.Children[0];
+                        _deleteRow_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
+
+                        ((Storyboard)Resources[deleteRow_Hide]).Begin();
+
+                        variableConfigurationRow.IsEnabled = true;
+                        liveViewRow.IsEnabled = true;
+
+                        DeleteVariableClicked?.Invoke(this, (UserInputWithIndicator)userControl);
+                    }
+                }
+            }
+            else
+            {
+                Storyboard _deleteRow_Hide = (Storyboard)Resources[deleteRow_Hide];
+                DoubleAnimationUsingKeyFrames _deleteRow_Hide_Anim = (DoubleAnimationUsingKeyFrames)_deleteRow_Hide.Children[0];
+                _deleteRow_Hide_Anim.KeyFrames[0].Value = -ActualWidth;
+
+                ((Storyboard)Resources[deleteRow_Hide]).Begin();
+
+                variableConfigurationRow.IsEnabled = true;
+                liveViewRow.IsEnabled = true;
+
+                DeleteVariableClicked?.Invoke(this, (UserInputWithIndicator)userControl);
             }
         }
 
@@ -410,6 +451,8 @@ namespace METS_DiagnosticTool_UI.UserControls
                 input.Text = string.Empty;
                 input.Foreground = Brushes.White;
             }
+
+            variableAddressInputGotFocus = true;
         }
 
         private void input_LostFocus(object sender, RoutedEventArgs e)
@@ -420,8 +463,11 @@ namespace METS_DiagnosticTool_UI.UserControls
                 input.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
                 input.Text = inputPlaceHolderText;
             }
+
+            variableAddressInputGotFocus = false;
         }
 
+        // This event gets fired up when Variable Adress gets data from XML Read
         private async void input_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Check provided PLC Variable address if it can be found among all PLC variables show OK,
@@ -431,14 +477,11 @@ namespace METS_DiagnosticTool_UI.UserControls
             if (!string.IsNullOrEmpty(input.Text))
             {
                 // First check has the variable been already declared or not
-                foreach (string variable in Utility.ListOfDeclaredPLCVariables)
-                {
-                    if (string.Equals(input.Text, variable, StringComparison.OrdinalIgnoreCase))
-                    {
-                        _duplicate = true;
-                        break;
-                    }
-                }
+                Task<string> _checkDoesPLCVarConfigUsed = RabbitMQHelper.SendToServer_CheckDoesPLCVarConfigUsed(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkDoesPLCVarConfigUsed], input.Text);
+                await _checkDoesPLCVarConfigUsed;
+
+                if (_checkDoesPLCVarConfigUsed.Result == true.ToString())
+                    _duplicate = true;
 
                 // Check Existance of the PLC Variable
                 Task<string> _checkGivenPLCAddress = RabbitMQHelper.SendToServer_CheckPLCVarExistance(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkPLCVarExistance], input.Text);
@@ -453,35 +496,18 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                         // Show Configuration Enabled Button
                         BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
-
-                        // Fire up event handler that correct variable has just been added 
-                        CorrectVariableAdded?.Invoke(this, input.Text);
-
-                        lastCorrectPLCvariable = input.Text;
                     }
                 }
                 else if (input.Text != inputPlaceHolderText)
                 {
-                    //InputVariableNotFound();
-
-                    // Fire up event that last correct variable has been deleted
-                    if (!string.IsNullOrEmpty(lastCorrectPLCvariable))
-                    {
-                        CorrectVariableDeleted?.Invoke(this, lastCorrectPLCvariable);
-                        lastCorrectPLCvariable = string.Empty;
-                    }
+                    if (variableAddressInputGotFocus)
+                        InputVariableNotFound();
                 }
             }
             else
             {
-                //InputVariableNotFound();
-
-                // Fire up event that last correct variable has been deleted
-                if (!string.IsNullOrEmpty(lastCorrectPLCvariable))
-                {
-                    CorrectVariableDeleted?.Invoke(this, lastCorrectPLCvariable);
-                    lastCorrectPLCvariable = string.Empty;
-                }
+                if (variableAddressInputGotFocus)
+                    InputVariableNotFound();
             }
         }
         #endregion
@@ -657,8 +683,8 @@ namespace METS_DiagnosticTool_UI.UserControls
             {
                 BringToFrontAndSendOtherBack(recordingButtons, recordingON);
 
-                gridRecordingOFF.Visibility = Visibility.Hidden;
-                gridRecordingON.Visibility = Visibility.Visible;
+                //gridRecordingOFF.Visibility = Visibility.Hidden;
+                //gridRecordingON.Visibility = Visibility.Visible;
                 //((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
 
                 bRecordingActive = true;
@@ -674,7 +700,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                 if (!bSaved)
                 {
                     // Confirm Variable Configuration
-                    Task<string> _saveGivenVariableConfiguration = RabbitMQHelper.SendToServer_SavePLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.plcVarConfigSave],
+                    Task<string> _saveGivenVariableConfiguration = RabbitMQHelper.SendToServer_SavePLCVarConfigs(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.plcVarConfigsSave],
                                                                                                                 string.Concat(corePath, @"\XML\VariablesConfiguration.xml"),
                                                                                                                 input.Text,
                                                                                                                 bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
@@ -699,6 +725,15 @@ namespace METS_DiagnosticTool_UI.UserControls
                     ((Storyboard)Resources[changeLabelSaveEdit_ShowEdit]).Begin();
 
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
+
+                    // Recording
+                    //BringToFrontAndSendOtherBack(recordingButtons, recordingON);
+
+                    gridRecordingOFF.Visibility = Visibility.Hidden;
+                    gridRecordingON.Visibility = Visibility.Visible;
+                    //((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
+
+                    bRecordingActive = true;
 
                     bSaved = true;
 
@@ -930,10 +965,12 @@ namespace METS_DiagnosticTool_UI.UserControls
             bDeleteRow_Show_Completed = true;
         }
 
+
+
         #endregion
 
         #endregion
 
-
+        
     }
 }

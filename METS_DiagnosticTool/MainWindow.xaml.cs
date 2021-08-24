@@ -31,8 +31,6 @@ namespace METS_DiagnosticTool_UI
 
         private UserControls.UserInputWithIndicator _row;
 
-        public DoubleCollection StrokeArray { get; internal set; }
-
         public MainWindow()
         {
             InitializeComponent();
@@ -55,17 +53,6 @@ namespace METS_DiagnosticTool_UI
             }
         }
 
-        private void _row_CorrectVariableDeleted(object sender, string e)
-        {
-            if (Utility.ListOfDeclaredPLCVariables.Contains(e))
-                Utility.ListOfDeclaredPLCVariables.Remove(e);
-        }
-
-        private void _row_CorrectVariableAdded(object sender, string e)
-        {
-            Utility.ListOfDeclaredPLCVariables.Add(e);
-        }
-
         private void Label1_AddNewVariableClicked(object sender, EventArgs e)
         {
             // Create new Control
@@ -78,8 +65,6 @@ namespace METS_DiagnosticTool_UI
             // Attach Events
             _row.AddNewVariableClicked += Label1_AddNewVariableClicked;
             _row.DeleteVariableClicked += Label1_DeleteVariableClicked;
-            _row.CorrectVariableAdded += _row_CorrectVariableAdded;
-            _row.CorrectVariableDeleted += _row_CorrectVariableDeleted;
 
             // Add row to the Grid for the Control
             RowDefinition rowDefinition = new RowDefinition();
@@ -162,21 +147,11 @@ namespace METS_DiagnosticTool_UI
                                     {
                                         _variableConfigurationKey = _config[1];
                                         _localVariableConfig.variableAddress = _config[1];
-
-                                        Logger.Log(Logger.logLevel.Warning, string.Concat("VariableAddress ", _config[1]), Logger.logEvents.Blank);
                                     }
                                     else if (_config[0] == "PollingRefreshTime")
-                                    {
                                         _localVariableConfig.pollingRefreshTime = int.Parse(_config[1]);
-
-                                        Logger.Log(Logger.logLevel.Warning, string.Concat("PollingRefreshTime ", int.Parse(_config[1]).ToString()), Logger.logEvents.Blank);
-                                    }
                                     else if (_config[0] == "Recording")
-                                    {
                                         _localVariableConfig.recording = bool.Parse(_config[1]);
-
-                                        Logger.Log(Logger.logLevel.Warning, string.Concat("Recording ", _config[1]), Logger.logEvents.Blank);
-                                    }
                                     else if (_config[0] == "LoggingType")
                                     {
                                         bool loggingTypeParsed = Enum.TryParse(_config[1], out LoggingType _loggingType);
@@ -203,8 +178,6 @@ namespace METS_DiagnosticTool_UI
                                     // Attach Events
                                     _localRow.AddNewVariableClicked += Label1_AddNewVariableClicked;
                                     _localRow.DeleteVariableClicked += Label1_DeleteVariableClicked;
-                                    _localRow.CorrectVariableAdded += _row_CorrectVariableAdded;
-                                    _localRow.CorrectVariableDeleted += _row_CorrectVariableDeleted;
 
                                     // Add row to the Grid for the Control
                                     RowDefinition rowDefinition = new RowDefinition();
@@ -236,8 +209,6 @@ namespace METS_DiagnosticTool_UI
                             // Attach Events
                             _localRow1.AddNewVariableClicked += Label1_AddNewVariableClicked;
                             _localRow1.DeleteVariableClicked += Label1_DeleteVariableClicked;
-                            _localRow1.CorrectVariableAdded += _row_CorrectVariableAdded;
-                            _localRow1.CorrectVariableDeleted += _row_CorrectVariableDeleted;
 
                             // Add row to the Grid for the Control
                             RowDefinition rowDefinitionLastRow = new RowDefinition();
@@ -258,7 +229,7 @@ namespace METS_DiagnosticTool_UI
                 }
                 catch (Exception ex)
                 {
-                    Logger.Log(Logger.logLevel.Warning, string.Concat("Exception when parsing variable configuration string ", ex.ToString()), Logger.logEvents.Blank);
+                    Logger.Log(Logger.logLevel.Warning, string.Concat("Exception when parsing variable configuration string ", ex.ToString()), Logger.logEvents.ParsingVariablesConfigurationError);
                 }
             }).ContinueWith(t =>
             {
@@ -271,7 +242,7 @@ namespace METS_DiagnosticTool_UI
                     ((Storyboard)Resources["loadingVarConfigs_Hide"]).Begin();
 
                     scrollViewer.Visibility = Visibility.Visible;
-                    loadingGrid.Visibility = Visibility.Hidden;
+                    //loadingGrid.Visibility = Visibility.Hidden;
                 }));
 
                 _return = true;
@@ -283,13 +254,11 @@ namespace METS_DiagnosticTool_UI
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // Get Variable Configurations String
-            Task<string> _getVariablesConfiguration = RabbitMQHelper.SendToServer_ReadPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.plcVarConfigRead],
+            Task<string> _getVariablesConfiguration = RabbitMQHelper.SendToServer_ReadPLCVarConfigs(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.plcVarConfigsRead],
                                                                                                    string.Concat(_corePath, @"\XML\VariablesConfiguration.xml"));
             await _getVariablesConfiguration;
 
             string _varibalesConfigurationString = _getVariablesConfiguration.Result;
-
-            Logger.Log(Logger.logLevel.Warning, string.Concat("recieved variable configuration string", _varibalesConfigurationString), Logger.logEvents.Blank);
 
             Task<bool> _createVariablesFromConfiguration = CreateVariablesFromConfiguration(_varibalesConfigurationString);
 

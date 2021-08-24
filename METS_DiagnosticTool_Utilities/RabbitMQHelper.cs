@@ -17,15 +17,19 @@ namespace METS_DiagnosticTool_Utilities
         public enum RoutingKeysDictionary
         {
             checkPLCVarExistance = 0,
-            plcVarConfigRead = 1,
-            plcVarConfigSave = 2
+            plcVarConfigsRead = 1,
+            plcVarConfigsSave = 2,
+            deleteVarConfig = 3,
+            checkDoesPLCVarConfigUsed = 4
         }
 
         internal const string checkPLCVarExistance = "checkPLCVarExistance";
-        internal const string plcVarConfigRead = "plcVarConfigRead";
+        internal const string plcVarConfigsRead = "plcVarConfigRead";
         internal const string plcVarConfigSave = "plcVarConfigSave";
+        internal const string deleteVarConfig = "deleteVarConfig";
+        internal const string checkDoesPLCVarConfigUsed = "checkDoesPLCVarConfigUsed";
 
-        public static string[] RoutingKeys = new string[] { checkPLCVarExistance, plcVarConfigRead, plcVarConfigSave };
+        public static string[] RoutingKeys = new string[] { checkPLCVarExistance, plcVarConfigsRead, plcVarConfigSave , deleteVarConfig, checkDoesPLCVarConfigUsed };
 
         private static RpcServer _rpcServer;
         private static RpcClient _rpcClient;
@@ -126,7 +130,7 @@ namespace METS_DiagnosticTool_Utilities
                 return string.Empty;
         }
 
-        public static async Task<string> SendToServer_SavePLCVarConfig(string routingKey, string xmlFilePath, string variableAddress, LoggingType loggingType, int pollingRefreshTime, bool recording)
+        public static async Task<string> SendToServer_SavePLCVarConfigs(string routingKey, string xmlFilePath, string variableAddress, LoggingType loggingType, int pollingRefreshTime, bool recording)
         {
             // Create here message string to send to server
             if(_rpcClient != null)
@@ -140,11 +144,29 @@ namespace METS_DiagnosticTool_Utilities
                 return string.Empty;
         }
 
-        public static async Task<string> SendToServer_ReadPLCVarConfig(string routingKey, string xmlFilePath)
+        public static async Task<string> SendToServer_ReadPLCVarConfigs(string routingKey, string xmlFilePath)
         {
             // Create here message string to send to server
             if (_rpcClient != null)
                 return await _rpcClient.CallAsync(routingKey, xmlFilePath);
+            else
+                return string.Empty;
+        }
+
+        public static async Task<string> SendToServer_DeletePLCVarConfig(string routingKey, string plcVariableAddress)
+        {
+            // Create here message string to send to server
+            if (_rpcClient != null)
+                return await _rpcClient.CallAsync(routingKey, plcVariableAddress);
+            else
+                return string.Empty;
+        }
+
+        public static async Task<string> SendToServer_CheckDoesPLCVarConfigUsed(string routingKey, string plcVariableAddress)
+        {
+            // Create here message string to send to server
+            if (_rpcClient != null)
+                return await _rpcClient.CallAsync(routingKey, plcVariableAddress);
             else
                 return string.Empty;
         }
@@ -222,14 +244,24 @@ namespace METS_DiagnosticTool_Utilities
                             response = CheckPLCVariableExistance(message).ToString();
                             break;
 
-                        // Read PLC Var Configuration
-                        case RabbitMQHelper.plcVarConfigRead:
-                            response = ReadPLCVariableConfig(message).ToString();
+                        // Read PLC Var Configurations (all at once)
+                        case RabbitMQHelper.plcVarConfigsRead:
+                            response = ReadPLCVariableConfigs(message).ToString();
                             break;
 
-                        // Save PLC Var Configuration
+                        // Save PLC Var Configuration (single Variable)
                         case RabbitMQHelper.plcVarConfigSave:
                             response = SavePLCVariableConfig(message).ToString();
+                            break;
+
+                        // Delete PLC Var Configuration (single Variable)
+                        case RabbitMQHelper.deleteVarConfig:
+                            response = DeletePLCVariableConfig(message).ToString();
+                            break;
+
+                        // Check does the PLC var Config been already used
+                        case RabbitMQHelper.checkDoesPLCVarConfigUsed:
+                            response = CheckDoesThePLCVariableBeenUsed(message).ToString();
                             break;
 
                         default:
