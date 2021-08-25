@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:METS_DiagnosticTool_UI.UserControls"
              xmlns:METS_DiagnosticTool_UI="clr-namespace:METS_DiagnosticTool_UI" 
-             xmlns:System="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
-             x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
+             xmlns:System="http://schemas.microsoft.com/netfx/2009/xaml/presentation" xmlns:liveviewplot="clr-namespace:METS_DiagnosticTool_UI.UserControls.LiveViewPlot"
+    x:Name="userControl" x:Class="METS_DiagnosticTool_UI.UserControls.UserInputWithIndicator"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="740" MinWidth="740" SizeChanged="userControl_SizeChanged">
 
@@ -1153,7 +1153,8 @@
             </Grid.RowDefinitions>
 
             <Label Content="Live View" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2" Foreground="White" FontSize="14"/>
-            <local:LiveViewPlot x:Name="liveViewPlot" Width="740" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Stretch" Margin="10"/>
+            <liveviewplot:LiveViewPlot x:Name="liveViewPlot" Width="740" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Stretch" Margin="10"/>
+            <!--<local:LiveViewPlot x:Name="liveViewPlot" Width="740" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Stretch" Margin="10"/>-->
         </Grid>
 
         <Grid x:Name="variableConfigurationRow_SaveChangesWarning" Grid.Row="1" Visibility="Hidden" MouseDown="variableConfigurationRow_SaveChangesWarning_MouseDown" RenderTransformOrigin="0.5,0.5" >

@@ -231,8 +231,6 @@ namespace METS_DiagnosticTool_UI.UserControls
                     BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
                 }
             }
-
-            
         }
         #endregion
 
@@ -887,7 +885,7 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void userControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            liveViewPlot.Width = ActualWidth - 50;
+            //liveViewPlot.Width = ActualWidth - 50;
 
             if (!bDeleteRow_Show_Completed)
                 deleteRowTransform.X = -ActualWidth;
