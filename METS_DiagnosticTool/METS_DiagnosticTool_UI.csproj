@@ -232,7 +232,7 @@
       <DependentUpon>LiveViewPlot.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\LiveViewPlot\RelayCommand.cs" />
-    <Compile Include="UserControls\LiveViewPlot\SpeedTestVm.cs" />
+    <Compile Include="UserControls\LiveViewPlot\LiveViewPlotVm.cs" />
     <Compile Include="UserControls\LoadingControl.xaml.cs">
       <DependentUpon>LoadingControl.xaml</DependentUpon>
     </Compile>

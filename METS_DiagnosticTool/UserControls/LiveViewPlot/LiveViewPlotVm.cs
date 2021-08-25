@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -9,19 +10,20 @@ using System.Threading.Tasks;
 
 namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 {
-    public class SpeedTestVm : INotifyPropertyChanged
+    public class LiveViewPlotVm : INotifyPropertyChanged
     {
         private double _trend;
         private double _count;
-        private double _currentLecture;
-        private bool _isHot;
+        private double _currentvalue;
 
-        public SpeedTestVm()
+        public LiveViewPlotVm()
         {
             Values = new GearedValues<double>().WithQuality(Quality.Highest);
             ReadCommand = new RelayCommand(Read);
             StopCommand = new RelayCommand(Stop);
             CleaCommand = new RelayCommand(Clear);
+
+            YFormatter = value => value.ToString("N1", CultureInfo.InvariantCulture);
         }
 
         public bool IsReading { get; set; }
@@ -29,6 +31,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         public RelayCommand StopCommand { get; set; }
         public RelayCommand CleaCommand { get; set; }
         public GearedValues<double> Values { get; set; }
+
+        public Func<double, string> YFormatter { get; set; }
 
         public double Count
         {
@@ -40,24 +44,14 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             }
         }
 
-        public double CurrentLecture
+        public double CurrentValue
         {
-            get { return _currentLecture; }
+            get { return _currentvalue; }
             set
             {
-                _currentLecture = value;
-                OnPropertyChanged("CurrentLecture");
-            }
-        }
+                _currentvalue = value;
 
-        public bool IsHot
-        {
-            get { return _isHot; }
-            set
-            {
-                var changed = value != _isHot;
-                _isHot = value;
-                if (changed) OnPropertyChanged("IsHot");
+                OnPropertyChanged("CurrentValue");
             }
         }
 
@@ -95,22 +89,13 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                     var first = Values.DefaultIfEmpty(0).FirstOrDefault();
                     if (Values.Count > keepRecords - 1) Values.Remove(first);
                     if (Values.Count < keepRecords) Values.Add(_trend);
-                    IsHot = _trend > 0;
                     Count = Values.Count;
-                    CurrentLecture = _trend;
+                    CurrentValue = _trend;
                 }
             };
 
-            //2 different tasks adding a value every ms
             //add as many tasks as you want to test this feature
             Task.Factory.StartNew(readFromTread);
-            Task.Factory.StartNew(readFromTread);
-            Task.Factory.StartNew(readFromTread);
-            //Task.Factory.StartNew(readFromTread);
-            //Task.Factory.StartNew(readFromTread);
-            //Task.Factory.StartNew(readFromTread);
-            //Task.Factory.StartNew(readFromTread);
-            //Task.Factory.StartNew(readFromTread);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

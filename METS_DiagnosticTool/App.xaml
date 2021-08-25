@@ -252,7 +252,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
         <!-- Add New Row Button Style -->
         <Style TargetType="{x:Type local1:UserInputWithIndicator_Image}" x:Key="addNewRow">
             <Setter Property="Source">
@@ -345,5 +345,39 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="SimpleButton" TargetType="{x:Type Button}">
+            <Setter Property="Background" Value="#373737" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Grid>
+                            <Rectangle x:Name="rectangleClear" Margin="15,4,15,4" RadiusX="12" RadiusY="12" StrokeThickness="2.5" Fill="Transparent" Height="30" Width="80" HorizontalAlignment="Center" VerticalAlignment="Stretch">
+                                <Rectangle.Stroke>
+                                    <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
+                                </Rectangle.Stroke>
+                            </Rectangle>
+                            <Label x:Name="labelClear" Margin="0" Content="{TemplateBinding Content}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Foreground="White" FontSize="16" Padding="0,0,0,2"/>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!--<Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>-->
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="rectangleClear" Property="Stroke" Value="Chartreuse" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Application.Resources>
 </Application>

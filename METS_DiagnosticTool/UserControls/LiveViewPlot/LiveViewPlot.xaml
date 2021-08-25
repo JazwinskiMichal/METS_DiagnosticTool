@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.DataContext>
-        <local:SpeedTestVm></local:SpeedTestVm>
+        <local:LiveViewPlotVm></local:LiveViewPlotVm>
     </UserControl.DataContext>
     <Grid>
         <Grid.RowDefinitions>
@@ -15,12 +15,10 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <TextBlock TextWrapping="Wrap">Here we are adding a value every millisecond from 2 different tasks</TextBlock>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15">
-            <Button Command="{Binding ReadCommand}">Start Lecture</Button>
-            <Button Command="{Binding StopCommand}">Stop</Button>
-            <Button Command="{Binding CleaCommand}">Clear</Button>
-            <TextBlock VerticalAlignment="Center" Margin="15 0" Text="{Binding Count, StringFormat=Buffer: {0}}"></TextBlock>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15,5,15,15">
+            <Button Style="{StaticResource SimpleButton}" Command="{Binding ReadCommand}">Start</Button>
+            <Button Style="{StaticResource SimpleButton}" Command="{Binding StopCommand}">Stop</Button>
+            <Button Style="{StaticResource SimpleButton}" Command="{Binding CleaCommand}">Clear</Button>
         </StackPanel>
         <lvc:CartesianChart Grid.Row="2" DisableAnimations="True" DataTooltip="{x:Null}" Hoverable="False">
             <!--<lvc:CartesianChart.Resources>
@@ -52,7 +50,7 @@
                 <lvc:Axis MaxValue="20500" ShowLabels="False"></lvc:Axis>
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
-                <lvc:Axis>
+                <lvc:Axis LabelFormatter="{Binding YFormatter}">
                     <lvc:Axis.Sections>
                         <lvc:AxisSection Value="0" StrokeThickness="3" Stroke="#303030"></lvc:AxisSection>
                     </lvc:Axis.Sections>
@@ -61,6 +59,6 @@
         </lvc:CartesianChart>
         <TextBlock Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Right" 
                    Margin="40 20" FontSize="110" Foreground="#72000000" 
-                   Text="{Binding CurrentLecture, StringFormat={}{0:N1}°}"></TextBlock>
+                   Text="{Binding CurrentValue, StringFormat={}{0:N3}}"></TextBlock>
     </Grid>
 </UserControl>

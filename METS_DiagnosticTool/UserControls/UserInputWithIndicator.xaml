@@ -1154,7 +1154,6 @@
 
             <Label Content="Live View" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2" Foreground="White" FontSize="14"/>
             <liveviewplot:LiveViewPlot x:Name="liveViewPlot" Width="740" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Stretch" Margin="10"/>
-            <!--<local:LiveViewPlot x:Name="liveViewPlot" Width="740" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Stretch" Margin="10"/>-->
         </Grid>
 
         <Grid x:Name="variableConfigurationRow_SaveChangesWarning" Grid.Row="1" Visibility="Hidden" MouseDown="variableConfigurationRow_SaveChangesWarning_MouseDown" RenderTransformOrigin="0.5,0.5" >

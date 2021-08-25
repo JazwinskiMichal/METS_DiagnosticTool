@@ -27,7 +27,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
         public void Dispose()
         {
-            var vm = (SpeedTestVm)DataContext;
+            var vm = (LiveViewPlotVm)DataContext;
             vm.Values.Dispose();
         }
     }
