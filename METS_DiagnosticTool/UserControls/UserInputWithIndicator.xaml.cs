@@ -60,6 +60,8 @@ namespace METS_DiagnosticTool_UI.UserControls
         private const string unsavedChanges_Hide = "unsavedChanges_Hide";
         private const string changeLabelSaveEdit_ShowEdit = "changeLabelSaveEdit_ShowEdit";
         private const string changeLabelSaveEdit_ShowSave = "changeLabelSaveEdit_ShowSave";
+        private const string changeLabelSaveEdit_ShowEdit_Instant = "changeLabelSaveEdit_ShowEdit_Instant";
+        private const string changeLabelSaveEdit_ShowSave_Instant = "changeLabelSaveEdit_ShowSave_Instant";
 
         // Flag to indicate that Storyboard has completed
         private bool bOKPopCompleted = false;
@@ -667,8 +669,8 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
 
-            gridRecordingOFF.Visibility = Visibility.Visible;
-            gridRecordingON.Visibility = Visibility.Hidden;
+            //gridRecordingOFF.Visibility = Visibility.Visible;
+            //gridRecordingON.Visibility = Visibility.Hidden;
             //((Storyboard)Resources[recordingDot_ON_Pulse]).Stop();
 
             bRecordingActive = false;
@@ -722,18 +724,9 @@ namespace METS_DiagnosticTool_UI.UserControls
                     variableConfigurationControls.IsEnabled = false;
 
                     // Change label to edit after save
-                    ((Storyboard)Resources[changeLabelSaveEdit_ShowEdit]).Begin();
+                    ((Storyboard)Resources[changeLabelSaveEdit_ShowEdit_Instant]).Begin();
 
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
-
-                    // Recording
-                    //BringToFrontAndSendOtherBack(recordingButtons, recordingON);
-
-                    gridRecordingOFF.Visibility = Visibility.Hidden;
-                    gridRecordingON.Visibility = Visibility.Visible;
-                    //((Storyboard)Resources[recordingDot_ON_Pulse]).Begin();
-
-                    bRecordingActive = true;
 
                     bSaved = true;
 
@@ -744,13 +737,28 @@ namespace METS_DiagnosticTool_UI.UserControls
                     variableConfigurationControls.IsEnabled = true;
 
                     // Change label to edit after save
-                    ((Storyboard)Resources[changeLabelSaveEdit_ShowSave]).Begin();
+                    ((Storyboard)Resources[changeLabelSaveEdit_ShowSave_Instant]).Begin();
 
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
 
                     bSaved = false;
 
                     Keyboard.ClearFocus();
+                }
+
+                // Recording
+                if(bSaved)
+                {
+                    if (bRecordingActive)
+                    {
+                        gridRecordingOFF.Visibility = Visibility.Hidden;
+                        gridRecordingON.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        gridRecordingOFF.Visibility = Visibility.Visible;
+                        gridRecordingON.Visibility = Visibility.Hidden;
+                    }
                 }
             }
         }

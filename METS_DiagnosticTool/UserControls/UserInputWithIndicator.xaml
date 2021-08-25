@@ -631,6 +631,9 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="variableConfigurationRow_SaveChangesWarning">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
         </Storyboard>
 
         <!-- Unsaved Changes Hide Storyboard -->
@@ -642,6 +645,9 @@
                     </EasingDoubleKeyFrame.EasingFunction>
                 </EasingDoubleKeyFrame>
             </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="variableConfigurationRow_SaveChangesWarning">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
+            </ObjectAnimationUsingKeyFrames>
         </Storyboard>
         
         <!-- Change Text of Save/Edit button to EDIT -->
@@ -657,6 +663,22 @@
             <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(ContentControl.Content)" Storyboard.TargetName="saveConfigurationLabel">
                 <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="EDIT"/>
                 <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="SAVE"/>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Change Text of Save/Edit button to EDIT instant -->
+        <Storyboard x:Key="changeLabelSaveEdit_ShowEdit_Instant">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(ContentControl.Content)" Storyboard.TargetName="saveConfigurationLabel">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="SAVE"/>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.1" Value="EDIT"/>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+
+        <!-- Change Text of Save/Edit button to SAVE instant -->
+        <Storyboard x:Key="changeLabelSaveEdit_ShowSave_Instant">
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(ContentControl.Content)" Storyboard.TargetName="saveConfigurationLabel">
+                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="EDIT"/>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.1" Value="SAVE"/>
             </ObjectAnimationUsingKeyFrames>
         </Storyboard>
     </UserControl.Resources>
@@ -1134,7 +1156,7 @@
             <WpfPlot x:Name="liveViewPlot" Width="740" HorizontalAlignment="Center" Grid.Row="1" VerticalAlignment="Stretch" Margin="10"/>
         </Grid>
 
-        <Grid x:Name="variableConfigurationRow_SaveChangesWarning" Grid.Row="1" Visibility="Visible" MouseDown="variableConfigurationRow_SaveChangesWarning_MouseDown" RenderTransformOrigin="0.5,0.5" >
+        <Grid x:Name="variableConfigurationRow_SaveChangesWarning" Grid.Row="1" Visibility="Hidden" MouseDown="variableConfigurationRow_SaveChangesWarning_MouseDown" RenderTransformOrigin="0.5,0.5" >
             <Grid.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
