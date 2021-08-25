@@ -232,15 +232,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                 }
             }
 
-            // initialize ScottPlot
-            double[] dataX = new double[] { 1, 2, 3, 4, 5 };
-            double[] dataY = new double[] { 1, 4, 9, 16, 25 };
-            liveViewPlot.Plot.AddScatter(dataX, dataY);
-            liveViewPlot.Plot.Style(ScottPlot.Style.Gray2);
-            liveViewPlot.Plot.XAxis.TickLabelStyle(rotation: 45, fontSize: 14, fontName: "Segoe UI", color: System.Drawing.Color.White);
-            liveViewPlot.Plot.YAxis.TickLabelStyle(fontSize: 14, fontName: "Segoe UI", color: System.Drawing.Color.White);
-            liveViewPlot.Plot.XAxis.Label("Time", color: System.Drawing.Color.White, size: 14, fontName: "Segoe UI");
-            liveViewPlot.Plot.YAxis.Label("Value", color: System.Drawing.Color.White, size: 14, fontName: "Segoe UI");
+            
         }
         #endregion
 
@@ -746,9 +738,9 @@ namespace METS_DiagnosticTool_UI.UserControls
                     Keyboard.ClearFocus();
                 }
 
-                // Recording
                 if(bSaved)
                 {
+                    // Recording
                     if (bRecordingActive)
                     {
                         gridRecordingOFF.Visibility = Visibility.Hidden;
@@ -760,6 +752,15 @@ namespace METS_DiagnosticTool_UI.UserControls
                         gridRecordingON.Visibility = Visibility.Hidden;
                     }
                 }
+
+                // Send Trigger to Core about PLC Variable that has been saved
+                Task<string> _triggerPLCVaribaleConfiguration = RabbitMQHelper.SendToServer_TriggerPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
+                                                                                                                input.Text,
+                                                                                                                bSaved,
+                                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
+                                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
+                                                                                                                bRecordingActive ? true : false);
+                await _triggerPLCVaribaleConfiguration;
             }
         }
 
@@ -775,7 +776,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #region Live View
-        private void liveViewEnabled_MouseDown(object sender, MouseButtonEventArgs e)
+        private async void liveViewEnabled_MouseDown(object sender, MouseButtonEventArgs e)
         {
             // If Variable Configuration is visible show Delayed Animations
             if ((bExtensionRow_VarConfig_Completed && bExtensionRow_VarConfig_AnimationCompleted) ||
@@ -800,6 +801,15 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                 BringToFrontAndSendOtherBack(liveViewButtons, liveViewActive);
                 BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+
+                //// Send Trigger to Core that we want to Have Live View Active
+                //Task<string> _triggerPLCVaribaleConfiguration = RabbitMQHelper.SendToServer_TriggerPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
+                //                                                                                                input.Text,
+                //                                                                                                true,
+                //                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
+                //                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
+                //                                                                                                bRecordingActive ? true : false);
+                //await _triggerPLCVaribaleConfiguration;
             }
             else
             {
@@ -817,6 +827,14 @@ namespace METS_DiagnosticTool_UI.UserControls
                     ((Storyboard)Resources[extensionRow_LiveView_ShowData]).Begin();
 
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewActive);
+
+                    //// Send Trigger to Core that we want to Have Live View Active
+                    //Task<string> _triggerPLCVaribaleLiveView = RabbitMQHelper.SendToServer_TriggerPLCVarLiveView(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
+                    //                                                                                                input.Text,
+                    //                                                                                                true,
+                    //                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
+                    //                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text));
+                    //await _triggerPLCVaribaleLiveView;
                 }
                 else
                 {
@@ -831,11 +849,20 @@ namespace METS_DiagnosticTool_UI.UserControls
                     ((Storyboard)Resources[extensionRow_LiveView_HideData]).Begin();
 
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
+
+
+                    //// Send Trigger to Core that we want to Have Live View Inactive
+                    //Task<string> _triggerPLCVaribaleLiveView = RabbitMQHelper.SendToServer_TriggerPLCVarLiveView(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
+                    //                                                                                                input.Text,
+                    //                                                                                                false,
+                    //                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
+                    //                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text));
+                    //await _triggerPLCVaribaleLiveView;
                 }
             }
         }
 
-        private void liveViewActive_MouseDown(object sender, MouseButtonEventArgs e)
+        private async void liveViewActive_MouseDown(object sender, MouseButtonEventArgs e)
         {
             // Show extension Row Animation
             ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Begin();
@@ -848,6 +875,14 @@ namespace METS_DiagnosticTool_UI.UserControls
             ((Storyboard)Resources[extensionRow_LiveView_HideData]).Begin();
 
             BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
+
+            //// Send Trigger to Core that we want to Have Live View Inactive
+            //Task<string> _triggerPLCVaribaleLiveView = RabbitMQHelper.SendToServer_TriggerPLCVarLiveView(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
+            //                                                                                                input.Text,
+            //                                                                                                false,
+            //                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
+            //                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text));
+            //await _triggerPLCVaribaleLiveView;
         }
 
         private void userControl_SizeChanged(object sender, SizeChangedEventArgs e)

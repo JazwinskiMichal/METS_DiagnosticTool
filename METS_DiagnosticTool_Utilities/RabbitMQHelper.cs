@@ -20,7 +20,9 @@ namespace METS_DiagnosticTool_Utilities
             plcVarConfigsRead = 1,
             plcVarConfigsSave = 2,
             deleteVarConfig = 3,
-            checkDoesPLCVarConfigUsed = 4
+            checkDoesPLCVarConfigUsed = 4,
+            triggerPLCVarConfig = 5,
+            triggerPLCVarLiveView = 6
         }
 
         internal const string checkPLCVarExistance = "checkPLCVarExistance";
@@ -28,10 +30,12 @@ namespace METS_DiagnosticTool_Utilities
         internal const string plcVarConfigSave = "plcVarConfigSave";
         internal const string deleteVarConfig = "deleteVarConfig";
         internal const string checkDoesPLCVarConfigUsed = "checkDoesPLCVarConfigUsed";
+        internal const string triggerPLCVarConfig = "triggerPLCVarConfig";
+        internal const string triggerPLCVarLiveView = "triggerPLCVarLiveView";
 
-        public static string[] RoutingKeys = new string[] { checkPLCVarExistance, plcVarConfigsRead, plcVarConfigSave , deleteVarConfig, checkDoesPLCVarConfigUsed };
+        public static string[] RoutingKeys = new string[] { checkPLCVarExistance, plcVarConfigsRead, plcVarConfigSave , deleteVarConfig, checkDoesPLCVarConfigUsed, triggerPLCVarConfig, triggerPLCVarLiveView };
 
-        private static RpcServer _rpcServer;
+        public static RpcServer _rpcServer;
         private static RpcClient _rpcClient;
 
         public static void Purge()
@@ -54,15 +58,15 @@ namespace METS_DiagnosticTool_Utilities
         /// </summary>
         /// <param name="endPoint"></param>
         /// <returns></returns>
-        public static bool InitializeServer(G_ET_EndPoint endPoint = G_ET_EndPoint.DiagnosticToolCore)
+        public static RpcServer InitializeServer(G_ET_EndPoint endPoint = G_ET_EndPoint.DiagnosticToolCore)
         {
-            bool _return = false;
+            RpcServer _return = null;
 
             try
             {
                 _rpcServer = new RpcServer();
 
-                _return = true;
+                _return = _rpcServer;
             }
             catch (Exception ex)
             {
@@ -120,6 +124,32 @@ namespace METS_DiagnosticTool_Utilities
             }
 
             return _return;
+        }
+
+        public static async Task<string> SendToServer_TriggerPLCVarLiveView(string routingKey, string variableAddress, bool trigger, LoggingType loggingType, int pollingRefreshTime)
+        {
+            if (_rpcClient != null)
+            {
+                string _message = string.Concat("VariableAddress$", variableAddress, ";Trigger$", trigger.ToString().ToLower(),
+                                    ";LoggingType$", (int)loggingType, ";PollingRefreshTime$", pollingRefreshTime.ToString());
+
+                return await _rpcClient.CallAsync(routingKey, _message);
+            }
+            else
+                return string.Empty;
+        }
+
+        public static async Task<string> SendToServer_TriggerPLCVarConfig(string routingKey, string variableAddress, bool trigger, LoggingType loggingType, int pollingRefreshTime, bool recording)
+        {
+            if (_rpcClient != null)
+            {
+                string _message = string.Concat("VariableAddress$", variableAddress, ";Trigger$", trigger.ToString().ToLower(),
+                                    ";LoggingType$", (int)loggingType, ";PollingRefreshTime$", pollingRefreshTime.ToString(), ";Recording$", recording.ToString());
+
+                return await _rpcClient.CallAsync(routingKey, _message);
+            }
+            else
+                return string.Empty;
         }
 
         public static async Task<string> SendToServer_CheckPLCVarExistance(string routingKey, string message)
@@ -197,11 +227,14 @@ namespace METS_DiagnosticTool_Utilities
         }
     }
 
-    internal class RpcServer
+    public class RpcServer
     {
         private readonly ConnectionFactory factory;
         private readonly IConnection connection;
         private readonly IModel channel;
+
+        public event EventHandler<string> PLCVariableConfigurationTriggered;
+        public event EventHandler<string> PLCVariableLiveViewTriggered;
 
         internal RpcServer()
         {
@@ -263,6 +296,17 @@ namespace METS_DiagnosticTool_Utilities
                         case RabbitMQHelper.checkDoesPLCVarConfigUsed:
                             response = CheckDoesThePLCVariableBeenUsed(message).ToString();
                             break;
+
+                        case RabbitMQHelper.triggerPLCVarConfig:
+                            PLCVariableConfigurationTriggered?.Invoke(this, message);
+                            // Here it's possible to add confirmation to Client did the Server received Configuration correctly or not
+                            response = true.ToString();
+                            break;
+
+                        //case RabbitMQHelper.triggerPLCVarLiveView:
+                        //    PLCVariableLiveViewTriggered?.Invoke(this, message);
+                        //    response = true.ToString();
+                        //    break;
 
                         default:
                             response = false.ToString();
