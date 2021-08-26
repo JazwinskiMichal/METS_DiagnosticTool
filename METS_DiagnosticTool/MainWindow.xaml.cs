@@ -26,6 +26,8 @@ namespace METS_DiagnosticTool_UI
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static RpcClient rabbitMQ_Client;
+
         private static string _corePath = string.Empty;
 
         private static int _rowCount;
@@ -36,8 +38,20 @@ namespace METS_DiagnosticTool_UI
         {
             InitializeComponent();
 
-            // Initialize Rabbit MQ Client
-            RabbitMQHelper.InitializeClient();
+            try
+            {
+                // Initialize Rabbit MQ Client
+                rabbitMQ_Client = RabbitMQHelper.InitializeClient();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(Logger.logLevel.Error, string.Concat("Initializing Rabbit MQ Client Error ", ex.ToString()), Logger.logEvents.Blank);
+            }
+
+            if (rabbitMQ_Client != null)
+                Logger.Log(Logger.logLevel.Information, "Rabbit MQ Client Initialized correctly", Logger.logEvents.Blank);
+            else
+                Logger.Log(Logger.logLevel.Error, "Rabbit MQ Client Initializiation ERROR", Logger.logEvents.Blank);
 
             // Get command Line Arguments Passed from Core
             string[] args = Environment.GetCommandLineArgs();
@@ -62,6 +76,16 @@ namespace METS_DiagnosticTool_UI
 
             // Inject information about Core full Path
             _row.corePath = _corePath;
+
+            // Inject RPC Client
+            try
+            {
+                _row.rpcClient = rabbitMQ_Client;
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(Logger.logLevel.Error, string.Concat("Exception when trying to inject RPC Client to Variable Row ", ex.ToString()), Logger.logEvents.Blank);
+            }
 
             // Attach Events
             _row.AddNewVariableClicked += Label1_AddNewVariableClicked;
@@ -295,6 +319,28 @@ namespace METS_DiagnosticTool_UI
             Task<bool> _createVariablesFromConfiguration = CreateVariablesFromConfiguration(_getVariablesConfiguration.Result);
 
             await _createVariablesFromConfiguration;
+
+            // Inject RPC Server foreach control Created
+            foreach (var _control in mainGrid.Children)
+            {
+                if(_control.GetType() == typeof(UserControls.UserInputWithIndicator))
+                {
+                    // Inject RPC Client
+                    try
+                    {
+                        UserControls.UserInputWithIndicator _row = (UserControls.UserInputWithIndicator)_control;
+
+                        if (rabbitMQ_Client != null)
+                            _row.rpcClient = rabbitMQ_Client;
+                        else
+                            Logger.Log(Logger.logLevel.Error, "Rabbit MQ Client is null", Logger.logEvents.Blank);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Log(Logger.logLevel.Error, string.Concat("Exception when trying to inject RPC Client to Variable Row ", ex.ToString()), Logger.logEvents.Blank);
+                    }
+                }
+            }
         }
     }
 }

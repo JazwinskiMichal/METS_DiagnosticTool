@@ -20,6 +20,25 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
     /// </summary>
     public partial class LiveViewPlot : UserControl, IDisposable
     {
+        //public METS_DiagnosticTool_Utilities.RpcClient rpcClient;
+
+        private METS_DiagnosticTool_Utilities.RpcClient _rpcClient;
+        public METS_DiagnosticTool_Utilities.RpcClient rpcClient 
+        { 
+            get
+            {
+                return _rpcClient;
+            }
+            set
+            {
+                _rpcClient = value;
+
+                // Inject RPC Server Instance
+                LiveViewPlotVm vm = (LiveViewPlotVm)DataContext;
+                vm.rpcClient = _rpcClient;
+            }
+        }
+
         public LiveViewPlot()
         {
             InitializeComponent();
@@ -27,7 +46,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
         public void Dispose()
         {
-            var vm = (LiveViewPlotVm)DataContext;
+            LiveViewPlotVm vm = (LiveViewPlotVm)DataContext;
             vm.Values.Dispose();
         }
     }

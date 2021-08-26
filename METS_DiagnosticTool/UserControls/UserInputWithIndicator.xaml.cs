@@ -19,6 +19,8 @@ namespace METS_DiagnosticTool_UI.UserControls
     public partial class UserInputWithIndicator : UserControl
     {
         #region Public Fields
+        public RpcClient rpcClient;
+
         public string corePath = string.Empty;
         #endregion
 
@@ -99,6 +101,9 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         // Variable Address input
         private static bool variableAddressInputGotFocus = false;
+
+        // Live View PLot
+        LiveViewPlot.LiveViewPlot liveViewPlot;
         #endregion
 
         #region Events
@@ -231,6 +236,18 @@ namespace METS_DiagnosticTool_UI.UserControls
                     BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
                 }
             }
+
+            // Initialize Live View Plot
+            liveViewPlot = new LiveViewPlot.LiveViewPlot();
+            liveViewPlot.Name = "liveViewPlot";
+            liveViewPlot.Width = 740;
+            liveViewPlot.HorizontalAlignment = HorizontalAlignment.Center;
+            liveViewPlot.VerticalAlignment = VerticalAlignment.Stretch;
+            liveViewPlot.Margin = new Thickness(10);
+
+            Grid.SetRow(liveViewPlot, 1);
+
+            liveViewRow.Children.Add(liveViewPlot);
         }
         #endregion
 
@@ -774,7 +791,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #region Live View
-        private async void liveViewEnabled_MouseDown(object sender, MouseButtonEventArgs e)
+        private void liveViewEnabled_MouseDown(object sender, MouseButtonEventArgs e)
         {
             // If Variable Configuration is visible show Delayed Animations
             if ((bExtensionRow_VarConfig_Completed && bExtensionRow_VarConfig_AnimationCompleted) ||
@@ -800,14 +817,16 @@ namespace METS_DiagnosticTool_UI.UserControls
                 BringToFrontAndSendOtherBack(liveViewButtons, liveViewActive);
                 BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
 
-                //// Send Trigger to Core that we want to Have Live View Active
-                //Task<string> _triggerPLCVaribaleConfiguration = RabbitMQHelper.SendToServer_TriggerPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
-                //                                                                                                input.Text,
-                //                                                                                                true,
-                //                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
-                //                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
-                //                                                                                                bRecordingActive ? true : false);
-                //await _triggerPLCVaribaleConfiguration;
+                // Request Live View
+                // Inject RPC Client
+                if (liveViewPlot.rpcClient == null)
+                    liveViewPlot.rpcClient = rpcClient;
+                var variableConfig = new VariableConfigurationHelper.VariableConfig();
+                variableConfig.variableAddress = input.Text;
+                variableConfig.recording = bRecordingActive;
+                variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
+                variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
+                rpcClient.LiveViewRequested(true, variableConfig);
             }
             else
             {
@@ -826,13 +845,15 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewActive);
 
-                    //// Send Trigger to Core that we want to Have Live View Active
-                    //Task<string> _triggerPLCVaribaleLiveView = RabbitMQHelper.SendToServer_TriggerPLCVarLiveView(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
-                    //                                                                                                input.Text,
-                    //                                                                                                true,
-                    //                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
-                    //                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text));
-                    //await _triggerPLCVaribaleLiveView;
+                    // Request Live View
+                    if (liveViewPlot.rpcClient == null)
+                        liveViewPlot.rpcClient = rpcClient;
+                    var variableConfig = new VariableConfigurationHelper.VariableConfig();
+                    variableConfig.variableAddress = input.Text;
+                    variableConfig.recording = bRecordingActive;
+                    variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
+                    variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
+                    rpcClient.LiveViewRequested(true, variableConfig);
                 }
                 else
                 {
@@ -848,19 +869,20 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
 
-
-                    //// Send Trigger to Core that we want to Have Live View Inactive
-                    //Task<string> _triggerPLCVaribaleLiveView = RabbitMQHelper.SendToServer_TriggerPLCVarLiveView(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
-                    //                                                                                                input.Text,
-                    //                                                                                                false,
-                    //                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
-                    //                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text));
-                    //await _triggerPLCVaribaleLiveView;
+                    // Dont Request Live View
+                    if (liveViewPlot.rpcClient == null)
+                        liveViewPlot.rpcClient = rpcClient;
+                    var variableConfig = new VariableConfigurationHelper.VariableConfig();
+                    variableConfig.variableAddress = input.Text;
+                    variableConfig.recording = bRecordingActive;
+                    variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
+                    variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
+                    rpcClient.LiveViewRequested(false, variableConfig);
                 }
             }
         }
 
-        private async void liveViewActive_MouseDown(object sender, MouseButtonEventArgs e)
+        private void liveViewActive_MouseDown(object sender, MouseButtonEventArgs e)
         {
             // Show extension Row Animation
             ((Storyboard)Resources[extensionRow_LiveView_ShowRollUp]).Begin();
@@ -874,18 +896,21 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
 
-            //// Send Trigger to Core that we want to Have Live View Inactive
-            //Task<string> _triggerPLCVaribaleLiveView = RabbitMQHelper.SendToServer_TriggerPLCVarLiveView(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
-            //                                                                                                input.Text,
-            //                                                                                                false,
-            //                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
-            //                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text));
-            //await _triggerPLCVaribaleLiveView;
+            // Dont Request Live View
+            if (liveViewPlot.rpcClient == null)
+                liveViewPlot.rpcClient = rpcClient;
+            var variableConfig = new VariableConfigurationHelper.VariableConfig();
+            variableConfig.variableAddress = input.Text;
+            variableConfig.recording = bRecordingActive;
+            variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
+            variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
+            rpcClient.LiveViewRequested(false, variableConfig);
         }
 
         private void userControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            liveViewPlot.Width = ActualWidth - 50;
+            if (liveViewPlot != null)
+                liveViewPlot.Width = ActualWidth - 50;
 
             if (!bDeleteRow_Show_Completed)
                 deleteRowTransform.X = -ActualWidth;
@@ -1011,7 +1036,5 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #endregion
-
-        
     }
 }

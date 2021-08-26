@@ -73,36 +73,6 @@ namespace METS_DiagnosticTool_Core
             return true;
         }
 
-        //private void RabbitMQ_Server_PLCVariableLiveViewTriggered(object sender, string e)
-        //{
-        //    // Decode given message
-        //    List<string> _splitMessage = e.Split(';').ToList();
-
-        //    // Create dictionary
-        //    Dictionary<string, string> _variableConfiguration = new Dictionary<string, string>();
-        //    foreach (string _item in _splitMessage)
-        //    {
-        //        string[] _config = _item.Split('$').ToArray();
-        //        if (!_variableConfiguration.ContainsKey(_config[0]))
-        //            _variableConfiguration.Add(_config[0], _config[1]);
-        //    }
-
-        //    // Create new Variable Config
-        //    bool trigger = bool.Parse(_variableConfiguration["Trigger"]);
-
-        //    VariableConfig variableConfig = new VariableConfig
-        //    {
-        //        variableAddress = _variableConfiguration["VariableAddress"],
-        //        pollingRefreshTime = int.Parse(_variableConfiguration["PollingRefreshTime"]),
-        //    };
-        //    bool loggingTypeParsed = Enum.TryParse(_variableConfiguration["LoggingType"], out LoggingType _loggingType);
-        //    variableConfig.loggingType = loggingTypeParsed ? _loggingType : LoggingType.OnChange;
-
-        //    // When Received Trigger True then Live View is requested, so Server needs to return X and Y Values for the Live View Chart (Time and Value)
-        //    // When Received False then Live View is not requested
-
-        //}
-
         private void RabbitMQ_Server_PLCVariableConfigurationTriggered(object sender, string e)
         {
             // Decode given message

@@ -1,4 +1,5 @@
 ﻿using LiveCharts.Geared;
+using METS_DiagnosticTool_Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,11 +8,35 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static METS_DiagnosticTool_Utilities.VariableConfigurationHelper;
 
 namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 {
     public class LiveViewPlotVm : INotifyPropertyChanged
     {
+        private RpcClient _rpcClient;
+        public RpcClient rpcClient
+        {
+            get
+            {
+                return _rpcClient;
+            }
+            set
+            {
+                _rpcClient = value;
+
+                if (_rpcClient != null)
+                {
+                    _rpcClient.PLCVariableLiveViewTriggered += RpcClient_PLCVariableLiveViewTriggered;
+
+                    Logger.Log(Logger.logLevel.Error, "PLCVariableLiveViewTriggered Event attached", Logger.logEvents.Blank);
+                }
+                    
+                else
+                    Logger.Log(Logger.logLevel.Error, "Rabbit MQ Client is null :(", Logger.logEvents.Blank);
+            }
+        }
+
         private double _trend;
         private double _count;
         private double _currentvalue;
@@ -24,6 +49,50 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             CleaCommand = new RelayCommand(Clear);
 
             YFormatter = value => value.ToString("N1", CultureInfo.InvariantCulture);
+        }
+
+        private void RpcClient_PLCVariableLiveViewTriggered(object sender, string e)
+        {
+            try
+            {
+                // Decode given message
+                List<string> _splitMessage = e.Split(';').ToList();
+
+                // Create dictionary
+                Dictionary<string, string> _variableConfiguration = new Dictionary<string, string>();
+                foreach (string _item in _splitMessage)
+                {
+                    string[] _config = _item.Split('$').ToArray();
+                    if (!_variableConfiguration.ContainsKey(_config[0]))
+                        _variableConfiguration.Add(_config[0], _config[1]);
+                }
+
+                // Create new Variable Config
+                bool trigger = bool.Parse(_variableConfiguration["Trigger"]);
+
+                VariableConfig variableConfig = new VariableConfig
+                {
+                    variableAddress = _variableConfiguration["VariableAddress"],
+                    pollingRefreshTime = int.Parse(_variableConfiguration["PollingRefreshTime"]),
+                };
+                bool loggingTypeParsed = Enum.TryParse(_variableConfiguration["LoggingType"], out LoggingType _loggingType);
+                variableConfig.loggingType = loggingTypeParsed ? _loggingType : LoggingType.OnChange;
+
+                if (trigger)
+                {
+                    // Start Live View Mode Here
+                    // Read Data from PLC, based on given configuration and show it on the Plot
+                    Logger.Log(Logger.logLevel.Warning, "Live View Requested", Logger.logEvents.Blank);
+                }
+                else
+                {
+                    // End Live View Mode Here
+                }
+            }
+            catch (Exception ex )
+            {
+                Logger.Log(Logger.logLevel.Error, string.Concat("Exception when parsing received request for Live View ", ex.ToString()), Logger.logEvents.Blank);
+            }
         }
 
         public bool IsReading { get; set; }

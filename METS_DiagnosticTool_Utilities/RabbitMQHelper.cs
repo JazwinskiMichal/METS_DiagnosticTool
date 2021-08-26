@@ -21,8 +21,7 @@ namespace METS_DiagnosticTool_Utilities
             plcVarConfigsSave = 2,
             deleteVarConfig = 3,
             checkDoesPLCVarConfigUsed = 4,
-            triggerPLCVarConfig = 5,
-            triggerPLCVarLiveView = 6
+            triggerPLCVarConfig = 5
         }
 
         internal const string checkPLCVarExistance = "checkPLCVarExistance";
@@ -31,9 +30,8 @@ namespace METS_DiagnosticTool_Utilities
         internal const string deleteVarConfig = "deleteVarConfig";
         internal const string checkDoesPLCVarConfigUsed = "checkDoesPLCVarConfigUsed";
         internal const string triggerPLCVarConfig = "triggerPLCVarConfig";
-        internal const string triggerPLCVarLiveView = "triggerPLCVarLiveView";
 
-        public static string[] RoutingKeys = new string[] { checkPLCVarExistance, plcVarConfigsRead, plcVarConfigSave , deleteVarConfig, checkDoesPLCVarConfigUsed, triggerPLCVarConfig, triggerPLCVarLiveView };
+        public static string[] RoutingKeys = new string[] { checkPLCVarExistance, plcVarConfigsRead, plcVarConfigSave , deleteVarConfig, checkDoesPLCVarConfigUsed, triggerPLCVarConfig};
 
         public static RpcServer _rpcServer;
         private static RpcClient _rpcClient;
@@ -107,15 +105,15 @@ namespace METS_DiagnosticTool_Utilities
         /// </summary>
         /// <param name="endPoint"></param>
         /// <returns></returns>
-        public static bool InitializeClient(G_ET_EndPoint endPoint = G_ET_EndPoint.DiagnosticToolCore)
+        public static RpcClient InitializeClient(G_ET_EndPoint endPoint = G_ET_EndPoint.DiagnosticToolCore)
         {
-            bool _return = false;
+            RpcClient _return = null;
 
             try
             {
                 _rpcClient = new RpcClient();
 
-                _return = true;
+                _return = _rpcClient;
             }
             catch (Exception ex)
             {
@@ -124,19 +122,6 @@ namespace METS_DiagnosticTool_Utilities
             }
 
             return _return;
-        }
-
-        public static async Task<string> SendToServer_TriggerPLCVarLiveView(string routingKey, string variableAddress, bool trigger, LoggingType loggingType, int pollingRefreshTime)
-        {
-            if (_rpcClient != null)
-            {
-                string _message = string.Concat("VariableAddress$", variableAddress, ";Trigger$", trigger.ToString().ToLower(),
-                                    ";LoggingType$", (int)loggingType, ";PollingRefreshTime$", pollingRefreshTime.ToString());
-
-                return await _rpcClient.CallAsync(routingKey, _message);
-            }
-            else
-                return string.Empty;
         }
 
         public static async Task<string> SendToServer_TriggerPLCVarConfig(string routingKey, string variableAddress, bool trigger, LoggingType loggingType, int pollingRefreshTime, bool recording)
@@ -234,7 +219,6 @@ namespace METS_DiagnosticTool_Utilities
         private readonly IModel channel;
 
         public event EventHandler<string> PLCVariableConfigurationTriggered;
-        public event EventHandler<string> PLCVariableLiveViewTriggered;
 
         internal RpcServer()
         {
@@ -303,11 +287,6 @@ namespace METS_DiagnosticTool_Utilities
                             response = true.ToString();
                             break;
 
-                        //case RabbitMQHelper.triggerPLCVarLiveView:
-                        //    PLCVariableLiveViewTriggered?.Invoke(this, message);
-                        //    response = true.ToString();
-                        //    break;
-
                         default:
                             response = false.ToString();
                             break;
@@ -333,8 +312,10 @@ namespace METS_DiagnosticTool_Utilities
         }
     }
 
-    internal class RpcClient
+    public class RpcClient
     {
+        public event EventHandler<string> PLCVariableLiveViewTriggered;
+
         private readonly IConnection connection;
         private readonly IModel channel;
         private readonly string replyQueueName;
@@ -365,6 +346,25 @@ namespace METS_DiagnosticTool_Utilities
               consumer: consumer,
               queue: replyQueueName,
               autoAck: true);
+        }
+
+        public bool LiveViewRequested(bool trigger, VariableConfig variableConfiguration)
+        {
+            // Method to receive Configuration Variable, decode it to a single string and fire up an event to LiveView View Model
+
+            bool _return = false;
+
+            if (!string.IsNullOrEmpty(variableConfiguration.variableAddress))
+            {
+                string message = string.Concat("VariableAddress$", variableConfiguration.variableAddress, ";Trigger$", trigger.ToString().ToLower(),
+                                    ";LoggingType$", (int)variableConfiguration.loggingType, ";PollingRefreshTime$", variableConfiguration.pollingRefreshTime.ToString());
+
+                PLCVariableLiveViewTriggered?.Invoke(this, message);
+
+                _return = true;
+            }
+
+            return _return;
         }
 
         internal Task<string> CallAsync(string routingKey, string message = "", CancellationToken cancellationToken = default)
