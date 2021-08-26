@@ -14,6 +14,12 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 {
     public class LiveViewPlotVm : INotifyPropertyChanged
     {
+        #region Public Properties
+        public bool IsReading { get; set; }
+        public RelayCommand ClearCommand { get; set; }
+        public GearedValues<double> Values { get; set; }
+        public Func<double, string> YFormatter { get; set; }
+
         private RpcClient _rpcClient;
         public RpcClient rpcClient
         {
@@ -26,27 +32,47 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                 _rpcClient = value;
 
                 if (_rpcClient != null)
-                {
                     _rpcClient.PLCVariableLiveViewTriggered += RpcClient_PLCVariableLiveViewTriggered;
-
-                    Logger.Log(Logger.logLevel.Error, "PLCVariableLiveViewTriggered Event attached", Logger.logEvents.Blank);
-                }
-                    
                 else
                     Logger.Log(Logger.logLevel.Error, "Rabbit MQ Client is null :(", Logger.logEvents.Blank);
             }
         }
 
-        private double _trend;
         private double _count;
-        private double _currentvalue;
+        public double Count
+        {
+            get { return _count; }
+            set
+            {
+                _count = value;
+                OnPropertyChanged("Count");
+            }
+        }
 
+        private double _currentvalue;
+        public double CurrentValue
+        {
+            get { return _currentvalue; }
+            set
+            {
+                _currentvalue = value;
+
+                OnPropertyChanged("CurrentValue");
+            }
+        }
+        #endregion
+
+        #region Private Fields
+        private double _trend;
+
+        private bool _twincatInitializedOK = false; 
+        #endregion
+
+        #region Constructor
         public LiveViewPlotVm()
         {
             Values = new GearedValues<double>().WithQuality(Quality.Highest);
-            ReadCommand = new RelayCommand(Read);
-            StopCommand = new RelayCommand(Stop);
-            CleaCommand = new RelayCommand(Clear);
+            ClearCommand = new RelayCommand(Clear);
 
             YFormatter = value => value.ToString("N1", CultureInfo.InvariantCulture);
         }
@@ -67,6 +93,13 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                         _variableConfiguration.Add(_config[0], _config[1]);
                 }
 
+                // Initialize new Twincat Connection if not connected already
+                string _amsIP = _variableConfiguration["ADSIp"];
+                string _amsPort = _variableConfiguration["ADSPort"];
+
+                if (!_twincatInitializedOK)
+                    _twincatInitializedOK = TwincatHelper.TwincatInitialization(_amsIP, _amsPort, TwincatHelper.G_ET_EndPoint.DiagnosticToolUI);
+
                 // Create new Variable Config
                 bool trigger = bool.Parse(_variableConfiguration["Trigger"]);
 
@@ -82,59 +115,22 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                 {
                     // Start Live View Mode Here
                     // Read Data from PLC, based on given configuration and show it on the Plot
-                    Logger.Log(Logger.logLevel.Warning, "Live View Requested", Logger.logEvents.Blank);
+                    Read(variableConfig);
                 }
                 else
                 {
                     // End Live View Mode Here
+                    Values.Clear();
+                    IsReading = false;
                 }
             }
-            catch (Exception ex )
+            catch (Exception ex)
             {
                 Logger.Log(Logger.logLevel.Error, string.Concat("Exception when parsing received request for Live View ", ex.ToString()), Logger.logEvents.Blank);
             }
         }
 
-        public bool IsReading { get; set; }
-        public RelayCommand ReadCommand { get; set; }
-        public RelayCommand StopCommand { get; set; }
-        public RelayCommand CleaCommand { get; set; }
-        public GearedValues<double> Values { get; set; }
-
-        public Func<double, string> YFormatter { get; set; }
-
-        public double Count
-        {
-            get { return _count; }
-            set
-            {
-                _count = value;
-                OnPropertyChanged("Count");
-            }
-        }
-
-        public double CurrentValue
-        {
-            get { return _currentvalue; }
-            set
-            {
-                _currentvalue = value;
-
-                OnPropertyChanged("CurrentValue");
-            }
-        }
-
-        private void Stop()
-        {
-            IsReading = false;
-        }
-
-        private void Clear()
-        {
-            Values.Clear();
-        }
-
-        private void Read()
+        private void Read(VariableConfig variableConfig)
         {
             if (IsReading) return;
 
@@ -143,35 +139,56 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             const int keepRecords = 20000;
             IsReading = true;
 
-            Action readFromTread = () =>
+            Action<VariableConfig> readFromTread = (_varConfig) =>
             {
-                while (IsReading)
+                try
                 {
-                    Thread.Sleep(1);
-                    var r = new Random();
-                    _trend += (r.NextDouble() < 0.5 ? 1 : -1) * r.Next(0, 10) * .001;
-                    //when multi threading avoid indexed calls like -> Values[0] 
-                    //instead enumerate the collection
-                    //ChartValues/GearedValues returns a thread safe copy once you enumerate it.
-                    //TIPS: use foreach instead of for
-                    //LINQ methods also enumerate the collections
-                    var first = Values.DefaultIfEmpty(0).FirstOrDefault();
-                    if (Values.Count > keepRecords - 1) Values.Remove(first);
-                    if (Values.Count < keepRecords) Values.Add(_trend);
-                    Count = Values.Count;
-                    CurrentValue = _trend;
+                    while (IsReading)
+                    {
+                        // Here find declared PLC Variable and read it according to provided Configuration
+                        if (!string.IsNullOrEmpty(_varConfig.variableAddress))
+                        {
+                            // Read PLC Value
+                            string test = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, false, TwincatHelper.G_ET_TagType.PLCLRealAndVBDouble);
+
+                            // HERE NEEDS TO BE PARSING ACCORDING TO VARIABLE TYPE
+                            _trend = double.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true));
+
+                            var first = Values.DefaultIfEmpty(0).FirstOrDefault();
+                            if (Values.Count > keepRecords - 1) Values.Remove(first);
+                            if (Values.Count < keepRecords) Values.Add(_trend);
+                            Count = Values.Count;
+                            CurrentValue = _trend;
+
+                            Thread.Sleep(1);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(Logger.logLevel.Warning, string.Concat("Exception Live View Reading ", ex.ToString()), Logger.logEvents.Blank);
                 }
             };
 
             //add as many tasks as you want to test this feature
-            Task.Factory.StartNew(readFromTread);
+            Task.Factory.StartNew(() => readFromTread(variableConfig));
         }
+        #endregion
 
+        #region User Input
+        private void Clear()
+        {
+            Values.Clear();
+        }
+        #endregion
+
+        #region NotificationProperty
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        #endregion
     }
 }

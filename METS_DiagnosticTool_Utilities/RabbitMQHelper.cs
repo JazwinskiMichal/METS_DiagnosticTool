@@ -348,7 +348,7 @@ namespace METS_DiagnosticTool_Utilities
               autoAck: true);
         }
 
-        public bool LiveViewRequested(bool trigger, VariableConfig variableConfiguration)
+        public bool LiveViewRequested(string ADSIp, string ADSPort, bool trigger, VariableConfig variableConfiguration)
         {
             // Method to receive Configuration Variable, decode it to a single string and fire up an event to LiveView View Model
 
@@ -356,7 +356,7 @@ namespace METS_DiagnosticTool_Utilities
 
             if (!string.IsNullOrEmpty(variableConfiguration.variableAddress))
             {
-                string message = string.Concat("VariableAddress$", variableConfiguration.variableAddress, ";Trigger$", trigger.ToString().ToLower(),
+                string message = string.Concat("ADSIp$", ADSIp, ";ADSPort$", ADSPort, ";VariableAddress$", variableConfiguration.variableAddress, ";Trigger$", trigger.ToString().ToLower(),
                                     ";LoggingType$", (int)variableConfiguration.loggingType, ";PollingRefreshTime$", variableConfiguration.pollingRefreshTime.ToString());
 
                 PLCVariableLiveViewTriggered?.Invoke(this, message);

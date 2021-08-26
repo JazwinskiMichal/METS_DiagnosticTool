@@ -56,9 +56,6 @@ namespace METS_DiagnosticTool_Core
                 // Attach Event that PLC Variable Configuration has been Triggered
                 rabbitMQ_Server.PLCVariableConfigurationTriggered += RabbitMQ_Server_PLCVariableConfigurationTriggered;
 
-                // Attach Event that PLC Variable Live View has been Triggered
-                //rabbitMQ_Server.PLCVariableLiveViewTriggered += RabbitMQ_Server_PLCVariableLiveViewTriggered;
-
                 // Initialuize Twincat
                 twincat_InitializedOK = TwincatHelper.TwincatInitialization(_amsAddress, _amsPort);
 

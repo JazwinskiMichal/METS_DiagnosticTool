@@ -28,6 +28,10 @@ namespace METS_DiagnosticTool_UI
     {
         private static RpcClient rabbitMQ_Client;
 
+        private static string _adsIp = string.Empty;
+
+        private static string _adsPort = string.Empty;
+
         private static string _corePath = string.Empty;
 
         private static int _rowCount;
@@ -56,6 +60,12 @@ namespace METS_DiagnosticTool_UI
             // Get command Line Arguments Passed from Core
             string[] args = Environment.GetCommandLineArgs();
 
+            if (args.Length > 2)
+                _adsIp = args[2];
+
+            if (args.Length > 3)
+                _adsPort = args[3];
+
             if (args.Length > 1)
                 _corePath = System.IO.Path.GetDirectoryName(args[1]);
 
@@ -73,6 +83,10 @@ namespace METS_DiagnosticTool_UI
             // Create new Control
             VariableConfig _emmptyVariableConfig = new VariableConfig();
             _row = new UserControls.UserInputWithIndicator(_emmptyVariableConfig);
+
+            // Inject Twincat Infromation for Live View Mode
+            _row.ADSIp = _adsIp;
+            _row.ADSPort = _adsPort;
 
             // Inject information about Core full Path
             _row.corePath = _corePath;
@@ -202,6 +216,10 @@ namespace METS_DiagnosticTool_UI
                                     // Initialize First Row
                                     UserControls.UserInputWithIndicator _localRow = new UserControls.UserInputWithIndicator(_variableConfig.Value);
 
+                                    // Inject Twincat Infromation for Live View Mode
+                                    _localRow.ADSIp = _adsIp;
+                                    _localRow.ADSPort = _adsPort;
+
                                     // Inject information about Core full Path
                                     _localRow.corePath = _corePath;
 
@@ -232,6 +250,10 @@ namespace METS_DiagnosticTool_UI
                             // At the end add one Row to Manually Add Variable
                             VariableConfig _emmptyVariableConfig = new VariableConfig();
                             UserControls.UserInputWithIndicator _localRow1 = new UserControls.UserInputWithIndicator(_emmptyVariableConfig);
+
+                            // Inject Twincat Infromation for Live View Mode
+                            _localRow1.ADSIp = _adsIp;
+                            _localRow1.ADSPort = _adsPort;
 
                             // Inject information about Core full Path
                             _localRow1.corePath = _corePath;

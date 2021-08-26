@@ -16,9 +16,7 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15,5,15,15">
-            <Button Style="{StaticResource SimpleButton}" Command="{Binding ReadCommand}">Start</Button>
-            <Button Style="{StaticResource SimpleButton}" Command="{Binding StopCommand}">Stop</Button>
-            <Button Style="{StaticResource SimpleButton}" Command="{Binding CleaCommand}">Clear</Button>
+            <Button Style="{StaticResource SimpleButton}" Command="{Binding ClearCommand}">Clear</Button>
         </StackPanel>
         <lvc:CartesianChart Grid.Row="2" DisableAnimations="True" DataTooltip="{x:Null}" Hoverable="False">
             <!--<lvc:CartesianChart.Resources>

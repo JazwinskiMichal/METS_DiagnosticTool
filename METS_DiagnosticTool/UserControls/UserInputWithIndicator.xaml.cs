@@ -21,6 +21,8 @@ namespace METS_DiagnosticTool_UI.UserControls
         #region Public Fields
         public RpcClient rpcClient;
 
+        public string ADSIp = string.Empty;
+        public string ADSPort =string.Empty;
         public string corePath = string.Empty;
         #endregion
 
@@ -826,7 +828,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                 variableConfig.recording = bRecordingActive;
                 variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
                 variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
-                rpcClient.LiveViewRequested(true, variableConfig);
+                rpcClient.LiveViewRequested(ADSIp, ADSPort, true, variableConfig);
             }
             else
             {
@@ -853,7 +855,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                     variableConfig.recording = bRecordingActive;
                     variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
                     variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
-                    rpcClient.LiveViewRequested(true, variableConfig);
+                    rpcClient.LiveViewRequested(ADSIp, ADSPort, true, variableConfig);
                 }
                 else
                 {
@@ -877,7 +879,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                     variableConfig.recording = bRecordingActive;
                     variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
                     variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
-                    rpcClient.LiveViewRequested(false, variableConfig);
+                    rpcClient.LiveViewRequested(ADSIp, ADSPort, false, variableConfig);
                 }
             }
         }
@@ -904,7 +906,7 @@ namespace METS_DiagnosticTool_UI.UserControls
             variableConfig.recording = bRecordingActive;
             variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
             variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
-            rpcClient.LiveViewRequested(false, variableConfig);
+            rpcClient.LiveViewRequested(ADSIp, ADSPort, false, variableConfig);
         }
 
         private void userControl_SizeChanged(object sender, SizeChangedEventArgs e)
