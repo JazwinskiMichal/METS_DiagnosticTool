@@ -298,6 +298,14 @@
             <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="borderLiveView">
                 <DiscreteDoubleKeyFrame KeyTime="0:0:0.5" Value="0"/>
             </DoubleAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="borderVariableConfiguration">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Hidden}"/>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
+            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)" Storyboard.TargetName="variableConfigurationRow">
+                <DiscreteObjectKeyFrame KeyTime="0" Value="{x:Static Visibility.Hidden}"/>
+                <DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Visible}"/>
+            </ObjectAnimationUsingKeyFrames>
         </Storyboard>
 
         <!-- Extension Row Variable Configuration Storyboard Roll Up-->
@@ -1042,6 +1050,9 @@
 
                     <Label x:Name="lblPolling" Content="Polling" Margin="0,0,5,0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0"/>
 
+                    <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="pollingDisabled" Margin="8,8,35,8"  HorizontalAlignment="Center" VerticalAlignment="Stretch" 
+                                                    Style="{StaticResource polling}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Black"/>
+
                     <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="pollingON" Margin="8,8,35,8"  HorizontalAlignment="Center" VerticalAlignment="Stretch" 
                                                     Style="{StaticResource polling}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Chartreuse"/>
 
@@ -1060,6 +1071,9 @@
                     </Grid.ColumnDefinitions>
 
                     <Label x:Name="lblOnChange" Content="On change" Margin="0,0,5,0" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#FFB4B4B4" FontSize="14" Padding="0"/>
+
+                    <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="onChangeDisabled" Margin="8,8,35,8"  HorizontalAlignment="Center" VerticalAlignment="Stretch" 
+                                                    Style="{StaticResource onChange}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Black"/>
 
                     <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="onChangeON" Margin="8,8,35,8"  HorizontalAlignment="Center" VerticalAlignment="Stretch" 
                                                     Style="{StaticResource onChange}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" Color="Chartreuse"/>
@@ -1123,8 +1137,11 @@
                     </local:UserInputWithIndicator_Image.Color>
                 </local:UserInputWithIndicator_Image>
 
-                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="recordingDisabled" Margin="12"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="recordingDisabledOFF" Margin="12"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                                                     Style="{StaticResource recordingOFF}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="False" Color="Black"/>
+
+                <local:UserInputWithIndicator_Image Grid.Column="5" Grid.Row="2" Grid.RowSpan="1" x:Name="recordingDisabledON" Margin="12"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                    Style="{StaticResource recordingON}" RenderTransformOrigin="0.5,0.5" Visibility="Visible" IsEnabled="False" Color="Black"/>
             </Grid>
 
             <Grid Grid.Row="2">
@@ -1186,7 +1203,7 @@
 
                         <Label Content="Warning!" FontSize="25" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Bottom" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="5"/>
 
-                        <Label Grid.Row="1" Content="Save changes first" FontSize="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="5"/>
+                        <Label Grid.Row="1" x:Name="WarningText" Content="Save changes first" FontSize="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Top" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="5"/>
                     </Grid>
                 </Grid>
             </Border>

@@ -127,11 +127,14 @@ namespace METS_DiagnosticTool_UI.UserControls
             liveViewButtons.Add(liveViewActive);
             pollingButtons.Add(pollingON);
             pollingButtons.Add(pollingOFF);
+            pollingButtons.Add(pollingDisabled);
             onChangeButtons.Add(onChangeON);
             onChangeButtons.Add(onChangeOFF);
+            onChangeButtons.Add(onChangeDisabled);
             recordingButtons.Add(recordingOFF);
             recordingButtons.Add(recordingON);
-            recordingButtons.Add(recordingDisabled);
+            recordingButtons.Add(recordingDisabledOFF);
+            recordingButtons.Add(recordingDisabledON);
 
             // Attach Completed Event Handlers to every Storyboard
             // Variable Input
@@ -340,7 +343,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                 bRecordingActive = false;
             }
             else
-                BringToFrontAndSendOtherBack(recordingButtons, recordingDisabled);
+                BringToFrontAndSendOtherBack(recordingButtons, recordingDisabledOFF);
         }
         #endregion
 
@@ -552,8 +555,10 @@ namespace METS_DiagnosticTool_UI.UserControls
             }
             else
             {
-                if (!bExtensionRow_VarConfig_Completed && !bExtensionRow_VarConfig_AnimationCompleted &&
-                    !bExtensionRow_VarConfigDelayed_Completed && !bExtensionRow_VarConfigDelayed_AnimationCompleted)
+                if ((!bExtensionRow_VarConfig_Completed && !bExtensionRow_VarConfig_AnimationCompleted &&
+                    !bExtensionRow_VarConfigDelayed_Completed && !bExtensionRow_VarConfigDelayed_AnimationCompleted) ||
+                    (bExtensionRow_VarConfig_Completed && !bExtensionRow_VarConfig_AnimationCompleted &&
+                    !bExtensionRow_VarConfigDelayed_Completed && !bExtensionRow_VarConfigDelayed_AnimationCompleted))
                 {
                     // Show Extension Variable Configuration Row Animation
                     ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeight]).Begin();
@@ -567,17 +572,45 @@ namespace METS_DiagnosticTool_UI.UserControls
                     liveViewRow.Visibility = Visibility.Hidden;
 
                     BringToFrontAndSendOtherBack(configurationButtons, configurationActive);
+
+                    // Change Configuration buttons to inactive
+                    if (bPollingActive)
+                        BringToFrontAndSendOtherBack(onChangeButtons, onChangeDisabled);
+                    else
+                        BringToFrontAndSendOtherBack(pollingButtons, pollingDisabled);
+
+                    if (bRecordingActive)
+                    {
+                        BringToFrontAndSendOtherBack(recordingButtons, recordingDisabledON);
+
+                        gridRecordingOFF.Visibility = Visibility.Hidden;
+                        gridRecordingON.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        BringToFrontAndSendOtherBack(recordingButtons, recordingDisabledOFF);
+
+                        gridRecordingOFF.Visibility = Visibility.Visible;
+                        gridRecordingON.Visibility = Visibility.Hidden;
+                    }
+
+                    if(!bPollingActive && !bOnChangeActive)
+                    {
+                        BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
+                        BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
+                        BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+                    }
                 }
                 else
                 {
-                    //// Hide Extension Variable Configuration Row Animation
-                    //((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
-                    //((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
+                    // Hide Extension Variable Configuration Row Animation
+                    ((Storyboard)Resources[extensionRow_VarConfig_ShowRollUp]).Begin();
+                    ((Storyboard)Resources[extensionRow_VarConfig_DecreaseHeight]).Begin();
 
-                    //// Hide Variable Configuration Data
-                    //((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
+                    // Hide Variable Configuration Data
+                    ((Storyboard)Resources[extensionRow_VarConfig_HideData]).Begin();
 
-                    //BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+                    BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
                 }
             }
 
@@ -586,7 +619,6 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         private void configurationActive_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
             if (bSaved)
             {
                 // Hide Extension Variable Configuration Row Animation
@@ -637,8 +669,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                         BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
                 }
 
-                //if (!input.IsEnabled)
-                //    input.IsEnabled = true;
+                refreshTimeInput.IsEnabled = true;
             }
 
             Keyboard.ClearFocus();
@@ -737,6 +768,27 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
 
+                    // Change Configuration buttons to inactive
+                    if (bPollingActive)
+                        BringToFrontAndSendOtherBack(onChangeButtons, onChangeDisabled);
+                    else
+                        BringToFrontAndSendOtherBack(pollingButtons, pollingDisabled);
+
+                    if (bRecordingActive)
+                    {
+                        BringToFrontAndSendOtherBack(recordingButtons, recordingDisabledON);
+
+                        gridRecordingOFF.Visibility = Visibility.Hidden;
+                        gridRecordingON.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        BringToFrontAndSendOtherBack(recordingButtons, recordingDisabledOFF);
+
+                        gridRecordingOFF.Visibility = Visibility.Visible;
+                        gridRecordingON.Visibility = Visibility.Hidden;
+                    }
+
                     bSaved = true;
 
                     Keyboard.ClearFocus();
@@ -750,24 +802,30 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewDisabled);
 
-                    bSaved = false;
+                    // Change Configuration buttons to inactive
+                    if (bPollingActive)
+                        BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
+                    else
+                        BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
 
-                    Keyboard.ClearFocus();
-                }
-
-                if(bSaved)
-                {
-                    // Recording
                     if (bRecordingActive)
                     {
+                        BringToFrontAndSendOtherBack(recordingButtons, recordingON);
+
                         gridRecordingOFF.Visibility = Visibility.Hidden;
                         gridRecordingON.Visibility = Visibility.Visible;
                     }
                     else
                     {
+                        BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
+
                         gridRecordingOFF.Visibility = Visibility.Visible;
                         gridRecordingON.Visibility = Visibility.Hidden;
                     }
+
+                    bSaved = false;
+
+                    Keyboard.ClearFocus();
                 }
 
                 // Send Trigger to Core about PLC Variable that has been saved
@@ -778,6 +836,17 @@ namespace METS_DiagnosticTool_UI.UserControls
                                                                                                                 string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
                                                                                                                 bRecordingActive ? true : false);
                 await _triggerPLCVaribaleConfiguration;
+            }
+            
+            if(!bPollingActive && !bOnChangeActive)
+            {
+                // Show information that some condfiguration has to be done
+                WarningText.Content = "Empty Configuration!";
+                Storyboard _unsavedChanges_Show = (Storyboard)Resources[unsavedChanges_Show];
+                DoubleAnimationUsingKeyFrames _unsavedChanges_Anim = (DoubleAnimationUsingKeyFrames)_unsavedChanges_Show.Children[0];
+                _unsavedChanges_Anim.KeyFrames[0].Value = 0;
+
+                ((Storyboard)Resources[unsavedChanges_Show]).Begin();
             }
         }
 
@@ -832,8 +901,8 @@ namespace METS_DiagnosticTool_UI.UserControls
             }
             else
             {
-                if ((!bExtensionRow_LiveView_Completed && !bExtensionRow_LiveView_AnimationCompleted &&
-                    !bExtensionRow_LiveViewDelayed_Completed && !bExtensionRow_LiveViewDelayed_AnimationCompleted))
+                if (((!bExtensionRow_LiveView_Completed && !bExtensionRow_LiveView_AnimationCompleted &&
+                    !bExtensionRow_LiveViewDelayed_Completed && !bExtensionRow_LiveViewDelayed_AnimationCompleted)) || bSaved)
                 {
                     // Show extension Row Animation
                     ((Storyboard)Resources[extensionRow_LiveView_IncreaseHeight]).Begin();

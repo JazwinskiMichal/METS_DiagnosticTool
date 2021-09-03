@@ -19,6 +19,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         public RelayCommand ClearCommand { get; set; }
         public GearedValues<double> Values { get; set; }
         public Func<double, string> YFormatter { get; set; }
+        public Func<double, string> XFormatter { get; set; }
 
         private RpcClient _rpcClient;
         public RpcClient rpcClient
@@ -33,8 +34,6 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
                 if (_rpcClient != null)
                     _rpcClient.PLCVariableLiveViewTriggered += RpcClient_PLCVariableLiveViewTriggered;
-                else
-                    Logger.Log(Logger.logLevel.Error, "Rabbit MQ Client is null :(", Logger.logEvents.Blank);
             }
         }
 
@@ -75,6 +74,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             ClearCommand = new RelayCommand(Clear);
 
             YFormatter = value => value.ToString("N1", CultureInfo.InvariantCulture);
+            XFormatter = value => value.ToString("HH:mm:ss.fff");
         }
 
         private void RpcClient_PLCVariableLiveViewTriggered(object sender, string e)
@@ -143,24 +143,49 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             {
                 try
                 {
+                    double _trendOld = 0;
+
                     while (IsReading)
                     {
+                        double first = 0;
+
                         // Here find declared PLC Variable and read it according to provided Configuration
                         if (!string.IsNullOrEmpty(_varConfig.variableAddress))
                         {
-                            // Read PLC Value
-                            string test = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, false, TwincatHelper.G_ET_TagType.PLCLRealAndVBDouble);
+                            switch (_varConfig.loggingType)
+                            {
+                                case LoggingType.Polling:
+                                    // HERE NEEDS TO BE PARSING ACCORDING TO VARIABLE TYPE
+                                    _trend = double.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true));
 
-                            // HERE NEEDS TO BE PARSING ACCORDING TO VARIABLE TYPE
-                            _trend = double.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true));
+                                    first = Values.DefaultIfEmpty(0).FirstOrDefault();
+                                    if (Values.Count > keepRecords - 1) Values.Remove(first);
+                                    if (Values.Count < keepRecords) Values.Add(_trend);
+                                    Count = Values.Count;
+                                    CurrentValue = _trend;
 
-                            var first = Values.DefaultIfEmpty(0).FirstOrDefault();
-                            if (Values.Count > keepRecords - 1) Values.Remove(first);
-                            if (Values.Count < keepRecords) Values.Add(_trend);
-                            Count = Values.Count;
-                            CurrentValue = _trend;
+                                    Thread.Sleep(_varConfig.pollingRefreshTime);
+                                    break;
 
-                            Thread.Sleep(1);
+                                case LoggingType.OnChange:
+                                    // HERE NEEDS TO BE PARSING ACCORDING TO VARIABLE TYPE
+                                    _trend = double.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true));
+
+                                    if ((_trend != _trendOld) || (_trendOld == 0 && _trend == 0))
+                                    {
+                                        first = Values.DefaultIfEmpty(0).FirstOrDefault();
+                                        if (Values.Count > keepRecords - 1) Values.Remove(first);
+                                        if (Values.Count < keepRecords) Values.Add(_trend);
+                                        Count = Values.Count;
+                                        CurrentValue = _trend;
+
+                                        _trendOld = _trend;
+                                    }
+                                    break;
+
+                                default:
+                                    break;
+                            }
                         }
                     }
                 }

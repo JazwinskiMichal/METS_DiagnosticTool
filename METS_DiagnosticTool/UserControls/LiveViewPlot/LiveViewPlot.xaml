@@ -45,7 +45,7 @@
                 <lvc:LineSeries Values="{Binding Values}" PointGeometry="{x:Null}"></lvc:LineSeries>
             </lvc:CartesianChart.Series>
             <lvc:CartesianChart.AxisX>
-                <lvc:Axis MaxValue="20500" ShowLabels="False"></lvc:Axis>
+                <lvc:Axis MaxValue="20500" ShowLabels="False" Foreground="#FFAAAAAA"/>
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
                 <lvc:Axis LabelFormatter="{Binding YFormatter}">

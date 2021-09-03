@@ -46,7 +46,15 @@ namespace METS_DiagnosticTool_Utilities
             {
                 using (IModel channel = connection.CreateModel())
                 {
-                    channel.QueuePurge("metsDiagTool_rpcQueue");
+                    try
+                    {
+                        channel.QueuePurge("metsDiagTool_rpcQueue");
+                    }
+                    catch (Exception ex)
+                    {
+                        // Queue might not exists then, no need to Purging
+                    }
+                    
                 }
             }
         }
