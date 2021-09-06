@@ -1083,12 +1083,6 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             bExtensionRow_LiveViewDelayed_Completed = true;
         }
-
-
-
-
-
-
         #endregion
 
         #region Delete Row
