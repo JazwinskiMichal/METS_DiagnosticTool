@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using static METS_DiagnosticTool_Utilities.VariableConfigurationHelper;
 
@@ -17,14 +18,28 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
     /// </summary>
     public partial class LiveViewPlot : UserControl, INotifyPropertyChanged
     {
-        private bool _twincatInitializedOK = false;
-        private double _axisMax;
-        private double _axisMin;
-        private double _trend;
-
+        #region Private Fields
         private RpcClient _rpcClient;
-        public RpcClient rpcClient 
-        { 
+        private bool _twincatInitializedOK = false;
+        private double _axisXMax;
+        private double _axisXMin;
+        private double _axisYMax;
+        private double _axisYMin;
+        private double _trend;
+        private double _count;
+        private double _currentvalue;
+        private bool _showAutoScaleInactive = true;
+        private bool _showAutoScaleActive = false;
+
+        private double _oldMaxValue = 0;
+        private double _oldMinValue = 0;
+
+        private DateTime _lastChangeTime = DateTime.Now;
+        #endregion
+
+        #region Public Properties
+        public RpcClient rpcClient
+        {
             get
             {
                 return _rpcClient;
@@ -38,6 +53,101 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             }
         }
 
+        public ChartValues<LiveViewDataModel> ChartValues { get; set; }
+        
+        public Func<double, string> DateTimeFormatter { get; set; }
+        public double AxisXStep { get; set; }
+        public double AxisXUnit { get; set; }
+        public double AxisYStep { get; set; }
+        public double AxisYUnit { get; set; }
+
+        public bool IsReading { get; set; }
+
+        public bool ShowAutoScaleInactive
+        {
+            get { return _showAutoScaleInactive; }
+            set
+            {
+                _showAutoScaleInactive = value;
+                OnPropertyChanged("ShowAutoScaleInactive");
+            }
+        }
+
+        public bool ShowAutoScaleActive
+        {
+            get { return _showAutoScaleActive; }
+            set
+            {
+                _showAutoScaleActive = value;
+                OnPropertyChanged("ShowAutoScaleActive");
+            }
+        }
+
+        public bool ShowAutoscaleButtons { get; set; } = false;
+
+        public double AxisXMax
+        {
+            get { return _axisXMax; }
+            set
+            {
+                _axisXMax = value;
+                OnPropertyChanged("AxisXMax");
+            }
+        }
+
+        public double AxisXMin
+        {
+            get { return _axisXMin; }
+            set
+            {
+                _axisXMin = value;
+                OnPropertyChanged("AxisXMin");
+            }
+        }
+
+        public double AxisYMax
+        {
+            get { return _axisYMax; }
+            set
+            {
+                _axisYMax = value;
+                OnPropertyChanged("AxisYMax");
+            }
+        }
+
+        public double AxisYMin
+        {
+            get { return _axisYMin; }
+            set
+            {
+                _axisYMin = value;
+                OnPropertyChanged("AxisYMin");
+            }
+        }
+
+        public double Count
+        {
+            get { return _count; }
+            set
+            {
+                _count = value;
+                OnPropertyChanged("Count");
+            }
+        }
+
+        public double CurrentValue
+        {
+            get { return _currentvalue; }
+            set
+            {
+                _currentvalue = value;
+
+                OnPropertyChanged("CurrentValue");
+            }
+        }
+        #endregion
+
+        #region Constructor
         public LiveViewPlot()
         {
             InitializeComponent();
@@ -56,22 +166,48 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             DateTimeFormatter = value => new DateTime((long)value).ToString("HH:mm:ss");
 
             //AxisStep forces the distance between each separator in the X axis
-            AxisStep = TimeSpan.FromSeconds(1).Ticks;
+            AxisXStep = TimeSpan.FromSeconds(1).Ticks;
             //AxisUnit lets the axis know that we are plotting seconds
             //this is not always necessary, but it can prevent wrong labeling
-            AxisUnit = TimeSpan.TicksPerSecond;
+            AxisXUnit = TimeSpan.TicksPerSecond;
 
-            SetAxisLimits(DateTime.Now);
+            SetAxisYLimits(100);
+
+            SetAxisXLimits(DateTime.Now);
 
             IsReading = false;
 
             DataContext = this;
         }
+        #endregion
 
-        private void SetAxisLimits(DateTime now)
+        #region Private Methods
+        private void SetAxisXLimits(DateTime now)
         {
-            AxisMax = now.Ticks + TimeSpan.FromSeconds(1).Ticks; // lets force the axis to be 1 second ahead
-            AxisMin = now.Ticks - TimeSpan.FromSeconds(10).Ticks; // and 10 seconds behind
+            AxisXMax = now.Ticks + TimeSpan.FromSeconds(1).Ticks; // lets force the axis to be 1 second ahead
+            AxisXMin = now.Ticks - TimeSpan.FromSeconds(10).Ticks; // and 10 seconds behind
+        }
+
+        private void SetAxisYLimits(double value)
+        {
+            if(value > 0)
+            {
+                if (value > _oldMaxValue)
+                {
+                    _oldMaxValue = value;
+
+                    AxisYMax = _oldMaxValue;
+                }
+            }
+            else
+            {
+                if(value < _oldMinValue)
+                {
+                    _oldMinValue = value;
+
+                    AxisYMin = _oldMinValue;
+                }
+            }
         }
 
         private void RpcClient_PLCVariableLiveViewTriggered(object sender, string e)
@@ -131,8 +267,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         {
             if (IsReading) return;
 
-            //lets keep in memory only the last 20000 records,
-            //to keep everything running faster
+            //lets keep in memory only the last 1000 records,
+            //to keep everything running faster, and that's also exact length of a whole X axis
             const int keepRecords = 1000;
             IsReading = true;
 
@@ -163,7 +299,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                                         Value = _trend
                                     });
 
-                                    SetAxisLimits(now);
+                                    SetAxisXLimits(now);
+                                    SetAxisYLimits(_trend);
 
                                     if (ChartValues.Count > keepRecords - 1) ChartValues.RemoveAt(0);
                                     Count = ChartValues.Count;
@@ -186,7 +323,14 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                                             Value = _trend
                                         });
 
-                                        SetAxisLimits(now);
+                                        if(_lastChangeTime != now)
+                                        {
+                                            SetAxisXLimits(_lastChangeTime);
+
+                                            _lastChangeTime = now;
+                                        }
+
+                                        SetAxisYLimits(_trend);
 
                                         if (ChartValues.Count > keepRecords - 1) ChartValues.RemoveAt(0);
                                         Count = ChartValues.Count;
@@ -211,57 +355,28 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             //add as many tasks as you want to test this feature
             Task.Factory.StartNew(() => readFromTread(variableConfig));
         }
+        #endregion
 
-        public ChartValues<LiveViewDataModel> ChartValues { get; set; }
-        public Func<double, string> DateTimeFormatter { get; set; }
-        public double AxisStep { get; set; }
-        public double AxisUnit { get; set; }
-        public bool IsReading { get; set; }
-
-        public double AxisMax
+        #region User Input
+        private void InjectStopOnClick(object sender, RoutedEventArgs e)
         {
-            get { return _axisMax; }
-            set
-            {
-                _axisMax = value;
-                OnPropertyChanged("AxisMax");
-            }
-        }
-        public double AxisMin
-        {
-            get { return _axisMin; }
-            set
-            {
-                _axisMin = value;
-                OnPropertyChanged("AxisMin");
-            }
+            ChartValues.Clear();
         }
 
-        private double _count;
-        public double Count
+        private void autoScaleON_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            get { return _count; }
-            set
-            {
-                _count = value;
-                OnPropertyChanged("Count");
-            }
+            ShowAutoScaleActive = false;
+            ShowAutoScaleInactive = true;
         }
 
-        private double _currentvalue;
-        public double CurrentValue
+        private void autoscaleOFF_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            get { return _currentvalue; }
-            set
-            {
-                _currentvalue = value;
-
-                OnPropertyChanged("CurrentValue");
-            }
+            ShowAutoScaleActive = true;
+            ShowAutoScaleInactive = false;
         }
+        #endregion
 
         #region INotifyPropertyChanged implementation
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName = null)
@@ -269,7 +384,6 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             if (PropertyChanged != null)
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
         #endregion
     }
 }

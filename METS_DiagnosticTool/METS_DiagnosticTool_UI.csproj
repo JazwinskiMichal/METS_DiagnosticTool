@@ -225,6 +225,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="UserControls\LiveViewPlot\Converters\BooleanToStringConverter_AutoScale.cs" />
     <Compile Include="UserControls\LiveViewPlot\LiveViewDataModel.cs" />
     <Compile Include="UserControls\LiveViewPlot\LiveViewPlot.xaml.cs">
       <DependentUpon>LiveViewPlot.xaml</DependentUpon>
