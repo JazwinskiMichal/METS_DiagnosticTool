@@ -27,14 +27,11 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         private double _axisYMin;
         private double _trend;
         private double _count;
-        private double _currentvalue;
-        private bool _showAutoScaleInactive = true;
-        private bool _showAutoScaleActive = false;
-
-        private double _oldMaxValue = 0;
-        private double _oldMinValue = 0;
-
-        private DateTime _lastChangeTime = DateTime.Now;
+        private string _currentvalue;
+        private string _previousValue;
+        private string _registeredAt;
+        private bool _showPreviousValues = false;
+        private string _currentTime;
         #endregion
 
         #region Public Properties
@@ -63,27 +60,35 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
         public bool IsReading { get; set; }
 
-        public bool ShowAutoScaleInactive
+        public bool ShowPreviousValues
         {
-            get { return _showAutoScaleInactive; }
+            get { return _showPreviousValues; }
             set
             {
-                _showAutoScaleInactive = value;
-                OnPropertyChanged("ShowAutoScaleInactive");
+                _showPreviousValues = value;
+                OnPropertyChanged("ShowPreviousValues");
             }
         }
 
-        public bool ShowAutoScaleActive
+        public string RegisteredAt
         {
-            get { return _showAutoScaleActive; }
+            get { return _registeredAt; }
             set
             {
-                _showAutoScaleActive = value;
-                OnPropertyChanged("ShowAutoScaleActive");
+                _registeredAt = value;
+                OnPropertyChanged("RegisteredAt");
             }
         }
 
-        public bool ShowAutoscaleButtons { get; set; } = false;
+        public string PreviousValue
+        {
+            get { return _previousValue; }
+            set
+            {
+                _previousValue = value;
+                OnPropertyChanged("PreviousValue");
+            }
+        }
 
         public double AxisXMax
         {
@@ -135,7 +140,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             }
         }
 
-        public double CurrentValue
+        public string CurrentValue
         {
             get { return _currentvalue; }
             set
@@ -143,6 +148,17 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                 _currentvalue = value;
 
                 OnPropertyChanged("CurrentValue");
+            }
+        }
+
+        public string CurrentTime
+        {
+            get { return _currentTime; }
+            set
+            {
+                _currentTime = value;
+
+                OnPropertyChanged("CurrentTime");
             }
         }
         #endregion
@@ -171,7 +187,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             //this is not always necessary, but it can prevent wrong labeling
             AxisXUnit = TimeSpan.TicksPerSecond;
 
-            SetAxisYLimits(100);
+            AxisYMin = 0;
 
             SetAxisXLimits(DateTime.Now);
 
@@ -185,29 +201,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         private void SetAxisXLimits(DateTime now)
         {
             AxisXMax = now.Ticks + TimeSpan.FromSeconds(1).Ticks; // lets force the axis to be 1 second ahead
-            AxisXMin = now.Ticks - TimeSpan.FromSeconds(10).Ticks; // and 10 seconds behind
-        }
-
-        private void SetAxisYLimits(double value)
-        {
-            if(value > 0)
-            {
-                if (value > _oldMaxValue)
-                {
-                    _oldMaxValue = value;
-
-                    AxisYMax = _oldMaxValue;
-                }
-            }
-            else
-            {
-                if(value < _oldMinValue)
-                {
-                    _oldMinValue = value;
-
-                    AxisYMin = _oldMinValue;
-                }
-            }
+            AxisXMin = now.Ticks - TimeSpan.FromSeconds(10).Ticks;
         }
 
         private void RpcClient_PLCVariableLiveViewTriggered(object sender, string e)
@@ -300,11 +294,11 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                                     });
 
                                     SetAxisXLimits(now);
-                                    SetAxisYLimits(_trend);
+                                    //SetAxisYLimits(_trend);
 
                                     if (ChartValues.Count > keepRecords - 1) ChartValues.RemoveAt(0);
                                     Count = ChartValues.Count;
-                                    CurrentValue = _trend;
+                                    CurrentValue = _trend.ToString("F2");
 
                                     Thread.Sleep(_varConfig.pollingRefreshTime);
                                     break;
@@ -317,24 +311,34 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                                     {
                                         now = DateTime.Now;
 
+                                        if (ChartValues.Count > 0)
+                                        {
+                                            ShowPreviousValues = true;
+                                            PreviousValue = ChartValues.Last().Value.ToString("F2");
+                                            RegisteredAt = ChartValues.Last().DateTime.ToString("HH:mm:ss.fff");
+                                        }
+                                        else
+                                            ShowPreviousValues = false;
+
                                         ChartValues.Add(new LiveViewDataModel
                                         {
                                             DateTime = now,
                                             Value = _trend
                                         });
 
-                                        if(_lastChangeTime != now)
-                                        {
-                                            SetAxisXLimits(_lastChangeTime);
+                                        SetAxisXLimits(now);
+                                        if (_trend < 0)
+                                            AxisYMin = _trend;
+                                        else
+                                            AxisYMin = 0;
 
-                                            _lastChangeTime = now;
-                                        }
-
-                                        SetAxisYLimits(_trend);
+                                        liveViewChart.Update();
+                                        //SetAxisYLimits(ChartValues.Count > 2 ? (_trend > ChartValues.ElementAt(ChartValues.Count - 2).Value ? _trend : ChartValues.ElementAt(ChartValues.Count - 2).Value) : _trend);
 
                                         if (ChartValues.Count > keepRecords - 1) ChartValues.RemoveAt(0);
                                         Count = ChartValues.Count;
-                                        CurrentValue = _trend;
+                                        CurrentValue = _trend.ToString("F2");
+                                        CurrentTime = now.ToString("HH:mm:ss.fff");
 
                                         _trendOld = _trend;
                                     }
@@ -354,25 +358,17 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
             //add as many tasks as you want to test this feature
             Task.Factory.StartNew(() => readFromTread(variableConfig));
-        }
+        }0.0
         #endregion
 
         #region User Input
         private void InjectStopOnClick(object sender, RoutedEventArgs e)
         {
             ChartValues.Clear();
-        }
 
-        private void autoScaleON_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            ShowAutoScaleActive = false;
-            ShowAutoScaleInactive = true;
-        }
-
-        private void autoscaleOFF_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            ShowAutoScaleActive = true;
-            ShowAutoScaleInactive = false;
+            CurrentValue = string.Empty;
+            CurrentTime = string.Empty;
+            ShowPreviousValues = false;
         }
         #endregion
 

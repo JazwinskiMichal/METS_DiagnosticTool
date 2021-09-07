@@ -18,30 +18,24 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="10"/>
                 <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
             <Button Style="{StaticResource SimpleButton}" Click="InjectStopOnClick">Clear</Button>
 
-            <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2,10,2,10" Stroke="Black" Visibility="{Binding ShowAutoscaleButtons, Converter={StaticResource BoolToVis}}"/>
+            <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2,10,2,10" Stroke="Black" Visibility="{Binding ShowPreviousValues, Converter={StaticResource BoolToVis}}"/>
 
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Visibility="{Binding ShowAutoscaleButtons, Converter={StaticResource BoolToVis}}">
-                <Label x:Name="lblAutoScale" Margin="15,0,0,0" Content="{Binding ShowAutoScaleActive, Converter={StaticResource AutoScaleBoolToStringConverter}}" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0" Height="40"/>
+            <StackPanel  Grid.Column="2" Margin="15,0,15,0" Orientation="Horizontal" Visibility="{Binding ShowPreviousValues, Converter={StaticResource BoolToVis}}">
+                <Label Content="Previous value" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0" Height="40"/>
+                <Label x:Name="lblPreviousValue" Margin="5,0,0,0" Content="{Binding PreviousValue}" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0" Height="40" FontWeight="Bold"/>
+            </StackPanel>
 
-                <Grid>
-                    <local1:UserInputWithIndicator_Image Height="30" Margin="10" x:Name="autoScaleON" 
-                                                    Style="{StaticResource recordingON}" RenderTransformOrigin="0.5,0.5" Visibility="{Binding ShowAutoScaleActive, Converter={StaticResource BoolToVis}}" MouseDown="autoScaleON_MouseDown">
-                        <local1:UserInputWithIndicator_Image.Color>
-                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                        </local1:UserInputWithIndicator_Image.Color>
-                    </local1:UserInputWithIndicator_Image>
+            <Rectangle Grid.Column="3" VerticalAlignment="Stretch" Width="1" Margin="2,10,2,10" Stroke="Black" Visibility="{Binding ShowPreviousValues, Converter={StaticResource BoolToVis}}"/>
 
-                    <local1:UserInputWithIndicator_Image Height="30" Margin="10" x:Name="autoscaleOFF"
-                                                    Style="{StaticResource recordingOFF}" RenderTransformOrigin="0.5,0.5" Visibility="{Binding ShowAutoScaleInactive, Converter={StaticResource BoolToVis}}" MouseDown="autoscaleOFF_MouseDown">
-                        <local1:UserInputWithIndicator_Image.Color>
-                            <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ActiveBorderColorKey}}"/>
-                        </local1:UserInputWithIndicator_Image.Color>
-                    </local1:UserInputWithIndicator_Image>
-                </Grid>
+            <StackPanel Grid.Column="4" Margin="15,0,15,0" Orientation="Horizontal" Visibility="{Binding ShowPreviousValues, Converter={StaticResource BoolToVis}}">
+                <Label Content="Registered at" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0" Height="40"/>
+                <Label x:Name="lblRegisteredAt" Margin="5,0,0,0" Content="{Binding RegisteredAt}" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0" Height="40" FontWeight="Bold"/>
             </StackPanel>
         </Grid>
         
@@ -55,21 +49,12 @@
                             <SolidColorBrush Color="Chartreuse" Opacity="0.3"/>
                         </Setter.Value>
                     </Setter>
-                    <Setter Property="LineSmoothness" Value=".3"></Setter>
+                    <Setter Property="LineSmoothness" Value="0"></Setter>
                     <Setter Property="AreaLimit" Value="0"></Setter>
                 </Style>
-                <!--<Style TargetType="lvc:Separator">
-                    <Setter Property="Stroke" Value="#DADADA"></Setter>
-                    <Setter Property="StrokeThickness" Value="2"></Setter>
-                    <Style.Triggers>
-                        <Trigger Property="AxisOrientation" Value="X">
-                            <Setter Property="IsEnabled" Value="False"></Setter>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>-->
             </lvc:CartesianChart.Resources>
             <lvc:CartesianChart.Series>
-                <lvc:LineSeries Values="{Binding ChartValues}" PointGeometry="{x:Null}"></lvc:LineSeries>
+                <lvc:LineSeries Values="{Binding ChartValues}" PointGeometry="{x:Null}"/>
             </lvc:CartesianChart.Series>
             <lvc:CartesianChart.AxisX>
                 <lvc:Axis 
@@ -84,15 +69,19 @@
                 </lvc:Axis>
             </lvc:CartesianChart.AxisX>
             <lvc:CartesianChart.AxisY>
-                <lvc:Axis MinValue="{Binding AxisYMin}" MaxValue="{Binding AxisYMax}">
+                <lvc:Axis MinValue="{Binding AxisYMin}">
                     <lvc:Axis.Sections>
                         <lvc:AxisSection Value="0" StrokeThickness="3" Stroke="Black"></lvc:AxisSection>
                     </lvc:Axis.Sections>
                 </lvc:Axis>
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
+        
         <TextBlock Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Right" 
-                   Margin="40 20" FontSize="110" Foreground="#72000000" 
-                   Text="{Binding CurrentValue, StringFormat={}{0:N3}}"></TextBlock>
+                   Margin="40 30" FontSize="110" Foreground="#72000000" 
+                   Text="{Binding CurrentValue, FallbackValue=100000.0}"></TextBlock>
+        <TextBlock Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Right" 
+                   Margin="45 15" FontSize="30" Foreground="#72000000" 
+                   Text="{Binding CurrentTime, FallbackValue=100}"></TextBlock>
     </Grid>
 </UserControl>
