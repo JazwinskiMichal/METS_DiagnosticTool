@@ -104,8 +104,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         // Variable Address input
         private static bool variableAddressInputGotFocus = false;
 
-        // Live View PLot
-        LiveViewPlot.LiveViewPlot liveViewPlot;
+        private LiveViewPlot.LiveViewPlot liveViewPlot;
         #endregion
 
         #region Events
@@ -242,17 +241,17 @@ namespace METS_DiagnosticTool_UI.UserControls
                 }
             }
 
-            // Initialize Live View Plot
-            liveViewPlot = new LiveViewPlot.LiveViewPlot();
-            liveViewPlot.Name = "liveViewPlot";
-            liveViewPlot.Width = 740;
-            liveViewPlot.HorizontalAlignment = HorizontalAlignment.Center;
-            liveViewPlot.VerticalAlignment = VerticalAlignment.Stretch;
-            liveViewPlot.Margin = new Thickness(10);
+            //// Initialize Live View Plot
+            //liveViewPlot = new LiveViewPlot.LiveViewPlot();
+            //liveViewPlot.Name = "liveViewPlot";
+            //liveViewPlot.Width = 740;
+            //liveViewPlot.HorizontalAlignment = HorizontalAlignment.Center;
+            //liveViewPlot.VerticalAlignment = VerticalAlignment.Stretch;
+            //liveViewPlot.Margin = new Thickness(10);
 
-            Grid.SetRow(liveViewPlot, 1);
+            //Grid.SetRow(liveViewPlot, 1);
 
-            liveViewRow.Children.Add(liveViewPlot);
+            //liveViewRow.Children.Add(liveViewPlot);
         }
         #endregion
 
@@ -889,6 +888,16 @@ namespace METS_DiagnosticTool_UI.UserControls
                 BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
 
                 // Request Live View
+                // Initialize Live View Plot
+                liveViewPlot = new LiveViewPlot.LiveViewPlot();
+                liveViewPlot.Name = "liveViewPlot";
+                liveViewPlot.Width = 740;
+                liveViewPlot.HorizontalAlignment = HorizontalAlignment.Center;
+                liveViewPlot.VerticalAlignment = VerticalAlignment.Stretch;
+                liveViewPlot.Margin = new Thickness(10);
+                Grid.SetRow(liveViewPlot, 1);
+                liveViewRow.Children.Add(liveViewPlot);
+
                 // Inject RPC Client
                 if (liveViewPlot.rpcClient == null)
                     liveViewPlot.rpcClient = rpcClient;
@@ -917,6 +926,17 @@ namespace METS_DiagnosticTool_UI.UserControls
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewActive);
 
                     // Request Live View
+                    // Initialize Live View Plot
+                    liveViewPlot = new LiveViewPlot.LiveViewPlot();
+                    liveViewPlot.Name = "liveViewPlot";
+                    liveViewPlot.Width = 740;
+                    liveViewPlot.HorizontalAlignment = HorizontalAlignment.Center;
+                    liveViewPlot.VerticalAlignment = VerticalAlignment.Stretch;
+                    liveViewPlot.Margin = new Thickness(10);
+                    Grid.SetRow(liveViewPlot, 1);
+                    liveViewRow.Children.Add(liveViewPlot);
+
+                    // Inject RPC Client
                     if (liveViewPlot.rpcClient == null)
                         liveViewPlot.rpcClient = rpcClient;
                     var variableConfig = new VariableConfigurationHelper.VariableConfig();
@@ -941,14 +961,20 @@ namespace METS_DiagnosticTool_UI.UserControls
                     BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
 
                     // Dont Request Live View
-                    if (liveViewPlot.rpcClient == null)
-                        liveViewPlot.rpcClient = rpcClient;
-                    var variableConfig = new VariableConfigurationHelper.VariableConfig();
-                    variableConfig.variableAddress = input.Text;
-                    variableConfig.recording = bRecordingActive;
-                    variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
-                    variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
-                    rpcClient.LiveViewRequested(ADSIp, ADSPort, false, variableConfig);
+                    List<LiveViewPlot.LiveViewPlot> _livePlotsToBeRemoved = new List<LiveViewPlot.LiveViewPlot>();
+                    for (int i = 0; i < liveViewRow.Children.Count; i++)
+                    {
+                        if (liveViewRow.Children[i].GetType() == typeof(LiveViewPlot.LiveViewPlot))
+                            _livePlotsToBeRemoved.Add((LiveViewPlot.LiveViewPlot)liveViewRow.Children[i]);
+                    }
+
+                    // Actuall remove Live Plots from grid
+                    for (int j = 0; j < _livePlotsToBeRemoved.Count; j++)
+                    {
+                        _livePlotsToBeRemoved[j].Dispose();
+
+                        liveViewRow.Children.Remove(_livePlotsToBeRemoved[j]);
+                    }
                 }
             }
         }
@@ -968,14 +994,20 @@ namespace METS_DiagnosticTool_UI.UserControls
             BringToFrontAndSendOtherBack(liveViewButtons, liveViewEnabled);
 
             // Dont Request Live View
-            if (liveViewPlot.rpcClient == null)
-                liveViewPlot.rpcClient = rpcClient;
-            var variableConfig = new VariableConfigurationHelper.VariableConfig();
-            variableConfig.variableAddress = input.Text;
-            variableConfig.recording = bRecordingActive;
-            variableConfig.loggingType = bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling;
-            variableConfig.pollingRefreshTime = string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text);
-            rpcClient.LiveViewRequested(ADSIp, ADSPort, false, variableConfig);
+            List<LiveViewPlot.LiveViewPlot> _livePlotsToBeRemoved = new List<LiveViewPlot.LiveViewPlot>();
+            for (int i = 0; i < liveViewRow.Children.Count; i++)
+            {
+                if (liveViewRow.Children[i].GetType() == typeof(LiveViewPlot.LiveViewPlot))
+                    _livePlotsToBeRemoved.Add((LiveViewPlot.LiveViewPlot)liveViewRow.Children[i]);
+            }
+
+            // Actuall remove Live Plots from grid
+            for (int j = 0; j < _livePlotsToBeRemoved.Count; j++)
+            {
+                _livePlotsToBeRemoved[j].Dispose();
+                
+                liveViewRow.Children.Remove(_livePlotsToBeRemoved[j]);
+            }
         }
 
         private void userControl_SizeChanged(object sender, SizeChangedEventArgs e)

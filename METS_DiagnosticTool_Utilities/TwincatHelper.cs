@@ -58,27 +58,35 @@ namespace METS_DiagnosticTool_Utilities
             {
                 try
                 {
-                    tcAmsAddress = new AmsAddress(_amsAddress, _parsedPort);
-                    tcClientSession = new AdsSession(tcAmsAddress);
-
-                    //tcClient.Connect(new AmsAddress(_amsAddress, _parsedPort));
-                    tcClient = (AdsConnection)tcClientSession.Connect();
-
-                    if (tcClient.IsConnected)
+                    if (tcClient == null)
                     {
-                        AdsErrorCode _tryReadState = tcClient.TryReadState(out StateInfo _adsState);
-                        if (_tryReadState == AdsErrorCode.NoError)
-                        {
-                            AdsState _plcStateMode = tcClient.ReadState().AdsState;
+                        tcAmsAddress = new AmsAddress(_amsAddress, _parsedPort);
+                        tcClientSession = new AdsSession(tcAmsAddress);
 
-                            if (_plcStateMode == AdsState.Run)
-                                _plcConnectedAndRunning = true;
+                        //tcClient.Connect(new AmsAddress(_amsAddress, _parsedPort));
+                        tcClient = (AdsConnection)tcClientSession.Connect();
+
+                        if (tcClient.IsConnected)
+                        {
+                            AdsErrorCode _tryReadState = tcClient.TryReadState(out StateInfo _adsState);
+                            if (_tryReadState == AdsErrorCode.NoError)
+                            {
+                                AdsState _plcStateMode = tcClient.ReadState().AdsState;
+
+                                if (_plcStateMode == AdsState.Run)
+                                    _plcConnectedAndRunning = true;
+                                else
+                                    Logger.Log(Logger.logLevel.Error, string.Concat("PLC not in Run Mode. Actual PLC mode is ", _plcStateMode.ToString()),
+                                               Logger.logEvents.PLCNotInRunMode, endPoint);
+                            }
                             else
-                                Logger.Log(Logger.logLevel.Error, string.Concat("PLC not in Run Mode. Actual PLC mode is ", _plcStateMode.ToString()),
-                                           Logger.logEvents.PLCNotInRunMode, endPoint);
+                                _adsError = _tryReadState;
                         }
-                        else
-                            _adsError = _tryReadState;
+                    }
+                    else
+                    {
+                        if (CheckPLCConnectionState())
+                            _plcConnectedAndRunning = true;
                     }
                 }
                 catch (Exception ex)

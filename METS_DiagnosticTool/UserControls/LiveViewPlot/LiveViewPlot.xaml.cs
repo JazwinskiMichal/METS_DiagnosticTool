@@ -16,7 +16,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
     /// <summary>
     /// Logika interakcji dla klasy LiveViewPlot.xaml
     /// </summary>
-    public partial class LiveViewPlot : UserControl, INotifyPropertyChanged
+    public partial class LiveViewPlot : UserControl, INotifyPropertyChanged, IDisposable
     {
         #region Private Fields
         private RpcClient _rpcClient;
@@ -168,7 +168,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         {
             InitializeComponent();
 
-            var mapper = Mappers.Xy<LiveViewDataModel>()
+            CartesianMapper<LiveViewDataModel> mapper = Mappers.Xy<LiveViewDataModel>()
                 .X(model => model.DateTime.Ticks)   //use DateTime.Ticks as X
                 .Y(model => model.Value);           //use the value property as Y
 
@@ -194,6 +194,14 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             IsReading = false;
 
             DataContext = this;
+        }
+
+        public void Dispose()
+        {
+            _rpcClient.PLCVariableLiveViewTriggered -= RpcClient_PLCVariableLiveViewTriggered;
+            ChartValues.Clear();
+            IsReading = false;
+            DataContext = null;
         }
         #endregion
 
@@ -244,12 +252,6 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                     // Read Data from PLC, based on given configuration and show it on the Plot
                     Read(variableConfig);
                 }
-                else
-                {
-                    // End Live View Mode Here
-                    ChartValues.Clear();
-                    IsReading = false;
-                }
             }
             catch (Exception ex)
             {
@@ -270,6 +272,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             {
                 try
                 {
+                    bool _boolean = false;
+                    bool _parsed = false;
                     double _trendOld = 0;
 
                     while (IsReading)
@@ -283,7 +287,40 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                             {
                                 case LoggingType.Polling:
                                     // HERE NEEDS TO BE PARSING ACCORDING TO VARIABLE TYPE
-                                    _trend = double.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true));
+                                    _parsed = double.TryParse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true), out double _result);
+
+                                    if (_parsed)
+                                    {
+                                        _trend = _result;
+
+                                        _boolean = false;
+                                    }
+                                    else
+                                    {
+                                        TwincatHelper.G_ET_TagType _symbolType = TwincatHelper.GetSymbolType(_varConfig.variableAddress);
+
+                                        switch (_symbolType)
+                                        {
+                                            case TwincatHelper.G_ET_TagType.PLCBooleanAndVBBoolean:
+                                                _trend = bool.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true)) ? 1 : 0;
+                                                _boolean = true;
+                                                break;
+
+                                            case TwincatHelper.G_ET_TagType.PLCString:
+                                                break;
+                                            case TwincatHelper.G_ET_TagType.PLCTime:
+                                                break;
+                                            case TwincatHelper.G_ET_TagType.PLCEnum:
+                                                break;
+                                            case TwincatHelper.G_ET_TagType.None:
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+
+                                    // For Polling dont Show Previous Values
+                                    ShowPreviousValues = false;
 
                                     now = DateTime.Now;
 
@@ -298,23 +335,54 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
                                     if (ChartValues.Count > keepRecords - 1) ChartValues.RemoveAt(0);
                                     Count = ChartValues.Count;
-                                    CurrentValue = _trend.ToString("F2");
+                                    CurrentValue = _boolean ? (_trend == 1 ? "True" : "False") : _trend.ToString("F2");
+                                    CurrentTime = now.ToString("HH:mm:ss.fff");
 
                                     Thread.Sleep(_varConfig.pollingRefreshTime);
                                     break;
 
                                 case LoggingType.OnChange:
                                     // HERE NEEDS TO BE PARSING ACCORDING TO VARIABLE TYPE
-                                    _trend = double.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true));
+                                    _parsed = double.TryParse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true), out double _result1);
 
-                                    if ((_trend != _trendOld) || (_trendOld == 0 && _trend == 0))
+                                    if (_parsed)
+                                    {
+                                        _trend = _result1;
+
+                                        _boolean = false;
+                                    }
+                                    else
+                                    {
+                                        TwincatHelper.G_ET_TagType _symbolType = TwincatHelper.GetSymbolType(_varConfig.variableAddress);
+
+                                        switch (_symbolType)
+                                        {
+                                            case TwincatHelper.G_ET_TagType.PLCBooleanAndVBBoolean:
+                                                _trend = bool.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true)) ? 1 : 0;
+                                                _boolean = true;
+                                                break;
+
+                                            case TwincatHelper.G_ET_TagType.PLCString:
+                                                break;
+                                            case TwincatHelper.G_ET_TagType.PLCTime:
+                                                break;
+                                            case TwincatHelper.G_ET_TagType.PLCEnum:
+                                                break;
+                                            case TwincatHelper.G_ET_TagType.None:
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+
+                                    if ((_trend != _trendOld) /*|| (_trendOld == 0 && _trend == 0)*/)
                                     {
                                         now = DateTime.Now;
 
                                         if (ChartValues.Count > 0)
                                         {
                                             ShowPreviousValues = true;
-                                            PreviousValue = ChartValues.Last().Value.ToString("F2");
+                                            PreviousValue = _boolean ? (ChartValues.Last().Value == 1 ? "True" : "False") : ChartValues.Last().Value.ToString("F2");
                                             RegisteredAt = ChartValues.Last().DateTime.ToString("HH:mm:ss.fff");
                                         }
                                         else
@@ -332,12 +400,9 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                                         else
                                             AxisYMin = 0;
 
-                                        liveViewChart.Update();
-                                        //SetAxisYLimits(ChartValues.Count > 2 ? (_trend > ChartValues.ElementAt(ChartValues.Count - 2).Value ? _trend : ChartValues.ElementAt(ChartValues.Count - 2).Value) : _trend);
-
                                         if (ChartValues.Count > keepRecords - 1) ChartValues.RemoveAt(0);
                                         Count = ChartValues.Count;
-                                        CurrentValue = _trend.ToString("F2");
+                                        CurrentValue = _boolean ? (_trend == 1 ? "True" : "False") : _trend.ToString("F2");
                                         CurrentTime = now.ToString("HH:mm:ss.fff");
 
                                         _trendOld = _trend;
@@ -358,7 +423,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
             //add as many tasks as you want to test this feature
             Task.Factory.StartNew(() => readFromTread(variableConfig));
-        }0.0
+        }
         #endregion
 
         #region User Input
@@ -380,6 +445,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             if (PropertyChanged != null)
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        
         #endregion
     }
 }
