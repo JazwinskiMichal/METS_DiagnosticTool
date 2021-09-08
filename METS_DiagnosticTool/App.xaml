@@ -383,6 +383,77 @@
         <!-- Boolean to Visibility Converter -->
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
+        <!-- Boolean to String Converter -->
         <local2:BooleanToStringConverter_AutoScale x:Key="AutoScaleBoolToStringConverter" />
+
+        <!-- Live View List Box Item Style -->
+        <Style x:Key="LiveViewLstBoxItemStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border BorderThickness="1"
+                                Padding="{TemplateBinding Control.Padding}"
+                                BorderBrush="Transparent"
+                                Background="{TemplateBinding Panel.Background}"
+                                Name="Bd"
+                                SnapsToDevicePixels="True">   
+                            <ContentPresenter Content="{TemplateBinding ContentControl.Content}"
+                               ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}"
+                               ContentStringFormat="{TemplateBinding ContentControl.ContentStringFormat}"
+                               HorizontalAlignment="{TemplateBinding Control.HorizontalContentAlignment}"
+                               VerticalAlignment="{TemplateBinding Control.VerticalContentAlignment}"
+                               SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                    <Condition Property="Selector.IsSelected" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Panel.Background" TargetName="Bd" Value="Transparent"/>
+                                <Setter Property="Border.BorderBrush" TargetName="Bd">
+                                    <Setter.Value>
+                                        <SolidColorBrush>Transparent</SolidColorBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </MultiTrigger>
+                            
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                    <Condition Property="Selector.IsSelected" Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter Property="Panel.Background" TargetName="Bd" Value="Transparent"/>
+                                <Setter Property="Border.BorderBrush" TargetName="Bd">
+                                    <Setter.Value>
+                                        <SolidColorBrush>Chartreuse</SolidColorBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Border.BorderThickness" TargetName="Bd" Value="1"/>
+                            </MultiTrigger>
+                            
+                            <Trigger Property="UIElement.IsMouseOver" Value="True">
+                                <Setter Property="Panel.Background" TargetName="Bd" Value="#4C7FFF00"/>
+                                <Setter Property="Border.BorderBrush" TargetName="Bd">
+                                    <Setter.Value>
+                                        <SolidColorBrush>Chartreuse</SolidColorBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Border.BorderThickness" TargetName="Bd" Value="1"/>
+                            </Trigger>
+                            
+                            <Trigger Property="UIElement.IsEnabled" Value="False">
+                                <Setter Property="TextElement.Foreground" TargetName="Bd">
+                                    <Setter.Value>
+                                        <SolidColorBrush>White</SolidColorBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>
