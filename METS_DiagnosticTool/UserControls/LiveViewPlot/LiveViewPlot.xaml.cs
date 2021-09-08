@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using static METS_DiagnosticTool_Utilities.VariableConfigurationHelper;
 
 namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
@@ -190,6 +191,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         #endregion
 
         #region Live View ListBox
+        public bool IsReadingListBox { get; set; }
+
         private ObservableCollection<LiveViewListBoxDataModel> _lstBoxLiveViewData;
         public ObservableCollection<LiveViewListBoxDataModel> LstBoxLiveViewData
         {
@@ -234,6 +237,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             SetAxisXLimits(DateTime.Now);
 
             IsReadingCartesianChart = false;
+            IsReadingListBox = false;
 
             DataContext = this;
         }
@@ -243,6 +247,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             _rpcClient.PLCVariableLiveViewTriggered -= RpcClient_PLCVariableLiveViewTriggered;
             ChartValues.Clear();
             IsReadingCartesianChart = false;
+            IsReadingListBox = false;
             DataContext = null;
         }
         #endregion
@@ -310,18 +315,12 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                         case TwincatHelper.G_ET_TagType.PLCTime:
                         case TwincatHelper.G_ET_TagType.PLCEnum:
                         case TwincatHelper.G_ET_TagType.PLCString:
-                            // Create here some example Data for Live View List Box
-                            LstBoxLiveViewData = new ObservableCollection<LiveViewListBoxDataModel>
-                            {
-                                new LiveViewListBoxDataModel()
-                                {
-                                    TimeStamp = DateTime.Now,
-                                    Value = "jebac niebieskich"
-                                }
-                            };
-
+                            LstBoxLiveViewData = new ObservableCollection<LiveViewListBoxDataModel>();
+                            // For ListBox dont Show Previous Values
+                            ShowPreviousValues = false;
                             ShowCartesianChart = false;
                             ShowListBox = true;
+                            ReadListBox(variableConfig);
                             break;
                         default:
                             break;
@@ -332,6 +331,67 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             {
                 Logger.Log(Logger.logLevel.Error, string.Concat("Exception when parsing received request for Live View ", ex.ToString()), Logger.logEvents.Blank);
             }
+        }
+
+        private void ReadListBox(VariableConfig variableConfig)
+        {
+            if (IsReadingListBox) return;
+
+            IsReadingListBox = true;
+
+            Action<VariableConfig> readFromTread = (_varConfig) =>
+            {
+                try
+                {
+                    while (IsReadingListBox)
+                    {
+                        // Here find declared PLC Variable and read it according to provided Configuration
+                        if (!string.IsNullOrEmpty(_varConfig.variableAddress))
+                        {
+                            TwincatHelper.G_ET_TagType _symbolType = TwincatHelper.GetSymbolType(_varConfig.variableAddress);
+
+                            switch (_varConfig.loggingType)
+                            {
+                                case LoggingType.Polling:
+
+                                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                                    {
+                                        LstBoxLiveViewData.Insert(0, new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString() });
+                                    }));
+
+                                    Thread.Sleep(_varConfig.pollingRefreshTime);
+                                    break;
+
+                                case LoggingType.OnChange:
+
+                                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                                    {
+                                        string _value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString();
+
+                                        if (LstBoxLiveViewData.Count > 0)
+                                        {
+                                            if (_value != LstBoxLiveViewData.First().Value)
+                                                LstBoxLiveViewData.Insert(0, new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString() });
+                                        }
+                                        else
+                                            LstBoxLiveViewData.Insert(0, new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString() });
+                                    }));
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(Logger.logLevel.Warning, string.Concat("Exception Live View ListBox Reading ", ex.ToString()), Logger.logEvents.Blank);
+                }
+            };
+
+            //add as many tasks as you want to test this feature
+            Task.Factory.StartNew(() => readFromTread(variableConfig));
         }
 
         private void ReadCartesianChart(VariableConfig variableConfig)
@@ -470,6 +530,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             CurrentValue = string.Empty;
             CurrentTime = string.Empty;
             ShowPreviousValues = false;
+
+            LstBoxLiveViewData.Clear();
         }
         #endregion
 
