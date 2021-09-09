@@ -194,6 +194,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         #region Live View ListBox
         public bool IsReadingListBox { get; set; }
 
+        public int LstBoxDataSizeLimit { get; set; } = 1000;
+
         private ObservableCollection<LiveViewListBoxDataModel> _lstBoxLiveViewData;
         public ObservableCollection<LiveViewListBoxDataModel> LstBoxLiveViewData
         {
@@ -562,6 +564,10 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
             scrollViewer = (ScrollViewer)lstBoxValues.Template.FindName("Scroller", lstBoxValues);
             scrollViewer.ScrollToHome();
+
+            // Limit the collection
+            if (LstBoxLiveViewData.Count > LstBoxDataSizeLimit)
+                LstBoxLiveViewData.Remove(LstBoxLiveViewData.Last());
         }
         #endregion
 
