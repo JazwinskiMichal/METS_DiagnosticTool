@@ -45,6 +45,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
         #region Live View ListBox
         private bool _showListBox = false;
+        private bool _showPauseRestart = false;
+        private bool _bPause = false;
 
         private object _lock = new object();
         #endregion
@@ -218,6 +220,26 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                 OnPropertyChanged("LstBoxLiveViewData");
             }
         }
+
+        public bool ShowPauseRestart
+        {
+            get { return _showPauseRestart; }
+            set
+            {
+                _showPauseRestart = value;
+                OnPropertyChanged("ShowPauseRestart");
+            }
+        }
+
+        public bool Pause
+        {
+            get { return _bPause; }
+            set
+            {
+                _bPause = value;
+                OnPropertyChanged("Pause");
+            }
+        }
         #endregion
 
         #endregion
@@ -379,13 +401,21 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                             {
                                 case LoggingType.Polling:
 
-                                    _value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString();
-                                    LstBoxLiveViewData.Insert(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = string.IsNullOrEmpty(_value) ? "string.Empty" : _value });
+                                    if (!ShowPauseRestart) ShowPauseRestart = true;
 
-                                    Thread.Sleep(_varConfig.pollingRefreshTime);
+                                    if (!Pause)
+                                    {
+                                        _value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString();
+                                        LstBoxLiveViewData.Insert(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = string.IsNullOrEmpty(_value) ? "string.Empty" : _value });
+
+                                        Thread.Sleep(_varConfig.pollingRefreshTime);
+                                    }
                                     break;
 
                                 case LoggingType.OnChange:
+
+                                    if (ShowPauseRestart) ShowPauseRestart = false;
+
 
                                     _value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString();
 
@@ -396,6 +426,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                                     }
                                     else
                                         LstBoxLiveViewData.Insert(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = string.IsNullOrEmpty(_value) ? "string.Empty" : _value });
+
 
                                     break;
 
@@ -557,20 +588,20 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
         private void lstBoxValues_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
-            {
-                ScrollViewer scrollViewer = (ScrollViewer)lstBoxTimestamps.Template.FindName("Scroller", lstBoxTimestamps);
-                scrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
-            }));
+            //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+            //{
+            //    ScrollViewer scrollViewer = (ScrollViewer)lstBoxTimestamps.Template.FindName("Scroller", lstBoxTimestamps);
+            //    scrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+            //}));
         }
 
         private void lstBoxTimestamps_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
-            {
-                ScrollViewer scrollViewer = (ScrollViewer)lstBoxValues.Template.FindName("Scroller", lstBoxValues);
-                scrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
-            }));
+            //Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+            //{
+            //    ScrollViewer scrollViewer = (ScrollViewer)lstBoxValues.Template.FindName("Scroller", lstBoxValues);
+            //    scrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+            //}));
         }
 
         private void LstBoxLiveViewData_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -585,6 +616,12 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                 scrollViewer.ScrollToHome();
             }));
         }
+
+        private void pauseRestart_Click(object sender, RoutedEventArgs e)
+        {
+            // Toggle
+            Pause = !Pause;
+        }
         #endregion
 
         #region INotifyPropertyChanged implementation
@@ -596,6 +633,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
+
+        
     }
 
     public class LiveViewListBoxDataModel : INotifyPropertyChanged

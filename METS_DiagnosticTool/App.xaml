@@ -384,7 +384,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
 
         <!-- Boolean to String Converter -->
-        <local2:BooleanToStringConverter_AutoScale x:Key="AutoScaleBoolToStringConverter" />
+        <local2:BooleanToStringConverter_PauseRestart x:Key="PauseRestartBoolToStringConverter" />
 
         <!-- Live View List Box Item Style -->
         <Style x:Key="LiveViewLstBoxItemStyle" TargetType="{x:Type ListBoxItem}">

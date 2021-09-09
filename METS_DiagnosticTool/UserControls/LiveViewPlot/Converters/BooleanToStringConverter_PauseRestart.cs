@@ -8,19 +8,19 @@ using System.Windows.Data;
 
 namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot.Converters
 {
-    public class BooleanToStringConverter_AutoScale : IValueConverter
+    public class BooleanToStringConverter_PauseRestart : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool)
             {
                 if ((bool)value == true)
-                    return "Auto Scale is Active";
+                    return "Restart";
                 else
-                    return "Auto Scale is Inactive";
+                    return "Pause";
             }
             else
-                return "Auto Scale is Inactive";
+                return "Restart";
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

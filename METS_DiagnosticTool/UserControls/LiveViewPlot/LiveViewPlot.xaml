@@ -323,10 +323,12 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
+            <!-- Clear Button -->
             <Button Style="{StaticResource SimpleButton}" Click="InjectStopOnClick">Clear</Button>
 
+            <!-- Previous Values -->
             <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2,10,2,10" Stroke="Black" Visibility="{Binding ShowPreviousValues, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}"/>
-
+            
             <StackPanel  Grid.Column="2" Margin="15,0,15,0" Orientation="Horizontal" Visibility="{Binding ShowPreviousValues, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}">
                 <Label Content="Previous value" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0" Height="40"/>
                 <Label x:Name="lblPreviousValue" Margin="5,0,0,0" Content="{Binding PreviousValue}" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0" Height="40" FontWeight="Bold"/>
@@ -338,8 +340,14 @@
                 <Label Content="Registered at" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0" Height="40"/>
                 <Label x:Name="lblRegisteredAt" Margin="5,0,0,0" Content="{Binding RegisteredAt}" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontSize="14" Padding="0" Height="40" FontWeight="Bold"/>
             </StackPanel>
+            
+            <!-- Pause/Restart for Live View ListBox -->
+            <Rectangle Grid.Column="1" VerticalAlignment="Stretch" Width="1" Margin="2,10,2,10" Stroke="Black" Visibility="{Binding ShowPauseRestart, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}"/>
+
+            <Button Grid.Column="2" Click="pauseRestart_Click" Content="{Binding Pause, Converter={StaticResource PauseRestartBoolToStringConverter}}" Style="{StaticResource SimpleButton}" Visibility="{Binding ShowPauseRestart, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}"/>
         </Grid>
 
+        <!-- Live View Cartesian Chart -->
         <Grid Grid.Row="2" x:Name="gridCartesianChart" Visibility="{Binding ShowCartesianChart, Converter={StaticResource BoolToVis}, FallbackValue=Hidden}">
             <lvc:CartesianChart Name="liveViewChart" DisableAnimations="True" DataTooltip="{x:Null}" Hoverable="False">
                 <lvc:CartesianChart.Resources>
@@ -387,8 +395,7 @@
                    Text="{Binding CurrentTime, FallbackValue=100}"></TextBlock>
         </Grid>
 
-        
-        <!-- ListBox -->
+        <!-- LiveView ListBox -->
         <Grid Grid.Row="2" x:Name="gridListBox" Visibility="{Binding ShowListBox, Converter={StaticResource BoolToVis}, FallbackValue=Visible}">
             <!-- Look HERE -->
             <Grid.RowDefinitions>
