@@ -433,7 +433,8 @@
                     HorizontalContentAlignment="Center" 
                     ItemsSource="{Binding LstBoxLiveViewData}"
                     ItemContainerStyle="{StaticResource LiveViewLstBoxItemStyle}"
-                    ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                    ScrollViewer.ScrollChanged="lstBoxTimestamps_ScrollChanged">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding TimeStamp, StringFormat=HH:mm:ss.fff}" FontSize="16"/>

@@ -548,6 +548,12 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             scrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
         }
 
+        private void lstBoxTimestamps_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            ScrollViewer scrollViewer = (ScrollViewer)lstBoxValues.Template.FindName("Scroller", lstBoxValues);
+            scrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+        }
+
         private void LstBoxLiveViewData_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             // Scroll both ListBox to home position
