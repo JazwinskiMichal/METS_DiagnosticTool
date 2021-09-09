@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using static METS_DiagnosticTool_Utilities.VariableConfigurationHelper;
 
@@ -245,7 +246,12 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         public void Dispose()
         {
             _rpcClient.PLCVariableLiveViewTriggered -= RpcClient_PLCVariableLiveViewTriggered;
-            ChartValues.Clear();
+            if (ChartValues != null) ChartValues.Clear();
+            if (LstBoxLiveViewData != null)
+            {
+                LstBoxLiveViewData.Clear();
+                LstBoxLiveViewData.CollectionChanged -= LstBoxLiveViewData_CollectionChanged;
+            }
             IsReadingCartesianChart = false;
             IsReadingListBox = false;
             DataContext = null;
@@ -315,7 +321,9 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                         case TwincatHelper.G_ET_TagType.PLCTime:
                         case TwincatHelper.G_ET_TagType.PLCEnum:
                         case TwincatHelper.G_ET_TagType.PLCString:
+                            // Initialize Observable collection for List Box Live View
                             LstBoxLiveViewData = new ObservableCollection<LiveViewListBoxDataModel>();
+                            LstBoxLiveViewData.CollectionChanged += LstBoxLiveViewData_CollectionChanged;
                             // For ListBox dont Show Previous Values
                             ShowPreviousValues = false;
                             ShowCartesianChart = false;
@@ -532,6 +540,22 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             ShowPreviousValues = false;
 
             LstBoxLiveViewData.Clear();
+        }
+
+        private void lstBoxValues_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            ScrollViewer scrollViewer = (ScrollViewer)lstBoxTimestamps.Template.FindName("Scroller", lstBoxTimestamps);
+            scrollViewer.ScrollToVerticalOffset(e.VerticalOffset);
+        }
+
+        private void LstBoxLiveViewData_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            // Scroll both ListBox to home position
+            ScrollViewer scrollViewer = (ScrollViewer)lstBoxTimestamps.Template.FindName("Scroller", lstBoxTimestamps);
+            scrollViewer.ScrollToHome();
+
+            scrollViewer = (ScrollViewer)lstBoxValues.Template.FindName("Scroller", lstBoxValues);
+            scrollViewer.ScrollToHome();
         }
         #endregion
 
