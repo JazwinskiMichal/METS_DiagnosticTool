@@ -194,10 +194,10 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         #region Live View ListBox
         public bool IsReadingListBox { get; set; }
 
-        public int LstBoxDataSizeLimit { get; set; } = 1000;
+        public int LstBoxDataSizeLimit { get; set; } = 200;
 
-        private ObservableCollection<LiveViewListBoxDataModel> _lstBoxLiveViewData;
-        public ObservableCollection<LiveViewListBoxDataModel> LstBoxLiveViewData
+        private LimitedSizeObservableCollection<LiveViewListBoxDataModel> _lstBoxLiveViewData;
+        public LimitedSizeObservableCollection<LiveViewListBoxDataModel> LstBoxLiveViewData
         {
             get { return _lstBoxLiveViewData; }
             set
@@ -324,7 +324,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                         case TwincatHelper.G_ET_TagType.PLCEnum:
                         case TwincatHelper.G_ET_TagType.PLCString:
                             // Initialize Observable collection for List Box Live View
-                            LstBoxLiveViewData = new ObservableCollection<LiveViewListBoxDataModel>();
+                            LstBoxLiveViewData = new LimitedSizeObservableCollection<LiveViewListBoxDataModel>(LstBoxDataSizeLimit);
                             LstBoxLiveViewData.CollectionChanged += LstBoxLiveViewData_CollectionChanged;
                             // For ListBox dont Show Previous Values
                             ShowPreviousValues = false;
@@ -366,7 +366,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
                                     Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
                                     {
-                                        LstBoxLiveViewData.Insert(0, new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString() });
+                                        LstBoxLiveViewData.Insert(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString() });
                                     }));
 
                                     Thread.Sleep(_varConfig.pollingRefreshTime);
@@ -381,10 +381,10 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                                         if (LstBoxLiveViewData.Count > 0)
                                         {
                                             if (_value != LstBoxLiveViewData.First().Value)
-                                                LstBoxLiveViewData.Insert(0, new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString() });
+                                                LstBoxLiveViewData.Insert(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString() });
                                         }
                                         else
-                                            LstBoxLiveViewData.Insert(0, new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString() });
+                                            LstBoxLiveViewData.Insert(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString() });
                                     }));
                                     break;
 
@@ -564,10 +564,6 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
             scrollViewer = (ScrollViewer)lstBoxValues.Template.FindName("Scroller", lstBoxValues);
             scrollViewer.ScrollToHome();
-
-            // Limit the collection
-            if (LstBoxLiveViewData.Count > LstBoxDataSizeLimit)
-                LstBoxLiveViewData.Remove(LstBoxLiveViewData.Last());
         }
         #endregion
 
@@ -622,5 +618,24 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                 PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
+    }
+
+    public class LimitedSizeObservableCollection<T> : ObservableCollection<T>
+    {
+        public int Capacity { get; }
+
+        public LimitedSizeObservableCollection(int capacity)
+        {
+            Capacity = capacity;
+        }
+
+        public void Insert(T item)
+        {
+            if (Count >= Capacity)
+            {
+                this.Remove(this.Last());
+            }
+            base.Insert(0, item);
+        }
     }
 }
