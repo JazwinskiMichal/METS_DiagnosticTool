@@ -449,7 +449,7 @@
                     </ListBox.ItemTemplate>
                     <ListBox.Template>
                         <ControlTemplate>
-                            <ScrollViewer x:Name="Scroller" VerticalAlignment="Top" Focusable="False" >
+                            <ScrollViewer x:Name="Scroller" local:ScrollViewerBehavior.ScrollToVerticalOffset="{Binding ScrollVerticalOffset, Mode=TwoWay}" local:ScrollViewerBehavior.AutoScrollToTop="{Binding NewItemAdded, Mode=TwoWay}" VerticalAlignment="Top" Focusable="False" >
                                 <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Focusable="False" Panel.ZIndex="999"  />
                             </ScrollViewer>
                         </ControlTemplate>
@@ -476,7 +476,7 @@
                     </ListBox.ItemTemplate>
                     <ListBox.Template>
                         <ControlTemplate>
-                            <ScrollViewer x:Name="Scroller" VerticalAlignment="Stretch" Focusable="False" Visibility="Visible" Template="{DynamicResource ScrollViewerControlTemplate1}">
+                            <ScrollViewer x:Name="Scroller" local:ScrollViewerBehavior.ScrollToVerticalOffset="{Binding ScrollVerticalOffset, Mode=TwoWay}" local:ScrollViewerBehavior.AutoScrollToTop="{Binding NewItemAdded, Mode=TwoWay}" VerticalAlignment="Stretch" Focusable="False" Visibility="Visible" Template="{DynamicResource ScrollViewerControlTemplate1}">
                                 <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Focusable="False" Panel.ZIndex="999"  />
                             </ScrollViewer>
                         </ControlTemplate>
