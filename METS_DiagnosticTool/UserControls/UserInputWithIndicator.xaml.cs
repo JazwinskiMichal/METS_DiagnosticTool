@@ -528,6 +528,22 @@ namespace METS_DiagnosticTool_UI.UserControls
         #region Variable Configuration
         private void configuration_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            // Dont Request Live View
+            List<LiveViewPlot.LiveViewPlot> _livePlotsToBeRemoved = new List<LiveViewPlot.LiveViewPlot>();
+            for (int i = 0; i < liveViewRow.Children.Count; i++)
+            {
+                if (liveViewRow.Children[i].GetType() == typeof(LiveViewPlot.LiveViewPlot))
+                    _livePlotsToBeRemoved.Add((LiveViewPlot.LiveViewPlot)liveViewRow.Children[i]);
+            }
+
+            // Actuall remove Live Plots from grid
+            for (int j = 0; j < _livePlotsToBeRemoved.Count; j++)
+            {
+                _livePlotsToBeRemoved[j].Dispose();
+
+                liveViewRow.Children.Remove(_livePlotsToBeRemoved[j]);
+            }
+
             // If Live View Row is is visible show Delayed Animations
             if ((bExtensionRow_LiveView_Completed && bExtensionRow_LiveView_AnimationCompleted) ||
                 (bExtensionRow_LiveViewDelayed_Completed && bExtensionRow_LiveViewDelayed_AnimationCompleted))

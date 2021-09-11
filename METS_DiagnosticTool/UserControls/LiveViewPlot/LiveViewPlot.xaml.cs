@@ -452,11 +452,16 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
                                     if (LstBoxLiveViewData.Count > 0)
                                     {
-                                        if (_value != LstBoxLiveViewData.First().Value)
+                                        if (_value != LstBoxLiveViewData.FirstOrDefault().Value && !string.IsNullOrEmpty(_value) && !string.IsNullOrEmpty(LstBoxLiveViewData.FirstOrDefault().Value))
                                             LstBoxLiveViewData.Insert(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = string.IsNullOrEmpty(_value) ? "string.Empty" : _value });
+                                        else if (string.IsNullOrEmpty(_value) || string.IsNullOrEmpty(LstBoxLiveViewData.FirstOrDefault().Value))
+                                        {
+                                            // If String empty insert it only once
+                                            LstBoxLiveViewData.InsertOnce(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = "string.Empty" });
+                                        }
                                     }
                                     else
-                                        LstBoxLiveViewData.Insert(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = string.IsNullOrEmpty(_value) ? "string.Empty" : _value });
+                                        LstBoxLiveViewData.InsertOnce(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = string.IsNullOrEmpty(_value) ? "string.Empty" : _value });
 
                                     break;
 
@@ -614,6 +619,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
             ShowPreviousValues = false;
 
             LstBoxLiveViewData.Clear();
+            LstBoxLiveViewData.ClearLock();
         }
 
         private void lstBoxValues_ScrollChanged(object sender, ScrollChangedEventArgs e)
@@ -696,6 +702,8 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
     {
         public int Capacity { get; }
 
+        private bool _lock = false;
+
         public LimitedSizeObservableCollection(int capacity)
         {
             Capacity = capacity;
@@ -708,6 +716,28 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                 this.Remove(this.Last());
             }
             base.Insert(0, item);
+
+            if (_lock)
+                _lock = false;
+        }
+
+        public void InsertOnce(T item)
+        {
+            if (Count >= Capacity)
+            {
+                this.Remove(this.Last());
+            }
+
+            if(!_lock)
+            {
+                base.Insert(0, item);
+                _lock = true;
+            }
+        }
+
+        public void ClearLock()
+        {
+            _lock = false;
         }
     }
 }
