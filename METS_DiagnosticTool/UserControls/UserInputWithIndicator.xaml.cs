@@ -803,7 +803,13 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                     // Change Configuration buttons to inactive
                     if (bPollingActive)
+                    {
                         BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
+
+                        pollingConfiguration.IsEnabled = true;
+
+                        Logger.Log(Logger.logLevel.Warning, "Changed pollingConfiguration to Enable", Logger.logEvents.Blank);
+                    }
                     else
                         BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
 
