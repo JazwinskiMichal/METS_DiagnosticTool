@@ -423,8 +423,6 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                         // Here find declared PLC Variable and read it according to provided Configuration
                         if (!string.IsNullOrEmpty(_varConfig.variableAddress))
                         {
-                            TwincatHelper.G_ET_TagType _symbolType = TwincatHelper.GetSymbolType(_varConfig.variableAddress);
-
                             switch (_varConfig.loggingType)
                             {
                                 case LoggingType.Polling:

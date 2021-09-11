@@ -187,11 +187,15 @@ namespace METS_DiagnosticTool_Utilities
 
             try
             {
-                ITcAdsSymbol symbol = tcClient.ReadSymbolInfo(i_sTagName);
+                ITcAdsSymbol5 symbol = (ITcAdsSymbol5)tcClient.ReadSymbolInfo(i_sTagName);
 
                 if(symbol != null)
                 {
-                    _returnValue = symbol.Type.ToUpper();
+                    // Special Treatment for Enum
+                    if (symbol.DataType.HasEnumInfo)
+                        _returnValue = "ENUM";
+                    else
+                        _returnValue = symbol.TypeName.ToUpper();
 
                     // Special treatment for STRING(nnnnn)
                     if (_returnValue.Contains("STRING"))
