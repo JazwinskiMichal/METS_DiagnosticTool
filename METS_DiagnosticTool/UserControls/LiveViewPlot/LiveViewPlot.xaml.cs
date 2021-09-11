@@ -379,6 +379,9 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                         case TwincatHelper.G_ET_TagType.PLCTime:
                         case TwincatHelper.G_ET_TagType.PLCEnum:
                         case TwincatHelper.G_ET_TagType.PLCString:
+                        case TwincatHelper.G_ET_TagType.PLCDate:
+                        case TwincatHelper.G_ET_TagType.PLCTOD:
+                        case TwincatHelper.G_ET_TagType.PLCDT:
                             // Initialize Observable collection for List Box Live View
                             LstBoxLiveViewData = new LimitedSizeObservableCollection<LiveViewListBoxDataModel>(LstBoxDataSizeLimit);
                             BindingOperations.EnableCollectionSynchronization(LstBoxLiveViewData, _lock);

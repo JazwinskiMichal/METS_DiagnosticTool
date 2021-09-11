@@ -36,9 +36,10 @@ namespace METS_DiagnosticTool_Utilities
             TwinatADSReadException = 113,
             TwinatADSWriteException = 114,
             TwincatADSConnectionStateException = 115,
+            TwincatADSReadPLCSymbolException = 116,
 
-            BridgePLCWatchdogException = 116,
-            PLCNotInRunMode = 117,
+            BridgePLCWatchdogException = 117,
+            PLCNotInRunMode = 118,
 
             RabbitMQServerInitailiztionError = 200,
             RabbitMQServerErrorWhenReceivingMessage = 201,

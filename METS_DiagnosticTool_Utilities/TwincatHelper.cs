@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TwinCAT.Ads;
+using TwinCAT.PlcOpen;
 
 namespace METS_DiagnosticTool_Utilities
 {
@@ -26,7 +27,10 @@ namespace METS_DiagnosticTool_Utilities
             PLCUIntegerAndVBUShort = 8,
             PLCTime = 9,
             PLCEnum = 10,
-            PLCByte = 11,
+            PLCDT = 11,
+            PLCTOD = 12,
+            PLCDate = 13,
+            PLCByte = 14,
             None = 99
         }
 
@@ -243,6 +247,15 @@ namespace METS_DiagnosticTool_Utilities
                         case "TIME":
                             _return = G_ET_TagType.PLCTime;
                             break;
+                        case "DATE":
+                            _return = G_ET_TagType.PLCDate;
+                            break;
+                        case "TIME_OF_DAY":
+                            _return = G_ET_TagType.PLCTOD;
+                            break;
+                        case "DATE_AND_TIME":
+                            _return = G_ET_TagType.PLCDT;
+                            break;
                         case "ENUM":
                             _return = G_ET_TagType.PLCEnum;
                             break;
@@ -300,7 +313,22 @@ namespace METS_DiagnosticTool_Utilities
                                 break;
                             case G_ET_TagType.PLCTime:
                                 iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
-                                _return = tcClient.ReadAny(iVarHandle, typeof(uint)).ToString();
+                                _return = tcClient.ReadAny(iVarHandle, typeof(TIME)).ToString();
+                                tcClient.DeleteVariableHandle(iVarHandle);
+                                break;
+                            case G_ET_TagType.PLCDate:
+                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
+                                _return = tcClient.ReadAny(iVarHandle, typeof(DATE)).ToString();
+                                tcClient.DeleteVariableHandle(iVarHandle);
+                                break;
+                            case G_ET_TagType.PLCDT:
+                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
+                                _return = tcClient.ReadAny(iVarHandle, typeof(DT)).ToString();
+                                tcClient.DeleteVariableHandle(iVarHandle);
+                                break;
+                            case G_ET_TagType.PLCTOD:
+                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
+                                _return = tcClient.ReadAny(iVarHandle, typeof(TOD)).ToString();
                                 tcClient.DeleteVariableHandle(iVarHandle);
                                 break;
                             case G_ET_TagType.PLCEnum:
