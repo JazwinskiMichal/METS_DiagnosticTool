@@ -15,6 +15,8 @@ namespace METS_DiagnosticTool_Utilities
         private static AdsConnection tcClient;
         private static AmsAddress tcAmsAddress;
 
+        public static string VariableDatatype = string.Empty;
+
         public enum G_ET_TagType
         {
             PLCFloatAndVBSingle = 1,
@@ -182,7 +184,7 @@ namespace METS_DiagnosticTool_Utilities
 
         public static G_ET_TagType GetSymbolType(string i_sTagName)
         {
-            string _returnValue = string.Empty;
+            VariableDatatype = string.Empty;
             G_ET_TagType _return = 0;
 
             try
@@ -191,12 +193,21 @@ namespace METS_DiagnosticTool_Utilities
 
                 if(symbol != null)
                 {
+                    string _returnValue;
                     // Special Treatment for Enum
                     if (symbol.DataType.HasEnumInfo)
+                    {
                         _returnValue = "ENUM";
+
+                        VariableDatatype = string.Concat(_returnValue, ":", symbol.TypeName.ToUpper());
+                    }
                     else
+                    {
                         _returnValue = symbol.TypeName.ToUpper();
 
+                        VariableDatatype = _returnValue;
+                    }
+                        
                     // Special treatment for STRING(nnnnn)
                     if (_returnValue.Contains("STRING"))
                         _returnValue = "STRING";
@@ -268,10 +279,9 @@ namespace METS_DiagnosticTool_Utilities
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                Logger.Log(Logger.logLevel.Error, string.Concat("Twincat ADS read symbol type exception for Symbol ", string.IsNullOrEmpty(i_sTagName) ? "string.Empty" : i_sTagName, Environment.NewLine, ex.ToString()), Logger.logEvents.TwinatADSReadException);
             }
 
             return _return;
@@ -318,21 +328,25 @@ namespace METS_DiagnosticTool_Utilities
                             case G_ET_TagType.PLCTime:
                                 iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
                                 _return = tcClient.ReadAny(iVarHandle, typeof(TIME)).ToString();
+                                _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
                                 tcClient.DeleteVariableHandle(iVarHandle);
                                 break;
                             case G_ET_TagType.PLCDate:
                                 iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
                                 _return = tcClient.ReadAny(iVarHandle, typeof(DATE)).ToString();
+                                _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
                                 tcClient.DeleteVariableHandle(iVarHandle);
                                 break;
                             case G_ET_TagType.PLCDT:
                                 iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
                                 _return = tcClient.ReadAny(iVarHandle, typeof(DT)).ToString();
+                                _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
                                 tcClient.DeleteVariableHandle(iVarHandle);
                                 break;
                             case G_ET_TagType.PLCTOD:
                                 iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
                                 _return = tcClient.ReadAny(iVarHandle, typeof(TOD)).ToString();
+                                _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
                                 tcClient.DeleteVariableHandle(iVarHandle);
                                 break;
                             case G_ET_TagType.PLCEnum:

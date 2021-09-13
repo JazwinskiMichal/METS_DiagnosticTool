@@ -27,7 +27,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
         private RpcClient _rpcClient;
         private bool _twincatInitializedOK = false;
 
-        private bool _onChange = false;
+        private string _variableType = string.Empty;
         #endregion
 
         #region LiveView Cartesian Chart
@@ -70,6 +70,16 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
                 if (_rpcClient != null)
                     _rpcClient.PLCVariableLiveViewTriggered += RpcClient_PLCVariableLiveViewTriggered;
+            }
+        }
+
+        public string VariableType
+        {
+            get { return _variableType; }
+            set
+            {
+                _variableType = value;
+                OnPropertyChanged("VariableType");
             }
         }
         #endregion
@@ -374,6 +384,10 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                         case TwincatHelper.G_ET_TagType.PLCByte:
                             ShowCartesianChart = true;
                             ShowListBox = false;
+
+                            // Get Variable Datatype Name
+                            VariableType = TwincatHelper.VariableDatatype;
+
                             ReadCartesianChart(variableConfig);
                             break;
                         case TwincatHelper.G_ET_TagType.PLCTime:
@@ -391,6 +405,10 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                             ShowPreviousValues = false;
                             ShowCartesianChart = false;
                             ShowListBox = true;
+
+                            // Get Variable Datatype Name
+                            VariableType = TwincatHelper.VariableDatatype;
+
                             ReadListBox(variableConfig);
                             break;
                         default:
@@ -427,8 +445,6 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                             {
                                 case LoggingType.Polling:
 
-                                    _onChange = false;
-
                                     if (!ShowPauseRestart) ShowPauseRestart = true;
 
                                     if (!Pause)
@@ -444,8 +460,6 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                                     break;
 
                                 case LoggingType.OnChange:
-
-                                    _onChange = true;
 
                                     if (ShowPauseRestart) ShowPauseRestart = false;
 
