@@ -238,8 +238,6 @@ namespace METS_DiagnosticTool_UI
                                     // Add Control to the Grid
                                     mainGrid.Children.Add(_localRow);
 
-                                    //scrollViewer.ScrollToEnd();
-
                                     _rowCount++;
                                 }));
                             }
@@ -304,7 +302,6 @@ namespace METS_DiagnosticTool_UI
                         ((Storyboard)Resources["loadingVarConfigs_Hide"]).Begin();
 
                         scrollViewer.Visibility = Visibility.Visible;
-                        //loadingGrid.Visibility = Visibility.Hidden;
                     }));
                 }
                 else
@@ -321,7 +318,6 @@ namespace METS_DiagnosticTool_UI
                         ((Storyboard)Resources["loadingVarConfigs_Hide"]).Begin();
 
                         scrollViewer.Visibility = Visibility.Visible;
-                        //loadingGrid.Visibility = Visibility.Hidden;
                     }));
                 }
 
@@ -342,7 +338,7 @@ namespace METS_DiagnosticTool_UI
 
             await _createVariablesFromConfiguration;
 
-            // Inject RPC Server foreach control Created
+            // Inject RPC Client foreach control Created
             foreach (var _control in mainGrid.Children)
             {
                 if(_control.GetType() == typeof(UserControls.UserInputWithIndicator))
@@ -353,7 +349,10 @@ namespace METS_DiagnosticTool_UI
                         UserControls.UserInputWithIndicator _row = (UserControls.UserInputWithIndicator)_control;
 
                         if (rabbitMQ_Client != null)
+                        {
                             _row.rpcClient = rabbitMQ_Client;
+                            _row.StartLogging();
+                        }
                         else
                             Logger.Log(Logger.logLevel.Error, "Rabbit MQ Client is null", Logger.logEvents.Blank);
                     }

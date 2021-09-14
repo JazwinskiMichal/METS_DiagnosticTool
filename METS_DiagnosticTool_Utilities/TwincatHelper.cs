@@ -412,8 +412,8 @@ namespace METS_DiagnosticTool_Utilities
                     Logger.Log(Logger.logLevel.Error, string.Concat("Twincat ADS read exception for Symbol ", string.IsNullOrEmpty(i_sTagName) ? "string.Empty" : i_sTagName, Environment.NewLine, ex.ToString()), Logger.logEvents.TwinatADSReadException);
                 }
             }
-            else
-                Logger.Log(Logger.logLevel.Warning, "Check connection state false", Logger.logEvents.Blank);
+            //else
+            //    Logger.Log(Logger.logLevel.Warning, "Check connection state false", Logger.logEvents.Blank);
 
             return _return;
         }

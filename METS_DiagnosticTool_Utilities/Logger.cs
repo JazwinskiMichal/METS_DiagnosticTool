@@ -60,7 +60,10 @@ namespace METS_DiagnosticTool_Utilities
             Starting = 300,
             StartedSuccesfully = 301,
             StoppedSuccesfully = 302,
-            TwincatADSConnectionOk = 303
+            TwincatADSConnectionOk = 303,
+
+            LoggingStartedForAVariable = 400,
+            LoggingStoppedForAVariable = 401
             #endregion
         }
 

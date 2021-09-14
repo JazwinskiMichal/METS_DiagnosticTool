@@ -139,7 +139,6 @@ namespace METS_DiagnosticTool_UI.UserControls
             // Variable Input
             ((Storyboard)Resources[indicatorOK_Pop]).Completed += new EventHandler(indicatorOK_Pop_Completed);
             ((Storyboard)Resources[indicatorNOK_Shake]).Completed += new EventHandler(indicatorNOK_Shake_Completed);
-            //((Storyboard)Resources[recordingDot_ON_Pulse]).Completed += new EventHandler(recordingDot_ON_Pulse_Completed);
 
             // Extension Row Variable Configuration
             ((Storyboard)Resources[extensionRow_VarConfig_IncreaseHeight]).Completed += new EventHandler(extensionRow_VarConfig_IncreaseHeight_Completed);
@@ -171,8 +170,6 @@ namespace METS_DiagnosticTool_UI.UserControls
 
             BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
             lblOnChange.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-
-            //BringToFrontAndSendOtherBack(recordingButtons, recordingDisabled);
 
             // Apply read Configuration
             if (variableConfig.variableAddress != null)
@@ -240,18 +237,6 @@ namespace METS_DiagnosticTool_UI.UserControls
                     BringToFrontAndSendOtherBack(recordingButtons, recordingOFF);
                 }
             }
-
-            //// Initialize Live View Plot
-            //liveViewPlot = new LiveViewPlot.LiveViewPlot();
-            //liveViewPlot.Name = "liveViewPlot";
-            //liveViewPlot.Width = 740;
-            //liveViewPlot.HorizontalAlignment = HorizontalAlignment.Center;
-            //liveViewPlot.VerticalAlignment = VerticalAlignment.Stretch;
-            //liveViewPlot.Margin = new Thickness(10);
-
-            //Grid.SetRow(liveViewPlot, 1);
-
-            //liveViewRow.Children.Add(liveViewPlot);
         }
         #endregion
 
@@ -266,6 +251,20 @@ namespace METS_DiagnosticTool_UI.UserControls
             }
 
             Keyboard.ClearFocus();
+        }
+
+        public async void StartLogging()
+        {
+            //Logger.Log(Logger.logLevel.Warning, string.Concat("Trying to start Logging for ", input.Text, " with bRecordingActive ", bRecordingActive.ToString()), Logger.logEvents.Blank);
+
+            // Send Trigger to Core about PLC Variable that has been saved
+            Task<string> _triggerPLCVaribaleConfiguration = RabbitMQHelper.SendToServer_TriggerPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
+                                                                                                            input.Text,
+                                                                                                            true,
+                                                                                                            bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
+                                                                                                            string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
+                                                                                                            bRecordingActive);
+            await _triggerPLCVaribaleConfiguration;
         }
         #endregion
 
@@ -762,7 +761,7 @@ namespace METS_DiagnosticTool_UI.UserControls
                                                                                                                 input.Text,
                                                                                                                 bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
                                                                                                                 string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
-                                                                                                                bRecordingActive ? true : false);
+                                                                                                                bRecordingActive);
                     await _saveGivenVariableConfiguration;
 
                     // Hide Extension Variable Configuration Row Animation
@@ -807,6 +806,15 @@ namespace METS_DiagnosticTool_UI.UserControls
                     bSaved = true;
 
                     Keyboard.ClearFocus();
+
+                    // Send Trigger to Core about PLC Variable that has been saved
+                    Task<string> _triggerPLCVaribaleConfiguration = RabbitMQHelper.SendToServer_TriggerPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
+                                                                                                                    input.Text,
+                                                                                                                    bSaved,
+                                                                                                                    bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
+                                                                                                                    string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
+                                                                                                                    bRecordingActive);
+                    await _triggerPLCVaribaleConfiguration;
                 }
                 else
                 {
@@ -823,8 +831,6 @@ namespace METS_DiagnosticTool_UI.UserControls
                         BringToFrontAndSendOtherBack(onChangeButtons, onChangeOFF);
 
                         pollingConfiguration.IsEnabled = true;
-
-                        Logger.Log(Logger.logLevel.Warning, "Changed pollingConfiguration to Enable", Logger.logEvents.Blank);
                     }
                     else
                         BringToFrontAndSendOtherBack(pollingButtons, pollingOFF);
@@ -848,15 +854,6 @@ namespace METS_DiagnosticTool_UI.UserControls
 
                     Keyboard.ClearFocus();
                 }
-
-                // Send Trigger to Core about PLC Variable that has been saved
-                Task<string> _triggerPLCVaribaleConfiguration = RabbitMQHelper.SendToServer_TriggerPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
-                                                                                                                input.Text,
-                                                                                                                bSaved,
-                                                                                                                bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
-                                                                                                                string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
-                                                                                                                bRecordingActive ? true : false);
-                await _triggerPLCVaribaleConfiguration;
             }
             
             if(!bPollingActive && !bOnChangeActive)
