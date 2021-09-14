@@ -436,8 +436,6 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                     {
                         string _value = string.Empty;
 
-                        //NewItemAdded = false;
-
                         // Here find declared PLC Variable and read it according to provided Configuration
                         if (!string.IsNullOrEmpty(_varConfig.variableAddress))
                         {

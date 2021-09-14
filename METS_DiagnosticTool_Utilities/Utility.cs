@@ -129,27 +129,6 @@ namespace METS_DiagnosticTool_Utilities
         }
 
         /// <summary>
-        /// Method to create Log file by replacing extension of a file
-        /// </summary>
-        /// <param name="chmFileXML_Filename"></param>
-        /// <param name="chmFullDir"></param>
-        /// <param name="serverResponse">Response from the Server</param>
-        /// <param name="methodResponse">Response from the Method that is trying to get response from the Server</param>
-        public static void CreateLogFile(string chmFileXML_Filename, string chmFullDir, string serverResponse, string methodResponse)
-        {
-            // Create CHM LOG name from the XML file name, by replacing 'xml' with 'log_fss3'
-            string chmFileName_LOG = string.Concat(chmFileXML_Filename.Substring(0, chmFileXML_Filename.Length - 3), "log_fss3");
-
-            // Create empty LOG file in the Error Directory
-            using (StreamWriter sw = File.AppendText(string.Concat(chmFullDir, @"Error\", chmFileName_LOG)))
-            {
-                // If soapError prop is empty just save the response to the File
-                sw.WriteLine(!string.IsNullOrEmpty(serverResponse) ? serverResponse : methodResponse);
-                sw.Close();
-            }
-        }
-
-        /// <summary>
         /// Method to safely add elements to a Dictionary, by first checking does the Key exist in the Dictionary or not
         /// </summary>
         /// <param name="_dictionary"></param>
