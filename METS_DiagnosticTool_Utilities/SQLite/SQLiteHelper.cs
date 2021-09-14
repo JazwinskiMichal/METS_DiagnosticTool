@@ -23,7 +23,7 @@ namespace METS_DiagnosticTool_Utilities.SQLite
                 {
                     // First check does the Table Exists if not Create it
                     // Name of the Table cannot have dots inside as PLC variable Address has, so replace those with underscore
-                    string _tableName = plcVariableModel.VariableName.ToUpper().Replace('.', '_');
+                    string _tableName = plcVariableModel.VariableName.ToUpper().Replace('.', '_').Replace("[", string.Empty).Replace("]", string.Empty);
                     string _query = string.Concat(string.Concat("CREATE TABLE if not exists ", _tableName, " (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, VariableName TEXT NOT NULL, VariableValue TEXT NOT NULL, UpdateDate TEXT NOT NULL, UpdateTime TEXT NOT NULL)"));
                     cnn.Execute(_query);
 
@@ -44,7 +44,7 @@ namespace METS_DiagnosticTool_Utilities.SQLite
             {
                 // First check does the Table Exists if not Create it
                 // Name of the Table cannot have dots inside as PLC variable Address has, so replace those with underscore
-                string _tableName = plcVariableAddress.ToUpper().Replace('.', '_');
+                string _tableName = plcVariableAddress.ToUpper().Replace('.', '_').Replace("[", string.Empty).Replace("]", string.Empty);
                 string _query = string.Concat(string.Concat("CREATE TABLE if not exists ", _tableName, " (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, VariableName TEXT NOT NULL, VariableValue TEXT NOT NULL, UpdateDate TEXT NOT NULL, UpdateTime TEXT NOT NULL)"));
                 cnn.Execute(_query);
 
