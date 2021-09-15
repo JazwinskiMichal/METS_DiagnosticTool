@@ -229,6 +229,7 @@ namespace METS_DiagnosticTool_Utilities
         private readonly IModel channel;
 
         public event EventHandler<string> PLCVariableConfigurationTriggered;
+        public event EventHandler<string> PLCVariableDeleted;
 
         internal RpcServer()
         {
@@ -283,6 +284,8 @@ namespace METS_DiagnosticTool_Utilities
 
                         // Delete PLC Var Configuration (single Variable)
                         case RabbitMQHelper.deleteVarConfig:
+                            // Also invoke event to notify Logging Threads that a Variable has been deleted
+                            PLCVariableDeleted?.Invoke(this, message);
                             response = DeletePLCVariableConfig(message).ToString();
                             break;
 

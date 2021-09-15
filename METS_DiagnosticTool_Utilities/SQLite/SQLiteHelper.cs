@@ -17,8 +17,8 @@ namespace METS_DiagnosticTool_Utilities.SQLite
         /// <param name="plcVariableModel"></param>
         public static void SaveData(PLCVariableDataModel plcVariableModel)
         {
-            try
-            {
+            //try
+            //{
                 using (IDbConnection cnn = new SQLiteConnection(@"Data Source = .\METSDiagnosticTool_DB.db"))
                 {
                     // First check does the Table Exists if not Create it
@@ -27,33 +27,59 @@ namespace METS_DiagnosticTool_Utilities.SQLite
                     string _query = string.Concat(string.Concat("CREATE TABLE if not exists ", _tableName, " (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, VariableName TEXT NOT NULL, VariableValue TEXT NOT NULL, UpdateDate TEXT NOT NULL, UpdateTime TEXT NOT NULL)"));
                     cnn.Execute(_query);
 
-                    // Insert into Table that is a Variable Name
-                    cnn.Execute(string.Concat("INSERT into ", _tableName, " (VariableName, VariableValue, UpdateDate, UpdateTime) " +
-                                                                                               "values (@VariableName, @VariableValue, @UpdateDate, @UpdateTime)"), plcVariableModel);
+                    // Extra check does the Table Exists
+                    IEnumerable<PLCVariableDataModel> output = cnn.Query<PLCVariableDataModel>(string.Concat("SELECT 1 FROM sqlite_master WHERE type='table' AND name='", _tableName, "'"), new DynamicParameters());
+
+                    if (output.Count() > 0)
+                        // Insert into Table that is a Variable Name
+                        cnn.Execute(string.Concat("INSERT into ", _tableName, " (VariableName, VariableValue, UpdateDate, UpdateTime) " +
+                                                                                                   "values (@VariableName, @VariableValue, @UpdateDate, @UpdateTime)"), plcVariableModel);
                 }
-            }
-            catch (Exception ex)
+            //}
+            //catch (Exception ex)
+            //{
+                //Logger.Log(Logger.logLevel.Error, string.Concat("Exception when trying to save to SQLite ", ex.ToString()), Logger.logEvents.Blank);
+            //}
+        }
+
+        /// <summary>
+        /// Get last row from a Table (that is a Variable Address)
+        /// </summary>
+        /// <param name="plcVariableAddress"></param>
+        /// <returns></returns>
+        public static PLCVariableDataModel GetLastRow(string plcVariableAddress)
+        {
+            using (IDbConnection cnn = new SQLiteConnection(@"Data Source = .\METSDiagnosticTool_DB.db"))
             {
-                Logger.Log(Logger.logLevel.Error, string.Concat("Exception when trying to save to SQLite ", ex.ToString()), Logger.logEvents.Blank);
+                // Name of the Table cannot have dots inside as PLC variable Address has, so replace those with underscore
+                string _tableName = plcVariableAddress.ToUpper().Replace('.', '_').Replace("[", string.Empty).Replace("]", string.Empty);
+
+                // First check does the table exists, without creating new one
+                IEnumerable<PLCVariableDataModel> output = cnn.Query<PLCVariableDataModel>(string.Concat("SELECT 1 FROM sqlite_master WHERE type='table' AND name='", _tableName, "'"), new DynamicParameters());
+
+                if (output.Count() > 0)
+                {
+                    output = cnn.Query<PLCVariableDataModel>(string.Concat("SELECT * FROM ", _tableName, " ORDER BY Id DESC LIMIT 1"), new DynamicParameters());
+
+                    if (output.Count() > 0)
+                        return output.First();
+                    else
+                        return null;
+                }
+                else
+                    return null;
             }
         }
 
-        public static PLCVariableDataModel GetLastRow(string plcVariableAddress)
+        public static void DeleteTable(string plcVariableAddress)
         {
             using (IDbConnection cnn = new SQLiteConnection(@"Data Source = .\METSDiagnosticTool_DB.db"))
             {
                 // First check does the Table Exists if not Create it
                 // Name of the Table cannot have dots inside as PLC variable Address has, so replace those with underscore
                 string _tableName = plcVariableAddress.ToUpper().Replace('.', '_').Replace("[", string.Empty).Replace("]", string.Empty);
-                string _query = string.Concat(string.Concat("CREATE TABLE if not exists ", _tableName, " (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, VariableName TEXT NOT NULL, VariableValue TEXT NOT NULL, UpdateDate TEXT NOT NULL, UpdateTime TEXT NOT NULL)"));
+                string _query = string.Concat(string.Concat("DROP TABLE if exists ", _tableName));
                 cnn.Execute(_query);
-
-                IEnumerable<PLCVariableDataModel> output = cnn.Query<PLCVariableDataModel>(string.Concat("SELECT * FROM ", _tableName, " ORDER BY Id DESC LIMIT 1"), new DynamicParameters());
-                
-                if (output.Count() > 0)
-                    return output.First();
-                else
-                    return null;
             }
         }
     }

@@ -58,6 +58,9 @@ namespace METS_DiagnosticTool_Core
                 // Attach Event that PLC Variable Configuration has been Triggered
                 rabbitMQ_Server.PLCVariableConfigurationTriggered += RabbitMQ_Server_PLCVariableConfigurationTriggered;
 
+                // Attach Event that PLC Variable has been Deleted
+                rabbitMQ_Server.PLCVariableDeleted += RabbitMQ_Server_PLCVariableDeleted;
+
                 // Initialuize Twincat
                 twincat_InitializedOK = TwincatHelper.TwincatInitialization(_amsAddress, _amsPort);
 
@@ -70,6 +73,43 @@ namespace METS_DiagnosticTool_Core
                 Logger.Log(Logger.logLevel.Error, "METS Diagnostic Tool Started error", Logger.logEvents.StartedError);
 
             return true;
+        }
+
+        private void RabbitMQ_Server_PLCVariableDeleted(object sender, string e)
+        {
+            // Get from the Message just PLC variable Name
+
+            // Decode given message: XMLFileFullPath$value;VariableAddress$value
+            List<string> _splitMessage = e.Split(';').ToList();
+
+            // Create dictionary
+            Dictionary<string, string> _variableConfiguration = new Dictionary<string, string>();
+            foreach (string _item in _splitMessage)
+            {
+                string[] _config = _item.Split('$').ToArray();
+                if (!_variableConfiguration.ContainsKey(_config[0]))
+                    _variableConfiguration.Add(_config[0], _config[1]);
+            }
+
+            string variableAddress = _variableConfiguration["VariableAddress"];
+
+            // Stop Logging Thread for Selected PLC Variable
+            if (dicCancellationTokens.ContainsKey(variableAddress))
+            {
+                if (dicCancellationTokens[variableAddress] != null)
+                {
+                    // Cancel the Token
+                    dicCancellationTokens[variableAddress].Cancel(true);
+                    dicCancellationTokens[variableAddress].Token.WaitHandle.WaitOne();
+                    dicCancellationTokens[variableAddress].Dispose();
+
+                    // And Remove from Dictionary
+                    dicCancellationTokens.Remove(variableAddress);
+                }
+            }
+
+            // And also Remove the whole Table from SQLite
+            SQLiteHelper.DeleteTable(variableAddress);
         }
 
         private void RabbitMQ_Server_PLCVariableConfigurationTriggered(object sender, string e)
@@ -167,6 +207,7 @@ namespace METS_DiagnosticTool_Core
             if (rabbitMQ_Server != null)
             {
                 rabbitMQ_Server.PLCVariableConfigurationTriggered -= RabbitMQ_Server_PLCVariableConfigurationTriggered;
+                rabbitMQ_Server.PLCVariableDeleted -= RabbitMQ_Server_PLCVariableDeleted;
                 RabbitMQHelper.CloseServerConnection();
             }
 
