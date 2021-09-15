@@ -447,7 +447,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
                                     if (!Pause)
                                     {
-                                        _value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString();
+                                        _value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress).ToString();
                                         LstBoxLiveViewData.Insert(new LiveViewListBoxDataModel { TimeStamp = DateTime.Now, Value = string.IsNullOrEmpty(_value) ? "string.Empty" : _value });
 
                                         Thread.Sleep(_varConfig.pollingRefreshTime);
@@ -461,7 +461,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
 
                                     if (ShowPauseRestart) ShowPauseRestart = false;
 
-                                    _value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true).ToString();
+                                    _value = TwincatHelper.ReadPLCValues(_varConfig.variableAddress).ToString();
 
                                     if (LstBoxLiveViewData.Count > 0)
                                     {
@@ -519,7 +519,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                         if (!string.IsNullOrEmpty(_varConfig.variableAddress))
                         {
                             // Parsing the PLC Variable Type, actually jusdt checking is it Boolean or other Numeric Type
-                            _parsed = double.TryParse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true), out double _result1);
+                            _parsed = double.TryParse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress), out double _result1);
 
                             if (_parsed)
                             {
@@ -534,7 +534,7 @@ namespace METS_DiagnosticTool_UI.UserControls.LiveViewPlot
                                 switch (_symbolType)
                                 {
                                     case TwincatHelper.G_ET_TagType.PLCBooleanAndVBBoolean:
-                                        _trend = bool.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress, true)) ? 1 : 0;
+                                        _trend = bool.Parse(TwincatHelper.ReadPLCValues(_varConfig.variableAddress)) ? 1 : 0;
                                         _boolean = true;
                                         break;
                                     default:

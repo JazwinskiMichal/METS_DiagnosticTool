@@ -15,10 +15,11 @@ namespace METS_DiagnosticTool_Core
     {
         #region Private Fields
         // Threads
-        private static Thread LoggingThread;
-
+        private Thread LoggingThread;
         // Threads Cancellation Tokens
-        private static CancellationTokenSource loggingThread_Work_CancellationToken;
+        private CancellationTokenSource loggingThread_Work_CancellationToken;
+
+        Dictionary<string, CancellationTokenSource> dicCancellationTokens = new Dictionary<string, CancellationTokenSource>();
 
         // Local Input Parameters
         private static string _uiFullPath;
@@ -115,17 +116,28 @@ namespace METS_DiagnosticTool_Core
                         Priority = ThreadPriority.Normal
                     };
                     LoggingThread.Start();
+
+                    // Collect Token to Dictionary
+                    if (!dicCancellationTokens.ContainsKey(variableConfig.variableAddress))
+                        dicCancellationTokens.Add(variableConfig.variableAddress, loggingThread_Work_CancellationToken);
                 }
                 else
                 {
                     //Logger.Log(Logger.logLevel.Warning, string.Concat("Received Trigger FALSE, trying to stop Logging PLC Variable ", variableConfig.variableAddress), Logger.logEvents.Blank);
 
                     // Stop Logging Thread
-                    if (loggingThread_Work_CancellationToken != null)
+                    if(dicCancellationTokens.ContainsKey(variableConfig.variableAddress))
                     {
-                        loggingThread_Work_CancellationToken.Cancel(true);
-                        loggingThread_Work_CancellationToken.Token.WaitHandle.WaitOne();
-                        loggingThread_Work_CancellationToken.Dispose();
+                        if(dicCancellationTokens[variableConfig.variableAddress] != null)
+                        {
+                            // Cancel the Token
+                            dicCancellationTokens[variableConfig.variableAddress].Cancel(true);
+                            dicCancellationTokens[variableConfig.variableAddress].Token.WaitHandle.WaitOne();
+                            dicCancellationTokens[variableConfig.variableAddress].Dispose();
+
+                            // And Remove from Dictionary
+                            dicCancellationTokens.Remove(variableConfig.variableAddress);
+                        }
                     }
                 }
             }
@@ -134,11 +146,18 @@ namespace METS_DiagnosticTool_Core
                 //Logger.Log(Logger.logLevel.Warning, string.Concat("Received Trigger FALSE, trying to stop Logging PLC Variable ", variableConfig.variableAddress), Logger.logEvents.Blank);
 
                 // Stop Logging Thread
-                if (loggingThread_Work_CancellationToken != null)
+                if (dicCancellationTokens.ContainsKey(variableConfig.variableAddress))
                 {
-                    loggingThread_Work_CancellationToken.Cancel(true);
-                    loggingThread_Work_CancellationToken.Token.WaitHandle.WaitOne();
-                    loggingThread_Work_CancellationToken.Dispose();
+                    if (dicCancellationTokens[variableConfig.variableAddress] != null)
+                    {
+                        // Cancel the Token
+                        dicCancellationTokens[variableConfig.variableAddress].Cancel(true);
+                        dicCancellationTokens[variableConfig.variableAddress].Token.WaitHandle.WaitOne();
+                        dicCancellationTokens[variableConfig.variableAddress].Dispose();
+
+                        // And Remove from Dictionary
+                        dicCancellationTokens.Remove(variableConfig.variableAddress);
+                    }
                 }
             }
         }
@@ -150,6 +169,21 @@ namespace METS_DiagnosticTool_Core
                 rabbitMQ_Server.PLCVariableConfigurationTriggered -= RabbitMQ_Server_PLCVariableConfigurationTriggered;
                 RabbitMQHelper.CloseServerConnection();
             }
+
+            // Dispose Logging
+            foreach (CancellationTokenSource cts in dicCancellationTokens.Values)
+            {
+                if (cts != null)
+                {
+                    // Cancel the Token
+                    cts.Cancel(true);
+                    cts.Token.WaitHandle.WaitOne();
+                    cts.Dispose();
+                }
+            }
+
+            // And Clear the Dictionary
+            dicCancellationTokens.Clear();
 
             if (twincat_InitializedOK)
                 TwincatHelper.Dispose();
@@ -171,7 +205,6 @@ namespace METS_DiagnosticTool_Core
                 Logger.Log(Logger.logLevel.Information, string.Concat("Logging started for PLC Variable ", variableConfig.variableAddress, " with Logging Configuration", Environment.NewLine,
                                                                         "Logging Type ", variableConfig.loggingType == LoggingType.Polling ? string.Concat("Polling with Refresh Time ", variableConfig.pollingRefreshTime.ToString(),"ms") : "On Change"),
                                                                         Logger.logEvents.LoggingStoppedForAVariable);
-
                 while (true)
                 {
                     cancelToken.ThrowIfCancellationRequested();
@@ -180,43 +213,58 @@ namespace METS_DiagnosticTool_Core
                     switch (variableConfig.loggingType)
                     {
                         case LoggingType.Polling:
+                            if (!cancelToken.IsCancellationRequested)
+                            {
+                                _value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress).ToString();
 
-                            _value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress, true).ToString();
+                                // And do the logging to the SQLite
+                                if (!string.IsNullOrEmpty(_value))
+                                    SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
 
-                            // And do the logging to the SQLite
-                            SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = string.IsNullOrEmpty(_value) ? "string.Empty" : _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
+                                Task.Delay(variableConfig.pollingRefreshTime).Wait();
+                            }
 
-                            Task.Delay(variableConfig.pollingRefreshTime).Wait();
                             break;
 
                         case LoggingType.OnChange:
-
-                            _value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress, true).ToString();
-
-                            PLCVariableDataModel _lastValueModel = SQLiteHelper.GetLastRow(variableConfig.variableAddress);
-
-                            if (_lastValueModel != null)
+                            if (!cancelToken.IsCancellationRequested)
                             {
-                                string _lastValue = _lastValueModel.VariableValue;
+                                _value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress).ToString();
 
-                                if (_value != _lastValue && !string.IsNullOrEmpty(_value) && !string.IsNullOrEmpty(_lastValue))
+                                PLCVariableDataModel _lastValueModel = SQLiteHelper.GetLastRow(variableConfig.variableAddress);
+
+                                if (_lastValueModel != null)
                                 {
-                                    SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = string.IsNullOrEmpty(_value) ? "string.Empty" : _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
-                                    bLock = false;
-                                }
-                                else if (string.IsNullOrEmpty(_value) || string.IsNullOrEmpty(_lastValue))
-                                {
-                                    // If String empty insert it only once
-                                    if (!bLock)
+                                    string _lastValue = _lastValueModel.VariableValue;
+
+                                    if (_value != _lastValue && !string.IsNullOrEmpty(_value) && !string.IsNullOrEmpty(_lastValue))
                                     {
-                                        SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = string.IsNullOrEmpty(_value) ? "string.Empty" : _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
-                                        bLock = true;
+                                        if (!string.IsNullOrEmpty(_value))
+                                        {
+                                            SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
+                                            bLock = false;
+                                        }
+                                    }
+                                    else if (string.IsNullOrEmpty(_value) || string.IsNullOrEmpty(_lastValue))
+                                    {
+                                        // If String empty insert it only once
+                                        if (!bLock)
+                                        {
+                                            if (!string.IsNullOrEmpty(_value))
+                                            {
+                                                SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
+                                                bLock = true;
+                                            }
+                                        }
                                     }
                                 }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(_value))
+                                        SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
+                                }
                             }
-                            else
-                                SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = string.IsNullOrEmpty(_value) ? "string.Empty" : _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
-
+                                
                             break;
 
                         default:

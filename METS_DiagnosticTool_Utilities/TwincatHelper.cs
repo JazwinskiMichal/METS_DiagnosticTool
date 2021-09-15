@@ -287,7 +287,7 @@ namespace METS_DiagnosticTool_Utilities
             return _return;
         }
 
-        public static string ReadPLCValues(string i_sTagName, bool autodetectionOfPLCVarType = false, G_ET_TagType i_eTagType = G_ET_TagType.None)
+        public static string ReadPLCValues(string i_sTagName)
         {
             string _return = string.Empty;
 
@@ -297,110 +297,74 @@ namespace METS_DiagnosticTool_Utilities
                 {
                     int iVarHandle = 0;
 
-                    if (autodetectionOfPLCVarType)
+                    switch (GetSymbolType(i_sTagName))
                     {
-                        switch (GetSymbolType(i_sTagName))
-                        {
-                            case G_ET_TagType.PLCFloatAndVBSingle:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(float), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCBooleanAndVBBoolean:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(bool), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCDwordAndVBUint:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(uint), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCIntegerAndVBShort:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(short), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCString:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(string), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCDintAndVBInt:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(int), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCLRealAndVBDouble:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(double), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCUIntegerAndVBUShort:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(ushort), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCTime:
-                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
-                                _return = tcClient.ReadAny(iVarHandle, typeof(TIME)).ToString();
-                                _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
-                                tcClient.DeleteVariableHandle(iVarHandle);
-                                break;
-                            case G_ET_TagType.PLCDate:
-                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
-                                _return = tcClient.ReadAny(iVarHandle, typeof(DATE)).ToString();
-                                _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
-                                tcClient.DeleteVariableHandle(iVarHandle);
-                                break;
-                            case G_ET_TagType.PLCDT:
-                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
-                                _return = tcClient.ReadAny(iVarHandle, typeof(DT)).ToString();
-                                _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
-                                tcClient.DeleteVariableHandle(iVarHandle);
-                                break;
-                            case G_ET_TagType.PLCTOD:
-                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
-                                _return = tcClient.ReadAny(iVarHandle, typeof(TOD)).ToString();
-                                _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
-                                tcClient.DeleteVariableHandle(iVarHandle);
-                                break;
-                            case G_ET_TagType.PLCEnum:
-                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
-                                _return = tcClient.ReadAny(iVarHandle, typeof(short)).ToString();
-                                tcClient.DeleteVariableHandle(iVarHandle);
-                                break;
-                            case G_ET_TagType.PLCByte:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(byte), false).ToString();
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        switch (i_eTagType)
-                        {
-                            case G_ET_TagType.PLCFloatAndVBSingle:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(float), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCBooleanAndVBBoolean:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(bool), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCDwordAndVBUint:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(uint), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCIntegerAndVBShort:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(short), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCString:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(string), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCDintAndVBInt:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(int), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCLRealAndVBDouble:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(double), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCUIntegerAndVBUShort:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(ushort), false).ToString();
-                                break;
-                            case G_ET_TagType.PLCTime:
-                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
-                                _return = tcClient.ReadAny(iVarHandle, typeof(uint)).ToString();
-                                tcClient.DeleteVariableHandle(iVarHandle);
-                                break;
-                            case G_ET_TagType.PLCEnum:
-                                iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
-                                _return = tcClient.ReadAny(iVarHandle, typeof(short)).ToString();
-                                tcClient.DeleteVariableHandle(iVarHandle);
-                                break;
-                            case G_ET_TagType.PLCByte:
-                                _return = tcClient.ReadSymbol(i_sTagName, typeof(byte), false).ToString();
-                                break;
-                        }
+                        case G_ET_TagType.PLCFloatAndVBSingle:
+                            _return = tcClient.ReadSymbol(i_sTagName, typeof(float), false).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            break;
+                        case G_ET_TagType.PLCBooleanAndVBBoolean:
+                            _return = tcClient.ReadSymbol(i_sTagName, typeof(bool), false).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? false.ToString() : _return;
+                            break;
+                        case G_ET_TagType.PLCDwordAndVBUint:
+                            _return = tcClient.ReadSymbol(i_sTagName, typeof(uint), false).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            break;
+                        case G_ET_TagType.PLCIntegerAndVBShort:
+                            _return = tcClient.ReadSymbol(i_sTagName, typeof(short), false).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            break;
+                        case G_ET_TagType.PLCString:
+                            _return = tcClient.ReadSymbol(i_sTagName, typeof(string), false).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? "string.Empty" : _return;
+                            break;
+                        case G_ET_TagType.PLCDintAndVBInt:
+                            _return = tcClient.ReadSymbol(i_sTagName, typeof(int), false).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            break;
+                        case G_ET_TagType.PLCLRealAndVBDouble:
+                            _return = tcClient.ReadSymbol(i_sTagName, typeof(double), false).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            break;
+                        case G_ET_TagType.PLCUIntegerAndVBUShort:
+                            _return = tcClient.ReadSymbol(i_sTagName, typeof(ushort), false).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            break;
+                        case G_ET_TagType.PLCTime:
+                            iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
+                            _return = tcClient.ReadAny(iVarHandle, typeof(TIME)).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            tcClient.DeleteVariableHandle(iVarHandle);
+                            break;
+                        case G_ET_TagType.PLCDate:
+                            iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
+                            _return = tcClient.ReadAny(iVarHandle, typeof(DATE)).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            tcClient.DeleteVariableHandle(iVarHandle);
+                            break;
+                        case G_ET_TagType.PLCDT:
+                            iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
+                            _return = tcClient.ReadAny(iVarHandle, typeof(DT)).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            tcClient.DeleteVariableHandle(iVarHandle);
+                            break;
+                        case G_ET_TagType.PLCTOD:
+                            iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
+                            _return = tcClient.ReadAny(iVarHandle, typeof(TOD)).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            tcClient.DeleteVariableHandle(iVarHandle);
+                            break;
+                        case G_ET_TagType.PLCEnum:
+                            iVarHandle = tcClient.CreateVariableHandle(i_sTagName);
+                            _return = tcClient.ReadAny(iVarHandle, typeof(short)).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            tcClient.DeleteVariableHandle(iVarHandle);
+                            break;
+                        case G_ET_TagType.PLCByte:
+                            _return = tcClient.ReadSymbol(i_sTagName, typeof(byte), false).ToString();
+                            _return = string.IsNullOrEmpty(_return) ? 0.ToString() : _return;
+                            break;
                     }
                 }
                 //catch (AdsException ex1)

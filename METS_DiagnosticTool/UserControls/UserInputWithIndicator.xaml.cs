@@ -255,16 +255,17 @@ namespace METS_DiagnosticTool_UI.UserControls
 
         public async void StartLogging()
         {
-            //Logger.Log(Logger.logLevel.Warning, string.Concat("Trying to start Logging for ", input.Text, " with bRecordingActive ", bRecordingActive.ToString()), Logger.logEvents.Blank);
-
             // Send Trigger to Core about PLC Variable that has been saved
-            Task<string> _triggerPLCVaribaleConfiguration = RabbitMQHelper.SendToServer_TriggerPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
+            if(!string.IsNullOrEmpty(input.Text) && input.Text != inputPlaceHolderText && bRecordingActive)
+            {
+                Task<string> _triggerPLCVaribaleConfiguration = RabbitMQHelper.SendToServer_TriggerPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
                                                                                                             input.Text,
                                                                                                             true,
                                                                                                             bOnChangeActive ? VariableConfigurationHelper.LoggingType.OnChange : VariableConfigurationHelper.LoggingType.Polling,
                                                                                                             string.IsNullOrEmpty(refreshTimeInput.Text) ? 0 : int.Parse(refreshTimeInput.Text),
-                                                                                                            bRecordingActive);
-            await _triggerPLCVaribaleConfiguration;
+                                                                                                            true);
+                await _triggerPLCVaribaleConfiguration;
+            }
         }
         #endregion
 
