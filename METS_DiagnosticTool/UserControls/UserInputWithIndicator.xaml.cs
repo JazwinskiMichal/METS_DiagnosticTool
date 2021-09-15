@@ -27,8 +27,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         #endregion
 
         #region Private Fields
-        // PlaceHolder Text
-        private const string inputPlaceHolderText = "Enter PLC Variable Address here...";
+        private string lastPLCVariableAddress = string.Empty;
 
         // Storyboards Names
         private const string indicatorOK_Pop = "indicatorOK_Pop";
@@ -244,10 +243,10 @@ namespace METS_DiagnosticTool_UI.UserControls
         public void TakeFocusAway()
         {
             // When lost Focus and Input Field has been left empty, then put placeholder Text again
-            if (string.IsNullOrEmpty(input.Text) || input.Text == inputPlaceHolderText)
+            if (string.IsNullOrEmpty(input.Text) || input.Text == VariableConfigurationHelper.inputPlaceHolderText)
             {
                 input.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-                input.Text = inputPlaceHolderText;
+                input.Text = VariableConfigurationHelper.inputPlaceHolderText;
             }
 
             Keyboard.ClearFocus();
@@ -256,7 +255,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         public async void StartLogging()
         {
             // Send Trigger to Core about PLC Variable that has been saved
-            if(!string.IsNullOrEmpty(input.Text) && input.Text != inputPlaceHolderText && bRecordingActive)
+            if(!string.IsNullOrEmpty(input.Text) && input.Text != VariableConfigurationHelper.inputPlaceHolderText && bRecordingActive)
             {
                 Task<string> _triggerPLCVaribaleConfiguration = RabbitMQHelper.SendToServer_TriggerPLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.triggerPLCVarConfig],
                                                                                                             input.Text,
@@ -375,7 +374,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         private async void labelYES_MouseDown(object sender, MouseButtonEventArgs e)
         {
             // Delete Variable Config from XML FIle
-            if(input.Text != inputPlaceHolderText && !string.IsNullOrEmpty(input.Text))
+            if(input.Text != VariableConfigurationHelper.inputPlaceHolderText && !string.IsNullOrEmpty(input.Text))
             {
                 Task<string> _deletePLCVariableConfig = RabbitMQHelper.SendToServer_DeletePLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.deleteVarConfig],
                                                                                                    string.Concat("XMLFileFullPath$", string.Concat(corePath, @"\XML\VariablesConfiguration.xml"),
@@ -459,7 +458,7 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void input_GotFocus(object sender, RoutedEventArgs e)
         {
             // When got Focus clear Placeholder text and change Font Color
-            if (input.Text == inputPlaceHolderText)
+            if (input.Text == VariableConfigurationHelper.inputPlaceHolderText)
             {
                 input.Text = string.Empty;
                 input.Foreground = Brushes.White;
@@ -471,10 +470,10 @@ namespace METS_DiagnosticTool_UI.UserControls
         private void input_LostFocus(object sender, RoutedEventArgs e)
         {
             // When lost Focus and Input Field has been left empty, then put placeholder Text again
-            if (string.IsNullOrEmpty(input.Text) || input.Text == inputPlaceHolderText)
+            if (string.IsNullOrEmpty(input.Text) || input.Text == VariableConfigurationHelper.inputPlaceHolderText)
             {
                 input.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(defaultGrayColor));
-                input.Text = inputPlaceHolderText;
+                input.Text = VariableConfigurationHelper.inputPlaceHolderText;
             }
 
             variableAddressInputGotFocus = false;
@@ -485,42 +484,53 @@ namespace METS_DiagnosticTool_UI.UserControls
         {
             // Check provided PLC Variable address if it can be found among all PLC variables show OK,
             // if it cant be find show NOK
-            bool _duplicate = false;
-
             if (!string.IsNullOrEmpty(input.Text))
             {
-                // First check has the variable been already declared or not
-                Task<string> _checkDoesPLCVarConfigUsed = RabbitMQHelper.SendToServer_CheckDoesPLCVarConfigUsed(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkDoesPLCVarConfigUsed], input.Text);
-                await _checkDoesPLCVarConfigUsed;
-
-                if (_checkDoesPLCVarConfigUsed.Result == true.ToString())
-                    _duplicate = true;
-
                 // Check Existance of the PLC Variable
                 Task<string> _checkGivenPLCAddress = RabbitMQHelper.SendToServer_CheckPLCVarExistance(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkPLCVarExistance], input.Text);
                 await _checkGivenPLCAddress;
 
-                if (_checkGivenPLCAddress.Result == true.ToString() && !_duplicate)
+                if (_checkGivenPLCAddress.Result == true.ToString())
                 {
-                    if (!bOKPopCompleted)
+                    // First check has the variable been already declared or not
+                    Task<string> _checkDoesPLCVarConfigUsed = RabbitMQHelper.SendToServer_CheckDoesPLCVarConfigUsed(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.checkDoesPLCVarConfigUsed], input.Text);
+                    await _checkDoesPLCVarConfigUsed;
+
+                    if (!bOKPopCompleted && _checkDoesPLCVarConfigUsed.Result != true.ToString())
                     {
                         ((Storyboard)Resources[indicatorOK_Pop]).Begin();
                         bOKPopCompleted = true;
 
                         // Show Configuration Enabled Button
                         BringToFrontAndSendOtherBack(configurationButtons, configurationEnabled);
+
+                        lastPLCVariableAddress = input.Text;
                     }
                 }
-                else if (input.Text != inputPlaceHolderText)
+                else if (input.Text != VariableConfigurationHelper.inputPlaceHolderText)
                 {
                     if (variableAddressInputGotFocus)
                         InputVariableNotFound();
+
+                    if (!string.IsNullOrEmpty(lastPLCVariableAddress))
+                    {
+                        Task<string> _removeNotSavedButCorrectPLCVariable = RabbitMQHelper.SendToServer_DeletePLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.removeNotSavedButCorrectPLCVariable], lastPLCVariableAddress);
+                        await _removeNotSavedButCorrectPLCVariable;
+                        lastPLCVariableAddress = string.Empty;
+                    }
                 }
             }
             else
             {
                 if (variableAddressInputGotFocus)
                     InputVariableNotFound();
+
+                if (!string.IsNullOrEmpty(lastPLCVariableAddress))
+                {
+                    Task<string> _removeNotSavedButCorrectPLCVariable = RabbitMQHelper.SendToServer_DeletePLCVarConfig(RabbitMQHelper.RoutingKeys[(int)RabbitMQHelper.RoutingKeysDictionary.removeNotSavedButCorrectPLCVariable], lastPLCVariableAddress);
+                    await _removeNotSavedButCorrectPLCVariable;
+                    lastPLCVariableAddress = string.Empty;
+                }
             }
         }
         #endregion

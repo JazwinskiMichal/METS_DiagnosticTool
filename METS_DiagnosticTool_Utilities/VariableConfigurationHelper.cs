@@ -17,6 +17,8 @@ namespace METS_DiagnosticTool_Utilities
         #endregion
 
         #region Public Fields
+        public const string inputPlaceHolderText = "Enter PLC Variable Address here...";
+
         public struct VariableConfig
         {
             [XmlElement("VariableAddress")]
@@ -249,20 +251,44 @@ namespace METS_DiagnosticTool_Utilities
                 Logger.Log(Logger.logLevel.Error, string.Concat("Save Variable Configuration error when deleting a Variable ", ex.ToString()), Logger.logEvents.SaveVariableConfigurationError);
             }
 
-
             return _return;
         }
 
         public static bool CheckDoesThePLCVariableBeenUsed(string variableAddress)
         {
             // Method to check does the PLC Variable been already used in the UI. For ex. declaring the same variable again.
-
             bool _return = false;
 
             if (UsedPLCVariables.Contains(variableAddress))
+            {
                 _return = true;
+
+                //Logger.Log(Logger.logLevel.Warning, string.Concat(variableAddress, " already exists in the Used Variables"), Logger.logEvents.Blank);
+            }
             else
-                UsedPLCVariables.Add(variableAddress);
+            {
+                if (variableAddress != inputPlaceHolderText)
+                {
+                    UsedPLCVariables.Add(variableAddress);
+                    //Logger.Log(Logger.logLevel.Warning, string.Concat("Just added to global List of used Variables ", variableAddress), Logger.logEvents.Blank);
+                }
+            }
+
+            return _return;
+        }
+
+        public static bool RemoveNotSavedPLCVariable(string variableAddress)
+        {
+            bool _return = false;
+
+            if (UsedPLCVariables.Contains(variableAddress))
+            {
+                UsedPLCVariables.Remove(variableAddress);
+
+                //Logger.Log(Logger.logLevel.Warning, string.Concat("Removed not Saved PLC Variabel ", variableAddress), Logger.logEvents.Blank);
+
+                _return = true;
+            }
 
             return _return;
         }

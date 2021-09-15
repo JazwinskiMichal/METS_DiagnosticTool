@@ -21,7 +21,8 @@ namespace METS_DiagnosticTool_Utilities
             plcVarConfigsSave = 2,
             deleteVarConfig = 3,
             checkDoesPLCVarConfigUsed = 4,
-            triggerPLCVarConfig = 5
+            triggerPLCVarConfig = 5,
+            removeNotSavedButCorrectPLCVariable = 6
         }
 
         internal const string checkPLCVarExistance = "checkPLCVarExistance";
@@ -30,8 +31,9 @@ namespace METS_DiagnosticTool_Utilities
         internal const string deleteVarConfig = "deleteVarConfig";
         internal const string checkDoesPLCVarConfigUsed = "checkDoesPLCVarConfigUsed";
         internal const string triggerPLCVarConfig = "triggerPLCVarConfig";
+        internal const string removeNotSavedButCorrectPLCVariable = "removeNotSavedButCorrectPLCVariable";
 
-        public static string[] RoutingKeys = new string[] { checkPLCVarExistance, plcVarConfigsRead, plcVarConfigSave , deleteVarConfig, checkDoesPLCVarConfigUsed, triggerPLCVarConfig};
+        public static string[] RoutingKeys = new string[] { checkPLCVarExistance, plcVarConfigsRead, plcVarConfigSave , deleteVarConfig, checkDoesPLCVarConfigUsed, triggerPLCVarConfig, removeNotSavedButCorrectPLCVariable };
 
         public static RpcServer _rpcServer;
         private static RpcClient _rpcClient;
@@ -293,6 +295,10 @@ namespace METS_DiagnosticTool_Utilities
                             PLCVariableConfigurationTriggered?.Invoke(this, message);
                             // Here it's possible to add confirmation to Client did the Server received Configuration correctly or not
                             response = true.ToString();
+                            break;
+
+                        case RabbitMQHelper.removeNotSavedButCorrectPLCVariable:
+                            response = RemoveNotSavedPLCVariable(message).ToString();
                             break;
 
                         default:

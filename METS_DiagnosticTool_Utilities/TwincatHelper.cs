@@ -175,9 +175,20 @@ namespace METS_DiagnosticTool_Utilities
         public static bool CheckPLCVariableExistance(string i_sTagName)
         {
             bool _return = false;
-
-            if (tcClient.ReadSymbolInfo(i_sTagName) != null)
-                _return = true;
+            ITcAdsSymbol5 _symbolInfo = null;
+            try
+            {
+                _symbolInfo = (ITcAdsSymbol5)tcClient.ReadSymbolInfo(i_sTagName);
+            }
+            catch (Exception)
+            {
+                
+            }
+            finally
+            {
+                if (_symbolInfo != null && _symbolInfo.DataType.IsPrimitive)
+                    _return = true;
+            }
 
             return _return;
         }
