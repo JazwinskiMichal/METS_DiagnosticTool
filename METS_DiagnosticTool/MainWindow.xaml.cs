@@ -209,7 +209,7 @@ namespace METS_DiagnosticTool_UI
                                 }
                             }
 
-                            if (_localDictionary != null)
+                            if (_localDictionary.Count > 0)
                             {
                                 foreach (KeyValuePair<string, VariableConfig> _variableConfig in _localDictionary)
                                 {

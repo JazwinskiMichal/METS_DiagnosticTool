@@ -87,13 +87,20 @@ namespace METS_DiagnosticTool_Utilities
 
             if (_localDictionary != null)
             {
-                // Encode Variable Config in Single string
-                foreach (KeyValuePair<string, VariableConfig> _variableConfig in _localDictionary)
+                if (_localDictionary.Count > 0)
                 {
-                    _return += string.Concat("#VariableAddress$", _variableConfig.Value.variableAddress, ";PollingRefreshTime$", _variableConfig.Value.pollingRefreshTime.ToString(),
-                                              ";Recording$", _variableConfig.Value.recording.ToString(), ";LoggingType$", _variableConfig.Value.loggingType.ToString());
+                    // Encode Variable Config in Single string
+                    foreach (KeyValuePair<string, VariableConfig> _variableConfig in _localDictionary)
+                    {
+                        _return += string.Concat("#VariableAddress$", _variableConfig.Value.variableAddress, ";PollingRefreshTime$", _variableConfig.Value.pollingRefreshTime.ToString(),
+                                                  ";Recording$", _variableConfig.Value.recording.ToString(), ";LoggingType$", _variableConfig.Value.loggingType.ToString());
+                    }
                 }
+                else
+                    _return = variableConfigNotFound;
             }
+            else
+                _return = variableConfigNotFound;
 
             return _return;
         }
