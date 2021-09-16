@@ -164,117 +164,156 @@ namespace METS_DiagnosticTool_UI
                 {
                     if (!string.IsNullOrEmpty(configurationString))
                     {
-                        // Decode given Variable Configuration string to VariableConfig
-                        List<string> _splitVariables = configurationString.Split('#').ToList();
-
-                        // Create dictionary
-                        _localDictionary = new Dictionary<string, VariableConfig>();
-
-                        // DECODE HERE GIVEN LONG STRING OF VARIABLES CONFIGURATION AND SAVE IT TO _localDictionary, so later it could be used to inject data to each User Control
-                        // Message is going to be given in format #VariableAddress$value;PollingRefreshTime$value... etc
-                        foreach (string _variable in _splitVariables)
+                        if(configurationString != variableConfigNotFound)
                         {
-                            if (_variable.Contains(";"))
+                            // Decode given Variable Configuration string to VariableConfig
+                            List<string> _splitVariables = configurationString.Split('#').ToList();
+
+                            // Create dictionary
+                            _localDictionary = new Dictionary<string, VariableConfig>();
+
+                            // DECODE HERE GIVEN LONG STRING OF VARIABLES CONFIGURATION AND SAVE IT TO _localDictionary, so later it could be used to inject data to each User Control
+                            // Message is going to be given in format #VariableAddress$value;PollingRefreshTime$value... etc
+                            foreach (string _variable in _splitVariables)
                             {
-                                VariableConfig _localVariableConfig = new VariableConfig();
-
-                                List<string> _splitVariablesValues = _variable.Split(';').ToList();
-
-                                string _variableConfigurationKey = string.Empty;
-
-                                foreach (string _variableValue in _splitVariablesValues)
+                                if (_variable.Contains(";"))
                                 {
-                                    string[] _config = _variableValue.Split('$').ToArray();
+                                    VariableConfig _localVariableConfig = new VariableConfig();
 
-                                    // First check does the Dictionary already containt a Key
-                                    if (_config[0] == "VariableAddress")
-                                    {
-                                        _variableConfigurationKey = _config[1];
-                                        _localVariableConfig.variableAddress = _config[1];
-                                    }
-                                    else if (_config[0] == "PollingRefreshTime")
-                                        _localVariableConfig.pollingRefreshTime = int.Parse(_config[1]);
-                                    else if (_config[0] == "Recording")
-                                        _localVariableConfig.recording = bool.Parse(_config[1]);
-                                    else if (_config[0] == "LoggingType")
-                                    {
-                                        bool loggingTypeParsed = Enum.TryParse(_config[1], out LoggingType _loggingType);
-                                        _localVariableConfig.loggingType = loggingTypeParsed ? _loggingType : LoggingType.OnChange;
-                                    }
+                                    List<string> _splitVariablesValues = _variable.Split(';').ToList();
 
-                                    Utility.SafeUpdateKeyInDictionary(_localDictionary, _variableConfigurationKey, _localVariableConfig);
+                                    string _variableConfigurationKey = string.Empty;
+
+                                    foreach (string _variableValue in _splitVariablesValues)
+                                    {
+                                        string[] _config = _variableValue.Split('$').ToArray();
+
+                                        // First check does the Dictionary already containt a Key
+                                        if (_config[0] == "VariableAddress")
+                                        {
+                                            _variableConfigurationKey = _config[1];
+                                            _localVariableConfig.variableAddress = _config[1];
+                                        }
+                                        else if (_config[0] == "PollingRefreshTime")
+                                            _localVariableConfig.pollingRefreshTime = int.Parse(_config[1]);
+                                        else if (_config[0] == "Recording")
+                                            _localVariableConfig.recording = bool.Parse(_config[1]);
+                                        else if (_config[0] == "LoggingType")
+                                        {
+                                            bool loggingTypeParsed = Enum.TryParse(_config[1], out LoggingType _loggingType);
+                                            _localVariableConfig.loggingType = loggingTypeParsed ? _loggingType : LoggingType.OnChange;
+                                        }
+
+                                        Utility.SafeUpdateKeyInDictionary(_localDictionary, _variableConfigurationKey, _localVariableConfig);
+                                    }
                                 }
                             }
-                        }
 
-                        if (_localDictionary != null)
-                        {
-                            foreach (KeyValuePair<string, VariableConfig> _variableConfig in _localDictionary)
+                            if (_localDictionary != null)
                             {
-                                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                                foreach (KeyValuePair<string, VariableConfig> _variableConfig in _localDictionary)
                                 {
-                                    // Initialize First Row
-                                    UserControls.UserInputWithIndicator _localRow = new UserControls.UserInputWithIndicator(_variableConfig.Value);
+                                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                                    {
+                                        // Initialize First Row
+                                        UserControls.UserInputWithIndicator _localRow = new UserControls.UserInputWithIndicator(_variableConfig.Value);
 
-                                    // Inject Twincat Infromation for Live View Mode
-                                    _localRow.ADSIp = _adsIp;
-                                    _localRow.ADSPort = _adsPort;
+                                        // Inject Twincat Infromation for Live View Mode
+                                        _localRow.ADSIp = _adsIp;
+                                        _localRow.ADSPort = _adsPort;
 
-                                    // Inject information about Core full Path
-                                    _localRow.corePath = _corePath;
+                                        // Inject information about Core full Path
+                                        _localRow.corePath = _corePath;
 
-                                    // Attach Events
-                                    _localRow.AddNewVariableClicked += Label1_AddNewVariableClicked;
-                                    _localRow.DeleteVariableClicked += Label1_DeleteVariableClicked;
+                                        // Attach Events
+                                        _localRow.AddNewVariableClicked += Label1_AddNewVariableClicked;
+                                        _localRow.DeleteVariableClicked += Label1_DeleteVariableClicked;
 
-                                    // Add row to the Grid for the Control
-                                    RowDefinition rowDefinition = new RowDefinition();
-                                    rowDefinition.Height = new GridLength(0, GridUnitType.Auto);
-                                    mainGrid.RowDefinitions.Add(rowDefinition);
+                                        // Add row to the Grid for the Control
+                                        RowDefinition rowDefinition = new RowDefinition();
+                                        rowDefinition.Height = new GridLength(0, GridUnitType.Auto);
+                                        mainGrid.RowDefinitions.Add(rowDefinition);
 
-                                    // Set row position of the Control
-                                    Grid.SetRow(_localRow, _rowCount);
+                                        // Set row position of the Control
+                                        Grid.SetRow(_localRow, _rowCount);
 
-                                    // Add Control to the Grid
-                                    mainGrid.Children.Add(_localRow);
+                                        // Add Control to the Grid
+                                        mainGrid.Children.Add(_localRow);
 
-                                    _rowCount++;
-                                }));
+                                        _rowCount++;
+                                    }));
+                                }
                             }
+
+                            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                            {
+                                // At the end add one Row to Manually Add Variable
+                                VariableConfig _emmptyVariableConfig = new VariableConfig();
+                                UserControls.UserInputWithIndicator _localRow1 = new UserControls.UserInputWithIndicator(_emmptyVariableConfig);
+
+                                // Inject Twincat Infromation for Live View Mode
+                                _localRow1.ADSIp = _adsIp;
+                                _localRow1.ADSPort = _adsPort;
+
+                                // Inject information about Core full Path
+                                _localRow1.corePath = _corePath;
+
+                                // Attach Events
+                                _localRow1.AddNewVariableClicked += Label1_AddNewVariableClicked;
+                                _localRow1.DeleteVariableClicked += Label1_DeleteVariableClicked;
+
+                                // Add row to the Grid for the Control
+                                RowDefinition rowDefinitionLastRow = new RowDefinition();
+                                rowDefinitionLastRow.Height = new GridLength(0, GridUnitType.Auto);
+                                mainGrid.RowDefinitions.Add(rowDefinitionLastRow);
+
+                                // Set row position of the Control
+                                Grid.SetRow(_localRow1, _rowCount);
+
+                                // Add Control to the Grid
+                                mainGrid.Children.Add(_localRow1);
+
+                                //scrollViewer.ScrollToEnd();
+
+                                _rowCount++;
+                            }));
                         }
-
-                        Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                        else
                         {
-                            // At the end add one Row to Manually Add Variable
-                            VariableConfig _emmptyVariableConfig = new VariableConfig();
-                            UserControls.UserInputWithIndicator _localRow1 = new UserControls.UserInputWithIndicator(_emmptyVariableConfig);
+                            // Add just Add New PLC Variable Row
+                            Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new ThreadStart(delegate
+                            {
+                                // At the end add one Row to Manually Add Variable
+                                VariableConfig _emmptyVariableConfig = new VariableConfig();
+                                UserControls.UserInputWithIndicator _localRow1 = new UserControls.UserInputWithIndicator(_emmptyVariableConfig);
 
-                            // Inject Twincat Infromation for Live View Mode
-                            _localRow1.ADSIp = _adsIp;
-                            _localRow1.ADSPort = _adsPort;
+                                // Inject Twincat Infromation for Live View Mode
+                                _localRow1.ADSIp = _adsIp;
+                                _localRow1.ADSPort = _adsPort;
 
-                            // Inject information about Core full Path
-                            _localRow1.corePath = _corePath;
+                                // Inject information about Core full Path
+                                _localRow1.corePath = _corePath;
 
-                            // Attach Events
-                            _localRow1.AddNewVariableClicked += Label1_AddNewVariableClicked;
-                            _localRow1.DeleteVariableClicked += Label1_DeleteVariableClicked;
+                                // Attach Events
+                                _localRow1.AddNewVariableClicked += Label1_AddNewVariableClicked;
+                                _localRow1.DeleteVariableClicked += Label1_DeleteVariableClicked;
 
-                            // Add row to the Grid for the Control
-                            RowDefinition rowDefinitionLastRow = new RowDefinition();
-                            rowDefinitionLastRow.Height = new GridLength(0, GridUnitType.Auto);
-                            mainGrid.RowDefinitions.Add(rowDefinitionLastRow);
+                                // Add row to the Grid for the Control
+                                RowDefinition rowDefinitionLastRow = new RowDefinition();
+                                rowDefinitionLastRow.Height = new GridLength(0, GridUnitType.Auto);
+                                mainGrid.RowDefinitions.Add(rowDefinitionLastRow);
 
-                            // Set row position of the Control
-                            Grid.SetRow(_localRow1, _rowCount);
+                                // Set row position of the Control
+                                Grid.SetRow(_localRow1, _rowCount);
 
-                            // Add Control to the Grid
-                            mainGrid.Children.Add(_localRow1);
+                                // Add Control to the Grid
+                                mainGrid.Children.Add(_localRow1);
 
-                            //scrollViewer.ScrollToEnd();
+                                //scrollViewer.ScrollToEnd();
 
-                            _rowCount++;
-                        }));
+                                _rowCount++;
+                            }));
+                        }
                     }
                 }
                 catch (Exception ex)

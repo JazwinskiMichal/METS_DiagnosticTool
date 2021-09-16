@@ -18,6 +18,7 @@ namespace METS_DiagnosticTool_Utilities
 
         #region Public Fields
         public const string inputPlaceHolderText = "Enter PLC Variable Address here...";
+        public const string variableConfigNotFound = "variableConfigXMLFileNotFound";
 
         public struct VariableConfig
         {
@@ -70,6 +71,11 @@ namespace METS_DiagnosticTool_Utilities
                                 VariablesConfigs.Add(item.variableAddress, item);
                         }
                     }
+                }
+                else
+                {
+                    // If Variables Configuration file cannot be found indicate it so UI will show only Add Variable Row
+                    _return = variableConfigNotFound;
                 }
 
                 _localDictionary = VariablesConfigs;
