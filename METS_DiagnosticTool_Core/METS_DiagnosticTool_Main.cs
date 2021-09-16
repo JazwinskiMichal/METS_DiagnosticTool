@@ -109,7 +109,7 @@ namespace METS_DiagnosticTool_Core
             }
 
             // And also Remove the whole Table from SQLite
-            SQLiteHelper.DeleteTable(variableAddress);
+            SQLiteHelper.DeleteTable(_corePath, variableAddress);
         }
 
         private void RabbitMQ_Server_PLCVariableConfigurationTriggered(object sender, string e)
