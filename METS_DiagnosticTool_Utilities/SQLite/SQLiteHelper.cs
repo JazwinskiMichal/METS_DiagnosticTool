@@ -18,29 +18,22 @@ namespace METS_DiagnosticTool_Utilities.SQLite
         /// <param name="plcVariableModel"></param>
         public static void SaveData(PLCVariableDataModel plcVariableModel)
         {
-            //try
-            //{
-                using (IDbConnection cnn = new SQLiteConnection(@"Data Source = .\METSDiagnosticTool_DB.db"))
-                {
-                    // First check does the Table Exists if not Create it
-                    // Name of the Table cannot have dots inside as PLC variable Address has, so replace those with underscore
-                    string _tableName = plcVariableModel.VariableName.ToUpper().Replace('.', '_').Replace("[", string.Empty).Replace("]", string.Empty);
-                    string _query = string.Concat(string.Concat("CREATE TABLE if not exists ", _tableName, " (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, VariableName TEXT NOT NULL, VariableValue TEXT NOT NULL, UpdateDate TEXT NOT NULL, UpdateTime TEXT NOT NULL)"));
-                    cnn.Execute(_query);
+            using (IDbConnection cnn = new SQLiteConnection(@"Data Source = .\METSDiagnosticTool_DB.db"))
+            {
+                // First check does the Table Exists if not Create it
+                // Name of the Table cannot have dots inside as PLC variable Address has, so replace those with underscore
+                string _tableName = plcVariableModel.VariableName.ToUpper().Replace('.', '_').Replace("[", string.Empty).Replace("]", string.Empty);
+                string _query = string.Concat(string.Concat("CREATE TABLE if not exists ", _tableName, " (Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE, VariableName TEXT NOT NULL, VariableValue TEXT NOT NULL, UpdateDate TEXT NOT NULL, UpdateTime TEXT NOT NULL)"));
+                cnn.Execute(_query);
 
-                    // Extra check does the Table Exists
-                    IEnumerable<PLCVariableDataModel> output = cnn.Query<PLCVariableDataModel>(string.Concat("SELECT 1 FROM sqlite_master WHERE type='table' AND name='", _tableName, "'"), new DynamicParameters());
+                // Extra check does the Table Exists
+                IEnumerable<PLCVariableDataModel> output = cnn.Query<PLCVariableDataModel>(string.Concat("SELECT 1 FROM sqlite_master WHERE type='table' AND name='", _tableName, "'"), new DynamicParameters());
 
-                    if (output.Count() > 0)
-                        // Insert into Table that is a Variable Name
-                        cnn.Execute(string.Concat("INSERT into ", _tableName, " (VariableName, VariableValue, UpdateDate, UpdateTime) " +
-                                                                                                   "values (@VariableName, @VariableValue, @UpdateDate, @UpdateTime)"), plcVariableModel);
-                }
-            //}
-            //catch (Exception ex)
-            //{
-                //Logger.Log(Logger.logLevel.Error, string.Concat("Exception when trying to save to SQLite ", ex.ToString()), Logger.logEvents.Blank);
-            //}
+                if (output.Count() > 0)
+                    // Insert into Table that is a Variable Name
+                    cnn.Execute(string.Concat("INSERT into ", _tableName, " (VariableName, VariableValue, UpdateDate, UpdateTime) " +
+                                                                                               "values (@VariableName, @VariableValue, @UpdateDate, @UpdateTime)"), plcVariableModel);
+            }
         }
 
         /// <summary>
@@ -72,6 +65,10 @@ namespace METS_DiagnosticTool_Utilities.SQLite
             }
         }
 
+        /// <summary>
+        /// Delete whole Table if exists(that is a Variable Address))
+        /// </summary>
+        /// <param name="plcVariableAddress"></param>
         public static void DeleteTable(string plcVariableAddress)
         {
             // TESTING!
@@ -141,7 +138,7 @@ namespace METS_DiagnosticTool_Utilities.SQLite
                 for (int i = 0; i < record.FieldCount; ++i)
                 {
                     // TO DO GET ALL THE RECORDS in correct order
-                    string chunk = Convert.ToString(record.GetValue(0));
+                    string chunk = Convert.ToString(record.GetValue(i));
 
                     if (i > 0)
                         sb.Append(',');
