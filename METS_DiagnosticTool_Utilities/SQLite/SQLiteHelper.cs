@@ -12,6 +12,8 @@ namespace METS_DiagnosticTool_Utilities.SQLite
 {
     public class SQLiteHelper
     {
+        private const string SQLiteConnectionString = @"Data Source = .\METSDiagnosticTool_DB.db; journal mode = WAL; synchronous = normal; temp_store = memory; mmap_size = 30000000000";
+
         #region Public Methods
         /// <summary>
         /// Check does Table (that is a Variable Address) exists, if not create it and Insert into PLC Variable Values and Timestamps
@@ -19,7 +21,7 @@ namespace METS_DiagnosticTool_Utilities.SQLite
         /// <param name="plcVariableModel"></param>
         public static void SaveData(PLCVariableDataModel plcVariableModel)
         {
-            using (IDbConnection cnn = new SQLiteConnection(@"Data Source = .\METSDiagnosticTool_DB.db"))
+            using (IDbConnection cnn = new SQLiteConnection(SQLiteConnectionString))
             {
                 // First check does the Table Exists if not Create it
                 // Name of the Table cannot have dots inside as PLC variable Address has, so replace those with underscore
@@ -44,7 +46,7 @@ namespace METS_DiagnosticTool_Utilities.SQLite
         /// <returns></returns>
         public static PLCVariableDataModel GetLastRow(string plcVariableAddress)
         {
-            using (IDbConnection cnn = new SQLiteConnection(@"Data Source = .\METSDiagnosticTool_DB.db"))
+            using (IDbConnection cnn = new SQLiteConnection(SQLiteConnectionString))
             {
                 // Name of the Table cannot have dots inside as PLC variable Address has, so replace those with underscore
                 string _tableName = plcVariableAddress.ToUpper().Replace('.', '_').Replace("[", string.Empty).Replace("]", string.Empty);
@@ -77,9 +79,10 @@ namespace METS_DiagnosticTool_Utilities.SQLite
 
             // Dump Table to CSV Before Deleting
             Utility.CheckDirCreate(string.Concat(Path.GetDirectoryName(corePath), @"\CSVData\"));
+
             DumpTableToCSV(string.Concat(Path.GetDirectoryName(corePath), @"\CSVData\", _tableName, ".csv"), _tableName);
 
-            using (IDbConnection cnn = new SQLiteConnection(@"Data Source = .\METSDiagnosticTool_DB.db"))
+            using (IDbConnection cnn = new SQLiteConnection(SQLiteConnectionString))
             {
                 // First check does the Table Exists if not Create it
                 // Name of the Table cannot have dots inside as PLC variable Address has, so replace those with underscore
@@ -118,7 +121,7 @@ namespace METS_DiagnosticTool_Utilities.SQLite
         #region Private Methods
         private static IEnumerable<IDataRecord> SourceData(string sql, string tableName)
         {
-            using (IDbConnection cnn = new SQLiteConnection(@"Data Source = .\METSDiagnosticTool_DB.db"))
+            using (IDbConnection cnn = new SQLiteConnection(SQLiteConnectionString))
             {
                 cnn.Open();
 
