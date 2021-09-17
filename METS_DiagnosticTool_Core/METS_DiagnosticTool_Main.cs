@@ -227,7 +227,12 @@ namespace METS_DiagnosticTool_Core
             dicCancellationTokens.Clear();
 
             if (twincat_InitializedOK)
+            {
+                TwincatHelper.ClearAllAdsSumRead();
+
                 TwincatHelper.Dispose();
+            }
+                
 
             Logger.Log(Logger.logLevel.Information, "METS Diagnostic Tool stopped succesfully", Logger.logEvents.StoppedSuccesfully);
 
@@ -246,6 +251,10 @@ namespace METS_DiagnosticTool_Core
                 Logger.Log(Logger.logLevel.Information, string.Concat("Logging started for PLC Variable ", variableConfig.variableAddress, " with Logging Configuration", Environment.NewLine,
                                                                         "Logging Type ", variableConfig.loggingType == LoggingType.Polling ? string.Concat("Polling with Refresh Time ", variableConfig.pollingRefreshTime.ToString(),"ms") : "On Change"),
                                                                         Logger.logEvents.LoggingStoppedForAVariable);
+
+                // First create a ADS Sum Read Handle
+                var _test = TwincatHelper.PrepareAdsSumRead(variableConfig.variableAddress);
+
                 while (true)
                 {
                     cancelToken.ThrowIfCancellationRequested();
@@ -256,7 +265,9 @@ namespace METS_DiagnosticTool_Core
                         case LoggingType.Polling:
                             if (!cancelToken.IsCancellationRequested)
                             {
-                                _value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress).ToString();
+                                //_value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress).ToString();
+
+                                _value = TwincatHelper.PLCAdsSumReadPLCValues(_test);
 
                                 // And do the logging to the SQLite
                                 if (!string.IsNullOrEmpty(_value))
@@ -270,7 +281,9 @@ namespace METS_DiagnosticTool_Core
                         case LoggingType.OnChange:
                             if (!cancelToken.IsCancellationRequested)
                             {
-                                _value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress).ToString();
+                                //_value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress).ToString();
+
+                                _value = TwincatHelper.PLCAdsSumReadPLCValues(_test);
 
                                 PLCVariableDataModel _lastValueModel = SQLiteHelper.GetLastRow(variableConfig.variableAddress);
 

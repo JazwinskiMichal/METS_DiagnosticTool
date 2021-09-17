@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TwinCAT.Ads;
+using TwinCAT.Ads.SumCommand;
 using TwinCAT.PlcOpen;
 
 namespace METS_DiagnosticTool_Utilities
@@ -14,6 +15,8 @@ namespace METS_DiagnosticTool_Utilities
         private static AdsSession tcClientSession;
         private static AdsConnection tcClient;
         private static AmsAddress tcAmsAddress;
+
+        private static Dictionary<string, uint[]> _dicGlobalHandles = new Dictionary<string, uint[]>();
 
         public static string VariableDatatype = string.Empty;
 
@@ -298,6 +301,114 @@ namespace METS_DiagnosticTool_Utilities
             return _return;
         }
 
+        public static ADSSumReadHelper PrepareAdsSumRead(string i_sTagName)
+        {
+            List<string> instancePaths = new List<string> { i_sTagName };
+
+            SumCreateHandles createHandlesCommand = new SumCreateHandles(tcClient, instancePaths);
+            uint[] handles = createHandlesCommand.CreateHandles();
+            
+            //Collect created handles to global list of handles to Release them at the end of Application life
+            if (!_dicGlobalHandles.ContainsKey(i_sTagName))
+                _dicGlobalHandles.Add(i_sTagName, handles);
+            else
+                _dicGlobalHandles[i_sTagName] = handles;
+
+            List<Type> valueTypes = new List<Type>();
+
+            //Foreach Symbol it's type has to be specified
+            ITcAdsSymbol5 symbol = (ITcAdsSymbol5)tcClient.ReadSymbolInfo(i_sTagName);
+
+            if (symbol.DataType.ManagedType.Name == "TIME")
+                valueTypes.Add(typeof(TIME));
+            else if (symbol.DataType.ManagedType.Name == "TOD")
+                valueTypes.Add(typeof(TOD));
+            else if (symbol.DataType.ManagedType.Name == "DATE")
+                valueTypes.Add(typeof(DATE));
+            else if (symbol.DataType.ManagedType.Name == "DT")
+                valueTypes.Add(typeof(DT));
+            else
+                valueTypes.Add(Type.GetType(symbol.DataType.ManagedType.FullName));
+
+            SumHandleRead readCommand_SumHandle = new SumHandleRead(tcClient, handles, valueTypes.ToArray());
+
+            ADSSumReadHelper _return = new ADSSumReadHelper { SymbolPath = i_sTagName, SymbolCommand = readCommand_SumHandle, SymbolDataType = symbol.DataType };
+            return _return;
+        }
+
+        public static void ClearAllAdsSumRead()
+        {
+            foreach (uint[] _handle in _dicGlobalHandles.Values)
+            {
+                SumReleaseHandles releaseCommand = new SumReleaseHandles(tcClient, _handle);
+                releaseCommand.ReleaseHandles();
+            }
+
+            _dicGlobalHandles.Clear();
+        }
+
+        public static void RemoveAdsSumRead(string i_sTagName)
+        {
+            if (_dicGlobalHandles.ContainsKey(i_sTagName))
+            {
+                SumReleaseHandles releaseCommand = new SumReleaseHandles(tcClient, _dicGlobalHandles[i_sTagName]);
+                releaseCommand.ReleaseHandles();
+
+                _dicGlobalHandles.Remove(i_sTagName);
+            }
+        }
+
+        public static string PLCAdsSumReadPLCValues(ADSSumReadHelper adsSumReadHelper)
+        {
+            adsSumReadHelper.SymbolCommand.TryRead(out object[] values, out AdsErrorCode[] _errorCodes);
+
+            //Get all error Codes that are indicating error
+            var _foundErros = _errorCodes.Select((item, index) => new
+            {
+                ErrorCode = item,
+                Index = index
+            }).Where(i => i.ErrorCode != AdsErrorCode.NoError);
+
+            foreach (var _foundError in _foundErros)
+            {
+                //Found Error
+                Logger.Log(Logger.logLevel.Error, string.Concat("Error ", _foundError.ErrorCode.ToString(), " when trying to read Symbol ", adsSumReadHelper.SymbolPath[_foundError.Index],
+                    "; Ads Error code ", (uint)_foundError.ErrorCode), Logger.logEvents.Blank);
+            }
+
+            string _key = adsSumReadHelper.SymbolPath;
+            if (!string.IsNullOrEmpty(_key))
+            {
+                if (_key.Substring(0, 1).Contains("."))
+                    _key = _key.Substring(1, _key.Length - 1);
+
+                if (adsSumReadHelper.SymbolDataType.Name == "DATE")
+                {
+                    bool _dateParsed = DATE.TryParse(values[0].ToString(), out DATE _date);
+                    return _date.Date.Date.ToString("dd.MM.yyyy");
+                }
+                else if (adsSumReadHelper.SymbolDataType.Name == "TIME")
+                {
+                    bool _timeParsed = TIME.TryParse(values[0].ToString(), out TIME _time);
+                    return _time.Time.ToString("HH:mm:ss.fff");
+                }
+                else if (adsSumReadHelper.SymbolDataType.Name == "DATE_AND_TIME")
+                {
+                    bool _dtParsed = DT.TryParse(values[0].ToString(), out DT _dt);
+                    return _dt.Date.ToString("dd.MM.yyyy HH:mm:ss.fff");
+                }
+                else if (adsSumReadHelper.SymbolDataType.Name == "TIME_OF_DAY")
+                {
+                    bool _todParsed = TOD.TryParse(values[0].ToString(), out TOD _dt);
+                    return _dt.Time.ToString();
+                }
+                else
+                    return values[0].ToString();
+            }
+            else
+                return "string.Empty";
+        }
+
         public static string ReadPLCValues(string i_sTagName)
         {
             string _return = string.Empty;
@@ -473,5 +584,12 @@ namespace METS_DiagnosticTool_Utilities
                 }
             }
         }
+    }
+
+    public class ADSSumReadHelper
+    {
+        public string SymbolPath { get; set; }
+        public dynamic SymbolCommand { get; set; }
+        public ITcAdsDataType SymbolDataType { get; set; }
     }
 }
