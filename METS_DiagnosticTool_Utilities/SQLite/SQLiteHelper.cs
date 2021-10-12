@@ -16,7 +16,7 @@ namespace METS_DiagnosticTool_Utilities.SQLite
 
         #region Public Methods
         /// <summary>
-        /// Check does Table (that is a Variable Address) exists, if not create it and Insert into PLC Variable Values and Timestamps
+        /// Check does Table (that is a Variable Address) exists, if not create it and Insert into PLC Variable Values and Timestampss
         /// </summary>
         /// <param name="plcVariableModel"></param>
         public static void SaveData(PLCVariableDataModel plcVariableModel)
