@@ -35,6 +35,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AdsClient">
+      <HintPath>..\..\..\..\Downloads\adsclient-master\bin\Release\AdsClient.dll</HintPath>
+    </Reference>
+    <Reference Include="AdsClient.Winsock">
+      <HintPath>..\..\..\..\Downloads\adsclient-master\bin\Release\AdsClient.Winsock.dll</HintPath>
+    </Reference>
     <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.2.0.90\lib\net461\Dapper.dll</HintPath>
     </Reference>

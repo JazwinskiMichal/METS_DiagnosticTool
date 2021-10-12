@@ -1,7 +1,11 @@
-﻿using METS_DiagnosticTool_Utilities;
+﻿using Ads.Client.Common;
+using Ads.Client.Winsock;
+using METS_DiagnosticTool_Utilities;
 using METS_DiagnosticTool_Utilities.SQLite;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,12 +18,22 @@ namespace METS_DiagnosticTool_Core
     class METS_DiagnosticTool_Main : ServiceControl
     {
         #region Private Fields
-        // Threads
-        private Thread LoggingThread;
-        // Threads Cancellation Tokens
-        private CancellationTokenSource loggingThread_Work_CancellationToken;
+        #region Threads
+        // Logging Thread
+        private static Thread LoggingThread;
+        private static CancellationTokenSource loggingThread_Work_CancellationToken;
 
-        Dictionary<string, CancellationTokenSource> dicCancellationTokens = new Dictionary<string, CancellationTokenSource>();
+        // Ads Client Thread
+        private static Thread AdsClientThread;
+        private static CancellationTokenSource adsClientThread_Work_CancellationToken;
+        private static ObservableCollection<VariableConfig> plcVariablesToBeRead = new ObservableCollection<VariableConfig>();
+
+        // Dictionary of Canecalltion Tokens
+        private static Dictionary<string, CancellationTokenSource> dicCancellationTokens = new Dictionary<string, CancellationTokenSource>();
+        #endregion
+
+        // Notification Handles
+        private static Dictionary<string, uint> dicNotificationHandles = new Dictionary<string, uint>();
 
         // Local Input Parameters
         private static string _uiFullPath;
@@ -29,6 +43,7 @@ namespace METS_DiagnosticTool_Core
 
         private static RpcServer rabbitMQ_Server = null;
         private static bool twincat_InitializedOK = false;
+        private static bool twincatADS_InitializedOK = false;
         #endregion
 
         #region Constructor
@@ -61,6 +76,23 @@ namespace METS_DiagnosticTool_Core
                 // Attach Event that PLC Variable has been Deleted
                 rabbitMQ_Server.PLCVariableDeleted += RabbitMQ_Server_PLCVariableDeleted;
 
+                // Initialize ADS Client Thread (separate Thread that ADS Client lives on)
+                try
+                {
+                    adsClientThread_Work_CancellationToken = new CancellationTokenSource();
+                    AdsClientThread = new Thread(() => ADSClientThread_Work(adsClientThread_Work_CancellationToken.Token))
+                    {
+                        Priority = ThreadPriority.Normal
+                    };
+                    AdsClientThread.Start();
+
+                    twincatADS_InitializedOK = true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(Logger.logLevel.Error, string.Concat("Starting ADS Client Thread exception ", ex.ToString()), Logger.logEvents.Blank);
+                }
+                
                 // Initialuize Twincat
                 twincat_InitializedOK = TwincatHelper.TwincatInitialization(_amsAddress, _amsPort);
 
@@ -75,6 +107,52 @@ namespace METS_DiagnosticTool_Core
             return true;
         }
 
+        public bool Stop(HostControl hostControl)
+        {
+            if (rabbitMQ_Server != null)
+            {
+                rabbitMQ_Server.PLCVariableConfigurationTriggered -= RabbitMQ_Server_PLCVariableConfigurationTriggered;
+                rabbitMQ_Server.PLCVariableDeleted -= RabbitMQ_Server_PLCVariableDeleted;
+                RabbitMQHelper.CloseServerConnection();
+            }
+
+            // Dispose Logging
+            foreach (CancellationTokenSource cts in dicCancellationTokens.Values)
+            {
+                if (cts != null)
+                {
+                    // Cancel the Token
+                    cts.Cancel(true);
+                    cts.Token.WaitHandle.WaitOne();
+                    cts.Dispose();
+                }
+            }
+
+            // And Clear the Dictionary of cancellation tokens
+            dicCancellationTokens.Clear();
+
+            // And Clear the Dictionary of Notification Handles
+            dicNotificationHandles.Clear();
+
+            // And Stop ADS Client Thread
+            if (adsClientThread_Work_CancellationToken != null)
+            {
+                // Cancel the Token
+                adsClientThread_Work_CancellationToken.Cancel(true);
+                adsClientThread_Work_CancellationToken.Token.WaitHandle.WaitOne();
+                adsClientThread_Work_CancellationToken.Dispose();
+            }
+
+            if (twincat_InitializedOK)
+                TwincatHelper.Dispose();
+
+            Logger.Log(Logger.logLevel.Information, "METS Diagnostic Tool stopped succesfully", Logger.logEvents.StoppedSuccesfully);
+
+            return true;
+        }
+        #endregion
+
+        #region RabbitMQ_Events
         private void RabbitMQ_Server_PLCVariableDeleted(object sender, string e)
         {
             // Get from the Message just PLC variable Name
@@ -148,8 +226,6 @@ namespace METS_DiagnosticTool_Core
                 // Start Logging Thread if Recording is active
                 if (variableConfig.recording)
                 {
-                    //Logger.Log(Logger.logLevel.Warning, string.Concat("Received Trigger TRUE, trying to start Logging PLC Variable ", variableConfig.variableAddress), Logger.logEvents.Blank);
-
                     loggingThread_Work_CancellationToken = new CancellationTokenSource();
                     LoggingThread = new Thread(() => LogginThread_Work(loggingThread_Work_CancellationToken.Token, variableConfig))
                     {
@@ -163,12 +239,10 @@ namespace METS_DiagnosticTool_Core
                 }
                 else
                 {
-                    //Logger.Log(Logger.logLevel.Warning, string.Concat("Received Trigger FALSE, trying to stop Logging PLC Variable ", variableConfig.variableAddress), Logger.logEvents.Blank);
-
                     // Stop Logging Thread
-                    if(dicCancellationTokens.ContainsKey(variableConfig.variableAddress))
+                    if (dicCancellationTokens.ContainsKey(variableConfig.variableAddress))
                     {
-                        if(dicCancellationTokens[variableConfig.variableAddress] != null)
+                        if (dicCancellationTokens[variableConfig.variableAddress] != null)
                         {
                             // Cancel the Token
                             dicCancellationTokens[variableConfig.variableAddress].Cancel(true);
@@ -183,8 +257,6 @@ namespace METS_DiagnosticTool_Core
             }
             else
             {
-                //Logger.Log(Logger.logLevel.Warning, string.Concat("Received Trigger FALSE, trying to stop Logging PLC Variable ", variableConfig.variableAddress), Logger.logEvents.Blank);
-
                 // Stop Logging Thread
                 if (dicCancellationTokens.ContainsKey(variableConfig.variableAddress))
                 {
@@ -201,134 +273,127 @@ namespace METS_DiagnosticTool_Core
                 }
             }
         }
+        #endregion
 
-        public bool Stop(HostControl hostControl)
+        #region ADS Client Thread
+        private static void ADSClientThread_Work(CancellationToken cancelToken, string plcAMSNetID = "192.168.1.1.1.1", string plcIp = "192.168.1.12", ushort plcAMSPort = 851, string localAMSNetID = "192.168.1.65.2.1")
         {
-            if (rabbitMQ_Server != null)
+            using (AdsClient client = new AdsClient(
+                     amsNetIdSource: localAMSNetID,
+                     ipTarget: plcIp,
+                     amsNetIdTarget: plcAMSNetID,
+                     amsPortTarget: plcAMSPort))
             {
-                rabbitMQ_Server.PLCVariableConfigurationTriggered -= RabbitMQ_Server_PLCVariableConfigurationTriggered;
-                rabbitMQ_Server.PLCVariableDeleted -= RabbitMQ_Server_PLCVariableDeleted;
-                RabbitMQHelper.CloseServerConnection();
-            }
+                // Attach Notification Event
+                client.OnNotification += Client_OnNotification;
 
-            // Dispose Logging
-            foreach (CancellationTokenSource cts in dicCancellationTokens.Values)
-            {
-                if (cts != null)
+                // Attach Notification to Observable Collection of PLC Variables to be Read
+                plcVariablesToBeRead.CollectionChanged += (sender, e) => {
+                   
+                    if (e.Action == NotifyCollectionChangedAction.Add)
+                    {
+                        if (e.NewItems != null)
+                        {
+                            if (e.NewItems.Count > 0)
+                            {
+                                VariableConfig _givenVariableConfig = (VariableConfig)e.NewItems[0];
+                                if (!dicNotificationHandles.ContainsKey(_givenVariableConfig.variableAddress))
+                                {
+                                    // Check logging Type
+                                    switch (_givenVariableConfig.loggingType)
+                                    {
+                                        case LoggingType.Polling:
+                                            dicNotificationHandles.Add(_givenVariableConfig.variableAddress, client.AddNotification<byte>(client.GetSymhandleByName(_givenVariableConfig.variableAddress), AdsTransmissionMode.Cyclic, (uint)_givenVariableConfig.pollingRefreshTime, _givenVariableConfig.variableAddress));
+                                            Logger.Log(Logger.logLevel.Information, string.Concat("Added Notification info for PLC Variable Address ", _givenVariableConfig.variableAddress), Logger.logEvents.Blank);
+                                            break;
+                                        case LoggingType.OnChange:
+                                            dicNotificationHandles.Add(_givenVariableConfig.variableAddress, client.AddNotification<byte>(client.GetSymhandleByName(_givenVariableConfig.variableAddress), AdsTransmissionMode.OnChange, 1, _givenVariableConfig.variableAddress));
+                                            Logger.Log(Logger.logLevel.Information, string.Concat("Added Notification info for PLC Variable Address ", _givenVariableConfig.variableAddress), Logger.logEvents.Blank);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else if (e.Action == NotifyCollectionChangedAction.Remove)
+                    {
+                        if (e.OldItems != null)
+                        {
+                            if (e.OldItems.Count > 0)
+                            {
+                                VariableConfig _givenVariableConfig = (VariableConfig)e.OldItems[0];
+                                if (dicNotificationHandles.ContainsKey(_givenVariableConfig.variableAddress))
+                                {
+                                    // Remove the ADS Notification and from the Dictionary of Notification
+                                    client.DeleteNotification(dicNotificationHandles[_givenVariableConfig.variableAddress]);
+
+                                    dicNotificationHandles.Remove(_givenVariableConfig.variableAddress);
+                                }
+                            }
+                        }
+                    }
+                };
+
+                try
                 {
-                    // Cancel the Token
-                    cts.Cancel(true);
-                    cts.Token.WaitHandle.WaitOne();
-                    cts.Dispose();
+                    while (true)
+                    {
+                        cancelToken.ThrowIfCancellationRequested();
+
+                        // This loop is just to keep ADS Client Alive
+                        // Do nothing, maybe sleep? But would it affect the Ads NOtifications?
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    // Detach Ads Notification Event
+                    client.OnNotification -= Client_OnNotification;
+
+                    // Delete Active Ads Notifications
+                    client.DeleteActiveNotifications();
+
+                    Logger.Log(Logger.logLevel.Information, "ADS Client Thread Stopped", Logger.logEvents.Blank);
                 }
             }
+        }
 
-            // And Clear the Dictionary
-            dicCancellationTokens.Clear();
-
-            if (twincat_InitializedOK)
-            {
-                TwincatHelper.ClearAllAdsSumRead();
-
-                TwincatHelper.Dispose();
-            }
-                
-
-            Logger.Log(Logger.logLevel.Information, "METS Diagnostic Tool stopped succesfully", Logger.logEvents.StoppedSuccesfully);
-
-            return true;
+        private static void Client_OnNotification(object sender, AdsNotificationArgs e)
+        {
+            SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = e.Notification.UserData.ToString(), VariableValue = e.Notification.Value.ToString().ToLower(), UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
         }
         #endregion
 
         #region LoggingThread
         private static void LogginThread_Work(CancellationToken cancelToken, VariableConfig variableConfig)
         {
+            // Here just add a Variable to Observable Collection to indicate to ADS Client Thread that you want this particular Variable to be read
             try
             {
-                bool bLock = false;
-                string _value = string.Empty;
-
-                Logger.Log(Logger.logLevel.Information, string.Concat("Logging started for PLC Variable ", variableConfig.variableAddress, " with Logging Configuration", Environment.NewLine,
-                                                                        "Logging Type ", variableConfig.loggingType == LoggingType.Polling ? string.Concat("Polling with Refresh Time ", variableConfig.pollingRefreshTime.ToString(),"ms") : "On Change"),
-                                                                        Logger.logEvents.LoggingStoppedForAVariable);
-
-                // First create a ADS Sum Read Handle
-                var _test = TwincatHelper.PrepareAdsSumRead(variableConfig.variableAddress);
-
                 while (true)
                 {
                     cancelToken.ThrowIfCancellationRequested();
 
-                    // Here Read the PLC Value of the given Variable
-                    switch (variableConfig.loggingType)
+                    // Check does the Observable plcVariablesCollection not cointain given Variable Address
+                    if (!plcVariablesToBeRead.Contains(variableConfig))
                     {
-                        case LoggingType.Polling:
-                            if (!cancelToken.IsCancellationRequested)
-                            {
-                                //_value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress).ToString();
-
-                                _value = TwincatHelper.PLCAdsSumReadPLCValues(_test);
-
-                                // And do the logging to the SQLite
-                                if (!string.IsNullOrEmpty(_value))
-                                    SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
-
-                                Task.Delay(variableConfig.pollingRefreshTime).Wait();
-                            }
-
-                            break;
-
-                        case LoggingType.OnChange:
-                            if (!cancelToken.IsCancellationRequested)
-                            {
-                                //_value = TwincatHelper.ReadPLCValues(variableConfig.variableAddress).ToString();
-
-                                _value = TwincatHelper.PLCAdsSumReadPLCValues(_test);
-
-                                PLCVariableDataModel _lastValueModel = SQLiteHelper.GetLastRow(variableConfig.variableAddress);
-
-                                if (_lastValueModel != null)
-                                {
-                                    string _lastValue = _lastValueModel.VariableValue;
-
-                                    if (_value != _lastValue && !string.IsNullOrEmpty(_value) && !string.IsNullOrEmpty(_lastValue))
-                                    {
-                                        if (!string.IsNullOrEmpty(_value))
-                                        {
-                                            SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
-                                            bLock = false;
-                                        }
-                                    }
-                                    else if (string.IsNullOrEmpty(_value) || string.IsNullOrEmpty(_lastValue))
-                                    {
-                                        // If String empty insert it only once
-                                        if (!bLock)
-                                        {
-                                            if (!string.IsNullOrEmpty(_value))
-                                            {
-                                                SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
-                                                bLock = true;
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if (!string.IsNullOrEmpty(_value))
-                                        SQLiteHelper.SaveData(new PLCVariableDataModel { VariableName = variableConfig.variableAddress, VariableValue = _value, UpdateDate = DateTime.Now.ToString("dd.MM.yyyy"), UpdateTime = DateTime.Now.ToString("HH:mm:ss.fff") });
-                                }
-                            }
-                                
-                            break;
-
-                        default:
-                            break;
+                        Logger.Log(Logger.logLevel.Warning, string.Concat("Trying to add to Observable Collection ", variableConfig.variableAddress), Logger.logEvents.Blank);
+                        plcVariablesToBeRead.Add(variableConfig);
                     }
+                        
                 }
             }
             catch (OperationCanceledException)
             {
-                Logger.Log(Logger.logLevel.Information, string.Concat("Logging stopped for PLC Variable ", variableConfig.variableAddress) , Logger.logEvents.LoggingStoppedForAVariable);
+                if (plcVariablesToBeRead.Contains(variableConfig))
+                {
+                    Logger.Log(Logger.logLevel.Warning, string.Concat("Trying to remove from Observable Collection ", variableConfig.variableAddress), Logger.logEvents.Blank);
+                    plcVariablesToBeRead.Remove(variableConfig);
+                }
+                    
+
+                Logger.Log(Logger.logLevel.Information, string.Concat("Logging stopped for PLC Variable ", variableConfig.variableAddress), Logger.logEvents.LoggingStoppedForAVariable);
             }
         }
         #endregion
